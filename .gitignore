@@ -36,3 +36,6 @@ vite.config.ts.timestamp-*
 
 # Working files from catalogue passes (audit outputs are copied to docs/audits)
 /scratch
+
+# Playwright MCP session artefacts
+.playwright-mcp

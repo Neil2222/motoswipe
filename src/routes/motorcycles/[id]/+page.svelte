@@ -125,9 +125,14 @@
 		photographs are overwhelmingly landscape, and a tall frame made a wide
 		picture smaller, not bigger.
 	-->
-	<div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+	<!-- `minmax(0, …)` on every column: a grid track's automatic minimum is
+	     its content's min-content width, and the thumbnail strip would push
+	     the whole page wider than a phone. -->
+	<div
+		class="mt-6 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]"
+	>
 		<!-- ============ Gallery ============ -->
-		<div>
+		<div class="min-w-0">
 			<button
 				type="button"
 				class="panel bg-ink group relative block w-full cursor-zoom-in overflow-hidden"

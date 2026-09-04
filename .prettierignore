@@ -13,3 +13,4 @@ prisma/migrations
 scratch/
 # Generated audit outputs (JSON.stringify, 2-space); see docs/audits
 docs/audits/*.json
+.playwright-mcp

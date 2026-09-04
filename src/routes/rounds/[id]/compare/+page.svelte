@@ -223,7 +223,16 @@
 									{chosen && chosen !== bike.id ? 'scale-97 opacity-40' : ''}"
 								in:fly={{ y: 16, duration: 260, delay: index * 60 }}
 							>
-								<div class="bg-ink relative min-h-0 w-full flex-1 overflow-hidden">
+								<!-- The photograph itself takes the vote on click, so that a pinch
+								     on it reaches the photograph; an overlay button would sit in
+								     the way of the fingers. Keyboard users vote through the spec
+								     strip button below, which is why no key handler lives here. -->
+								<!-- svelte-ignore a11y_click_events_have_key_events -->
+								<!-- svelte-ignore a11y_no_static_element_interactions -->
+								<div
+									class="bg-ink relative min-h-0 w-full flex-1 cursor-pointer overflow-hidden"
+									onclick={() => !submitting && vote(bike.id)}
+								>
 									<BikePhoto
 										url={bike.images[gallery[bike.id] ?? 0]?.url}
 										alt="{bike.manufacturer.name} {bike.model}"
@@ -233,14 +242,6 @@
 									<div
 										class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-black/30"
 									></div>
-
-									<button
-										type="button"
-										class="absolute inset-0 cursor-pointer disabled:cursor-wait"
-										onclick={() => vote(bike.id)}
-										disabled={submitting}
-										aria-label="Pick the {bike.manufacturer.name} {bike.model}"
-									></button>
 
 									<GalleryControls
 										count={bike.images.length}
@@ -274,6 +275,7 @@
 									class="flex w-full flex-col text-left disabled:cursor-wait"
 									onclick={() => vote(bike.id)}
 									disabled={submitting}
+									aria-label="Pick the {bike.manufacturer.name} {bike.model}"
 								>
 									<!-- A minimal spec strip. Enough to break a tie, not enough to
 									     turn this back into a spec-sheet comparison. -->
