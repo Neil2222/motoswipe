@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
+	import BikePhoto from '$lib/components/BikePhoto.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import FitBadge from '$lib/components/FitBadge.svelte';
 	import { toasts } from '$lib/stores/toast.svelte';
@@ -151,20 +152,18 @@
 				<article class="panel overflow-hidden">
 					<a href="/motorcycles/{bike.id}" class="block">
 						<div class="bg-ink relative aspect-4/5 overflow-hidden">
-							{#if bike.images[0]}
-								<img
-									src={bike.images[0].url}
-									alt="{bike.manufacturer.name} {bike.model}"
-									class="h-full w-full object-cover"
-									loading="lazy"
-									decoding="async"
-								/>
-							{/if}
-							<div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
+							<BikePhoto
+								url={bike.images[0]?.url}
+								alt="{bike.manufacturer.name} {bike.model}"
+								class="absolute inset-0"
+							/>
+							<div
+								class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"
+							></div>
 
 							{#if entry.decision === 'SUPERLIKE'}
 								<span
-									class="border-superlike/60 text-superlike absolute top-3 right-3 rounded-full border bg-black/60 px-2.5 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-sm"
+									class="border-superlike/60 text-superlike absolute top-3 right-3 rounded-full border bg-black/60 px-2.5 py-1 text-[10px] font-bold tracking-widest uppercase"
 								>
 									Superlike
 								</span>

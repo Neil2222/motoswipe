@@ -129,7 +129,7 @@
 
 <!-- Mobile stacks the two cards and may scroll; from `sm` up the arena is
      pinned to the viewport so both cards are visible without scrolling. -->
-<div class="flex min-h-dvh flex-col sm:h-dvh sm:min-h-0 sm:overflow-hidden">
+<div class="pb-safe-nav flex min-h-dvh flex-col sm:h-dvh sm:min-h-0 sm:overflow-hidden">
 	<!-- Header -->
 	<header class="pt-safe shrink-0 px-4 pt-4">
 		<div class="mx-auto max-w-5xl">

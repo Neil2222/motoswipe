@@ -398,6 +398,18 @@
 	.pt-safe {
 		padding-top: env(safe-area-inset-top, 0px);
 	}
+	/* Bottom padding for a bar of controls: the safe-area inset, but never
+	   less than 1rem, and more when installed to a home screen — there the
+	   page runs edge to edge under Android's gesture bar, which the inset does
+	   not always report. */
+	.pb-safe-nav {
+		padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
+	}
+	@media (display-mode: standalone) {
+		.pb-safe-nav {
+			padding-bottom: max(env(safe-area-inset-bottom, 0px), 2rem);
+		}
+	}
 
 	/* Applied to the card stack while dragging. */
 	.no-touch-pan {

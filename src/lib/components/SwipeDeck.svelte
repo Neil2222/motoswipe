@@ -76,6 +76,35 @@
 	const TAP_DISTANCE = 8;
 	const TAP_TIME = 350;
 
+	/**
+	 * Pinch to zoom.
+	 *
+	 * The first thing a thumb does with a photograph on a phone is spread to
+	 * look closer, and on a swipe deck that used to throw the card sideways.
+	 * A second finger now cancels whatever drag was in progress and zooms the
+	 * photograph instead — a peek, not a mode: lifting the fingers springs it
+	 * back, and the finger left behind is ignored until it lifts too, so the
+	 * end of a pinch can never register as a swipe.
+	 */
+	const MAX_ZOOM = 4;
+	// Plain bookkeeping of touch points, read only inside event handlers;
+	// nothing renders from it, so it must not be reactive state.
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity
+	const pointers = new Map<number, { x: number; y: number }>();
+	let zoom = $state<{ scale: number; x: number; y: number; ox: number; oy: number } | null>(null);
+	let pinchStart: { dist: number; mx: number; my: number } | null = null;
+	/** After a pinch, the remaining finger must not start a swipe. */
+	let pinchTail = false;
+
+	function pinchGeometry() {
+		const [a, b] = [...pointers.values()];
+		return {
+			dist: Math.hypot(b.x - a.x, b.y - a.y),
+			mx: (a.x + b.x) / 2,
+			my: (a.y + b.y) / 2
+		};
+	}
+
 	// Stamp opacities. Clamped, and zeroed on the locked-out axis so only one
 	// stamp is ever visible.
 	const commitDistance = $derived(Math.max(width * COMMIT_RATIO, 60));
@@ -117,6 +146,22 @@
 	function onpointerdown(event: PointerEvent) {
 		if (busy || flying || !top) return;
 		if (event.button !== 0) return;
+
+		pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+		if (pointers.size === 2) {
+			// Second finger: the drag, if any, is abandoned and the pinch begins.
+			(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+			dragging = false;
+			pointerId = null;
+			reset();
+			const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+			const start = pinchGeometry();
+			pinchStart = start;
+			zoom = { scale: 1, x: 0, y: 0, ox: start.mx - rect.left, oy: start.my - rect.top };
+			return;
+		}
+		if (pointers.size > 2 || pinchTail) return;
+
 		// Let the info button receive its own click.
 		if ((event.target as HTMLElement).closest('button')) return;
 
@@ -133,6 +178,19 @@
 	}
 
 	function onpointermove(event: PointerEvent) {
+		if (pointers.has(event.pointerId)) {
+			pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+		}
+		if (pinchStart && zoom && pointers.size >= 2) {
+			const now = pinchGeometry();
+			zoom = {
+				...zoom,
+				scale: Math.min(MAX_ZOOM, Math.max(1, now.dist / Math.max(pinchStart.dist, 1))),
+				x: now.mx - pinchStart.mx,
+				y: now.my - pinchStart.my
+			};
+			return;
+		}
 		if (!dragging || event.pointerId !== pointerId) return;
 
 		const rawDx = event.clientX - startX;
@@ -156,6 +214,21 @@
 	}
 
 	function onpointerup(event: PointerEvent) {
+		pointers.delete(event.pointerId);
+
+		if (pinchStart) {
+			// First finger up ends the pinch; the photograph springs back and
+			// the other finger is inert until it lifts.
+			pinchStart = null;
+			zoom = null;
+			pinchTail = pointers.size > 0;
+			return;
+		}
+		if (pinchTail) {
+			if (pointers.size === 0) pinchTail = false;
+			return;
+		}
+
 		if (!dragging || event.pointerId !== pointerId) return;
 		dragging = false;
 		pointerId = null;
@@ -274,6 +347,7 @@
 				oninfo={isTop && oninfo ? () => oninfo(bike) : undefined}
 				activeImage={imageIndex[bike.id] ?? 0}
 				onstep={isTop ? stepImage : undefined}
+				zoom={isTop ? zoom : null}
 			/>
 
 			{#if isTop}

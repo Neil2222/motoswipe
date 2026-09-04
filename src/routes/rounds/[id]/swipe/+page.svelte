@@ -5,6 +5,7 @@
 	import { CATEGORY_LABELS, type MotorcycleCategory, type SwipeDecision } from '$lib/domain/enums';
 	import type { CardBikeDetail, SwipeProgress } from '$lib/domain/view-types';
 	import { money, progressWidth, unit } from '$lib/utils/format';
+	import { fitToViewport } from '$lib/utils/viewport';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -263,7 +264,7 @@
 <svelte:head><title>{data.round.name} — swiping</title></svelte:head>
 <svelte:window on:keydown={onkeydown} />
 
-<div class="flex h-dvh flex-col overflow-hidden">
+<div class="flex h-dvh flex-col overflow-hidden" use:fitToViewport>
 	<!-- ============ Header: progress and counters ============ -->
 	<header class="pt-safe shrink-0 px-4 pt-3">
 		<div class="mx-auto flex max-w-lg items-center gap-3">
@@ -367,7 +368,7 @@
 
 	<!-- ============ Action bar ============ -->
 	{#if !finished}
-		<footer class="pb-safe shrink-0 px-4 pt-1 pb-4">
+		<footer class="pb-safe-nav shrink-0 px-4 pt-1">
 			<div class="mx-auto flex max-w-lg items-center justify-center gap-3 sm:gap-4">
 				<button
 					class="border-graphite hover:border-chrome text-ash hover:text-bone flex h-11 w-11 items-center justify-center rounded-full border bg-black/40 text-lg transition-colors disabled:opacity-30"

@@ -23,9 +23,19 @@
 		activeImage?: number;
 		/** Step to another photograph; only wired on the live card. */
 		onstep?: (delta: 1 | -1) => void;
+		/** A pinch in progress: scale about (ox, oy), moved by (x, y). Null springs back. */
+		zoom?: { scale: number; x: number; y: number; ox: number; oy: number } | null;
 	}
 
-	let { bike, depth = 0, priority = false, oninfo, activeImage = 0, onstep }: Props = $props();
+	let {
+		bike,
+		depth = 0,
+		priority = false,
+		oninfo,
+		activeImage = 0,
+		onstep,
+		zoom = null
+	}: Props = $props();
 
 	const imageIndex = $derived(
 		bike.images.length
@@ -47,13 +57,22 @@
 >
 	<!-- Generated placeholders are drawn portrait and are meant to fill the card;
 	     real photographs are landscape and must not be cropped. -->
-	<BikePhoto
-		url={imageUrl}
-		alt="{bike.manufacturer.name} {bike.model}"
-		{priority}
-		fill={isPlaceholder}
+	<div
 		class="absolute inset-0"
-	/>
+		style:transform={zoom
+			? `translate3d(${zoom.x}px, ${zoom.y}px, 0) scale(${zoom.scale})`
+			: 'none'}
+		style:transform-origin={zoom ? `${zoom.ox}px ${zoom.oy}px` : undefined}
+		style:transition={zoom ? 'none' : 'transform 0.28s var(--ease-mech)'}
+	>
+		<BikePhoto
+			url={imageUrl}
+			alt="{bike.manufacturer.name} {bike.model}"
+			{priority}
+			fill={isPlaceholder}
+			class="absolute inset-0"
+		/>
+	</div>
 	<!-- Readability scrim. Two stops so the top stays dark enough for the chips
 	     without washing out the middle of the bike. -->
 	<div
