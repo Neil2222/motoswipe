@@ -223,6 +223,8 @@ export interface ImportResult {
 }
 
 export interface ImportOptions {
+	/** Only listings whose label or external id contains this text. */
+	only?: string;
 	limit?: number;
 	since?: Date;
 	/** Report what would change without writing. */

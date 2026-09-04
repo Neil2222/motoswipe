@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	pageNames,
 	parseHondaPage,
+	parseKawasakiPage,
 	parseKtmPages,
 	parseSuzukiPage,
 	parseTriumphPage,
@@ -161,5 +162,74 @@ describe('parseKtmPages', () => {
 			'og:image" content="https://x/37860_KTM_LogoPodium_orange_RGB"'
 		);
 		expect(parseKtmPages(logo, SPEC).image).toBeUndefined();
+	});
+});
+
+const KAWASAKI = `<title>Versys 650 | 2026 | Kawasaki</title>
+<img src="/content/dam/products/pim/gallery/j/Resource_322174_26KLE650H_J_44TBU1AFA2CG_C.jpg/jcr:content/renditions/cq5dam.web.1280.1280.png">
+<img src="/content/dam/products/pim/studio/j/Resource_320369_26KLE650H_J_44TBU1DRF3CG_A.jpg/jcr:content/renditions/cq5dam.web.1280.1280.png">
+<img src="/content/dam/products/pim/studio/j/Resource_320370_26KLE650H_J_44TBU1DRS3CG_A.jpg">
+<img src="/content/dam/products/pim/studio/low/Resource_317406_999942147MA_Low_Seat_Front_BLK_Z900_25ZR900S_40SGN1FOSEA3CG_A.jpg">
+<div class="price"><span>Vanaf</span><span class="amount">€9.149,00</span></div>
+<table><tr><th scope="row" class="prodspecs__h">Cilinderinhoud (cm3)</th><td>649 cm³</td></tr>
+<tr><th scope="row" class="prodspecs__h">Maximum vermogen</th><td>49,0 kW {67 PS} / 8.500 rpm</td></tr>
+<tr><th scope="row" class="prodspecs__h">Maximum koppel</th><td>61,0 N·m {6,2 kgf·m} / 7.000 rpm</td></tr>
+<tr><th scope="row" class="prodspecs__h">Wielbasis</th><td>1.415 mm</td></tr>
+<tr><th scope="row" class="prodspecs__h">Zithoogte</th><td>845 mm</td></tr>
+<tr><th scope="row" class="prodspecs__h">Rijklaargewicht*</th><td>219 kg</td></tr>
+<tr><th scope="row" class="prodspecs__h">Geschat drooggewicht**</th><td>200 kg</td></tr></table>`;
+
+describe('parseKawasakiPage', () => {
+	it('reads the model year from the title and the specification rows', () => {
+		const specs = parseKawasakiPage(KAWASAKI);
+		expect(specs.modelYear).toBe(2026);
+		expect(specs.displacementCc).toBe(649);
+		expect(specs.powerKw).toBe(49);
+		expect(specs.powerHp).toBe(67);
+		expect(specs.torqueNm).toBe(61);
+		expect(specs.wheelbaseMm).toBe(1415);
+		expect(specs.seatHeightMm).toBe(845);
+		expect(specs.wetWeightKg).toBe(219);
+		expect(specs.dryWeightKg).toBe(200);
+		expect(specs.priceEur).toBe(9149);
+	});
+
+	it('prefers the studio side view of the right model year, never an accessory shot', () => {
+		const specs = parseKawasakiPage(KAWASAKI);
+		expect(specs.image?.url).toBe(
+			'https://www.kawasaki.nl/content/dam/products/pim/studio/j/Resource_320370_26KLE650H_J_44TBU1DRS3CG_A.jpg/jcr:content/renditions/cq5dam.web.1280.1280.png'
+		);
+		expect(specs.image?.modelYear).toBe(2026);
+		expect(specs.image?.evidence).toContain('26KLE650H');
+	});
+
+	it('falls back to a gallery shot when there is no studio image', () => {
+		const html = KAWASAKI.replace(/pim\/studio\/j\/[^"]*"/g, '"');
+		const specs = parseKawasakiPage(html);
+		expect(specs.image?.url).toContain('Resource_322174_26KLE650H');
+	});
+
+	it("accepts last year's photograph on a next-year page, with its own year", () => {
+		const html = KAWASAKI.replace(/26KLE650H/g, '25KLE650H');
+		const specs = parseKawasakiPage(html);
+		expect(specs.modelYear).toBe(2026);
+		expect(specs.image?.modelYear).toBe(2025);
+		expect(specs.image?.evidence).toContain('25KLE650H');
+	});
+
+	it('takes no image two years old or from the future', () => {
+		expect(parseKawasakiPage(KAWASAKI.replace(/26KLE650H/g, '24KLE650H')).image).toBeUndefined();
+		expect(parseKawasakiPage(KAWASAKI.replace(/26KLE650H/g, '27KLE650H')).image).toBeUndefined();
+	});
+
+	it('reads a three-digit colour code', () => {
+		const html = `<title>W230 | 2026 | Kawasaki</title>
+<img src="/content/dam/products/pim/gallery/Resource_320383_26BJ230A_141GN1ARS2CG_C.jpg">`;
+		expect(parseKawasakiPage(html).image?.evidence).toContain('26BJ230A');
+	});
+
+	it('confirms the page names the model', () => {
+		expect(pageNames(KAWASAKI, 'Versys 650')).toBe(true);
+		expect(pageNames(KAWASAKI, 'Ninja 650')).toBe(false);
 	});
 });

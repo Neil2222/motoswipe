@@ -86,10 +86,13 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   `DATABASE_URL="<url>&options=-c%20synchronous_commit%3Doff"` for that command.
 - The manufacturer provider (curated URL table in
   `src/lib/server/importers/providers/manufacturer/official-pages.ts`) reads
-  Honda, Suzuki, Yamaha, Triumph and KTM NL pages. Kawasaki (client-rendered),
-  BMW (connection refused), CFMOTO (no model images) and Piaggio/Vespa
-  (bot-blocked) could not be read; don't re-probe the same URLs, look for a
-  press site or a rendered-browser approach instead.
+  Honda, Suzuki, Yamaha, Triumph, KTM and Kawasaki NL pages. Kawasaki's
+  `/nl_nl/Motorcycles/<Category>/<Model>_<Year>.html` pages are plain HTML
+  with the model year in the title and in every asset code ("26KLE650H");
+  the rows must be moved to the next model year's URL once a year. BMW
+  (photos as blob: URLs), CFMOTO (no model images) and Piaggio/Vespa
+  (bot-blocked) still could not be read. Re-import one maker with
+  `npx tsx scripts/import.ts --source manufacturer --allow-network --skip-rebuild --only kawasaki`.
 - German Wikipedia refresh:
   `WIKIPEDIA_DE_REFRESH=1 npx tsx scripts/import.ts --source wikipedia-de --allow-network --skip-rebuild`,
   optionally with `WIKIPEDIA_DE_TITLES="Kawasaki Z 400"` for named articles only.

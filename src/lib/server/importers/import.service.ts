@@ -158,10 +158,18 @@ export async function runImport(
 		durationMs: 0
 	};
 
-	const listings = await provider.listMotorcycles({
+	const all = await provider.listMotorcycles({
 		limit: options.limit,
 		since: options.since
 	});
+	// `only` narrows a run to the listings whose label or id contains the
+	// text — one maker's pages, one article — without touching the rest.
+	const only = options.only?.trim().toLowerCase();
+	const listings = only
+		? all.filter(
+				(l) => l.label.toLowerCase().includes(only) || l.externalId.toLowerCase().includes(only)
+			)
+		: all;
 
 	result.seenExternalIds = listings.map((listing) => listing.externalId);
 

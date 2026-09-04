@@ -11,6 +11,9 @@
  *    asset code ends in the model-year letter (…M5 = 2025).
  *  - **Yamaha NL** carries an official image under `/product-assets/<year>/`;
  *    the specifications are rendered client-side and are not read.
+ *  - **Kawasaki NL** names the model year in the page title and URL, tabulates
+ *    the specifications and price, and codes every product image with the
+ *    model year and type ("26KLE650H").
  *
  * Curated and not discovered: a wrong page is a wrong photograph on the wrong
  * card, and the makers' sites are not consistent enough to trust a guess.
@@ -18,7 +21,7 @@
  * a page that no longer names the model is skipped.
  */
 
-export type Maker = 'honda' | 'suzuki' | 'yamaha' | 'triumph' | 'ktm';
+export type Maker = 'honda' | 'suzuki' | 'yamaha' | 'triumph' | 'ktm' | 'kawasaki';
 
 export interface OfficialPage {
 	brand: string;
@@ -69,6 +72,18 @@ const ktm = (family: string, path: string, expect = family): OfficialPage => ({
 	maker: 'ktm',
 	url: `https://www.ktm.com/en-nl/models/${path}.html`,
 	specsUrl: `https://www.ktm.com/en-nl/models/${path}/technical-specifications.html`,
+	expect
+});
+/**
+ * Kawasaki names the model year in the page URL. The rows point at the 2026
+ * pages, the ones with complete content this September; a 2027 page exists
+ * for some models but is a preview.
+ */
+const kawasaki = (family: string, path: string, expect = family): OfficialPage => ({
+	brand: 'kawasaki',
+	family,
+	maker: 'kawasaki',
+	url: `https://www.kawasaki.nl/nl_nl/Motorcycles/${path}.html`,
 	expect
 });
 const yamaha = (family: string, path: string, expect = family): OfficialPage => ({
@@ -199,5 +214,28 @@ export const OFFICIAL_PAGES: OfficialPage[] = [
 	ktm('390 Adventure R', 'adventure/2026-ktm-390-adventurer', '390 Adventure R'),
 	ktm('390 Adventure X', 'adventure/2026-ktm-390-adventurex', '390 Adventure X'),
 	ktm('790 Adventure', 'adventure/2026-ktm-790-adventure', '790 Adventure'),
-	ktm('890 Adventure R', 'adventure/2026-ktm-890-adventurer', '890 Adventure R')
+	ktm('890 Adventure R', 'adventure/2026-ktm-890-adventurer', '890 Adventure R'),
+
+	// --- Kawasaki NL ------------------------------------------------------------
+	kawasaki('Versys 650', 'Adventure_Tourer/Versys_650_2026'),
+	kawasaki('Versys 1100', 'Adventure_Tourer/Versys_1100_2026'),
+	kawasaki('Z900', 'Supernaked/Z900_2026'),
+	kawasaki('Z650', 'Supernaked/Z650_2026'),
+	kawasaki('Z500', 'Supernaked/Z500_2026'),
+	kawasaki('Z125', 'Supernaked/Z125_2026'),
+	kawasaki('Z1100', 'Supernaked/Z1100_2027'),
+	kawasaki('Z H2', 'Supernaked/Zh2_2026'),
+	kawasaki('Ninja 650', 'Sport_Tourer/Ninja_650_2026'),
+	kawasaki('Ninja 1100SX', 'Sport_Tourer/Ninja_1100SX_2026'),
+	kawasaki('Ninja 500', 'Supersport_Sport/Ninja_500_se_2026', 'Ninja 500'),
+	kawasaki('Ninja 125', 'Supersport_Sport/Ninja_125_2026'),
+	kawasaki('Ninja ZX-6R', 'Supersport_Sport/Ninja_ZX-6R_2027'),
+	kawasaki('Ninja ZX-10R', 'Supersport_Sport/Ninja_ZX-10R_2026'),
+	kawasaki('Ninja ZX-10RR', 'Supersport_Sport/Ninja_ZX-10RR_2026', 'ZX-10RR'),
+	kawasaki('Z900RS', 'Retro_Sport/Z900RS_2026'),
+	kawasaki('Z650RS', 'Retro_Sport/Z650RS_2026'),
+	kawasaki('Vulcan S', 'Urban_Cruiser/vulcan_s_2026'),
+	kawasaki('Eliminator', 'Urban_Cruiser/eliminator_500_2026', 'Eliminator'),
+	kawasaki('KLE500', 'Adventure/KLE500_2026'),
+	kawasaki('W230', 'Classic/W230_2026')
 ];

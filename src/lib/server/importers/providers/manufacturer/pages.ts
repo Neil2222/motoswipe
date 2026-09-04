@@ -357,3 +357,106 @@ export function parseKtmPages(modelHtml: string, specHtml: string): OfficialSpec
 		image
 	};
 }
+
+// ---------------------------------------------------------------------------
+// Kawasaki NL
+// ---------------------------------------------------------------------------
+
+/**
+ * Kawasaki's model page is served complete — the earlier note that it was
+ * rendered client-side was about a URL scheme the site no longer uses. The
+ * title states the model year ("Versys 650 | 2026 | Kawasaki"), the
+ * specification table is `<th>label</th><td>value</td>` rows in Dutch, and
+ * the list price follows "Vanaf".
+ *
+ * Every product image carries Kawasaki's asset code, which starts with the
+ * model year and the type: `26KLE650H` is a 2026 KLE650H, the Versys 650.
+ * Studio views (code `D…`, `DRS` = right side) are preferred over gallery
+ * action shots (`A…`), and a side view over a three-quarter one, because a
+ * card wants the machine, not the scenery. Accessory and cover photographs
+ * carry no such code and are never chosen.
+ */
+export function parseKawasakiPage(html: string): OfficialSpecs {
+	const title = /<title>([^<]*)<\/title>/i.exec(html)?.[1] ?? '';
+	const year = /\|\s*((?:20)\d{2})\s*\|/.exec(title)?.[1];
+	const modelYear = year ? Number(year) : undefined;
+
+	// --- Image ------------------------------------------------------------------
+	// "Resource_320370_26KLE650H_J_44TBU1DRS3CG_A.jpg": model year 26, type
+	// KLE650H, then the colour code (44TBU1, or 141GN1), the view (DRS) and
+	// a suffix.
+	const ASSET =
+		/\/content\/dam\/products\/pim\/(studio|gallery)\/(?:[a-z0-9-]+\/)?Resource_\d+_(\d{2})([A-Z]{2,3}\d{3,4}[A-Z]?)(?:_[A-Z0-9]+)*?_\d{2,3}[A-Z]{2,3}\d([A-Z]{2,4})\d[A-Z]{2}_[A-Z]\.(?:jpe?g|png)/g;
+	type Candidate = { path: string; year: number; code: string; rank: number };
+	const candidates = new Map<string, Candidate>();
+	for (const match of html.matchAll(ASSET)) {
+		const [path, kind, yy, type, view] = match;
+		const assetYear = 2000 + Number(yy);
+		// A next-year page is published with the current year's photographs;
+		// the photograph keeps its own year as evidence. Anything older, or
+		// newer than the page, is some other model's.
+		if (modelYear !== undefined && (assetYear > modelYear || assetYear < modelYear - 1)) continue;
+		// Studio right-side view first (the profile every card in the catalogue
+		// leads with), then left side, then any studio view, then gallery side
+		// views, then the rest of the gallery.
+		const rank =
+			kind === 'studio'
+				? /^DRS/.test(view)
+					? 0
+					: /^DLS/.test(view)
+						? 1
+						: 2
+				: /^A[LR]S/.test(view)
+					? 3
+					: 4;
+		if (!candidates.has(path)) {
+			candidates.set(path, { path, year: assetYear, code: `${yy}${type}`, rank });
+		}
+	}
+	const best = [...candidates.values()].sort(
+		(a, b) => a.rank - b.rank || a.path.localeCompare(b.path)
+	)[0];
+	const image: OfficialSpecs['image'] | undefined = best
+		? {
+				url: `https://www.kawasaki.nl${best.path}/jcr:content/renditions/cq5dam.web.1280.1280.png`,
+				modelYear: best.year,
+				evidence: `official Kawasaki NL image; asset code ${best.code} states model year ${best.year}`
+			}
+		: undefined;
+
+	// --- Specifications ---------------------------------------------------------
+	const row = (label: RegExp): string | undefined => {
+		const re = new RegExp(
+			String.raw`<th[^>]*>\s*(?:<[^>]+>\s*)*[^<]*?(?:${label.source})[^<]*(?:<[^>]+>\s*)*</th>\s*<td[^>]*>\s*(?:<[^>]+>\s*)*([^<]{1,80}?)\s*(?:<[^>]+>\s*)*</td>`,
+			'i'
+		);
+		return re.exec(html)?.[1];
+	};
+	const power = row(/Maximum vermogen|Max\.? vermogen/);
+	const kwText = power ? /(\d+(?:[.,]\d+)?)\s*kW/i.exec(power)?.[1] : undefined;
+	const psText = power ? /\{\s*(\d+(?:[.,]\d+)?)\s*PS\s*\}/i.exec(power)?.[1] : undefined;
+	const kw = kwText ? bounded(Number(kwText.replace(',', '.')), 1, 250) : undefined;
+	const hp = psText
+		? bounded(Number(psText.replace(',', '.')), 1, 350)
+		: kw !== undefined
+			? Math.round((kw / 0.7457) * 10) / 10
+			: undefined;
+
+	const price = /Vanaf[\s\S]{0,400}?(?:€|&euro;|&#8364;)\s*(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)/.exec(
+		html
+	)?.[1];
+
+	return {
+		modelYear,
+		seatHeightMm: bounded(num(row(/Zithoogte/)), 500, 1000),
+		torqueNm: bounded(num(row(/Maximum koppel|Max\.? koppel/)), 5, 300),
+		powerKw: kw,
+		powerHp: hp,
+		wetWeightKg: bounded(num(row(/Rijklaargewicht/)), 40, 600),
+		dryWeightKg: bounded(num(row(/drooggewicht/)), 40, 600),
+		displacementCc: bounded(num(row(/Cilinderinhoud/)), 20, 3500),
+		wheelbaseMm: bounded(num(row(/Wielbasis/)), 900, 2200),
+		priceEur: bounded(num(price), 500, 100000),
+		image
+	};
+}

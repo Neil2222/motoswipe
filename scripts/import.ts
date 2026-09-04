@@ -19,6 +19,7 @@ import { retireMissing, runImport } from '../src/lib/server/importers/import.ser
 interface Args {
 	source?: string;
 	limit?: number;
+	only?: string;
 	dryRun: boolean;
 	list: boolean;
 	retireMissing: boolean;
@@ -48,6 +49,9 @@ function parseArgs(argv: string[]): Args {
 				break;
 			case '--limit':
 				args.limit = Number(argv[++i]);
+				break;
+			case '--only':
+				args.only = argv[++i];
 				break;
 			case '--dry-run':
 				args.dryRun = true;
@@ -81,6 +85,7 @@ MotoSwipe importer
   --list                      Show registered providers and exit
   --source <name>             Provider to run (required unless --list)
   --limit <n>                 Stop after n records
+  --only <text>               Only listings whose label or id contains the text (e.g. a maker)
   --skip-rebuild              Record the source data without rebuilding the catalogue
   --dry-run                   Report what would change, write nothing
   --retire-missing            Mark rows this source no longer lists as retired
@@ -127,6 +132,7 @@ async function main() {
 
 	const result = await runImport(provider, {
 		limit: args.limit,
+		only: args.only,
 		dryRun: args.dryRun,
 		overwriteManualEdits: args.overwriteManualEdits,
 		skipRebuild: args.skipRebuild,

@@ -10,6 +10,7 @@ import {
 	pageNames,
 	parseHondaPage,
 	parseSuzukiPage,
+	parseKawasakiPage,
 	parseKtmPages,
 	parseTriumphPage,
 	parseYamahaPage,
@@ -98,7 +99,9 @@ export class ManufacturerProvider implements MotorcycleProvider {
 						? parseTriumphPage(specsHtml, page.family, html)
 						: page.maker === 'ktm'
 							? parseKtmPages(html, specsHtml)
-							: parseYamahaPage(html);
+							: page.maker === 'kawasaki'
+								? parseKawasakiPage(html)
+								: parseYamahaPage(html);
 
 		const record: OfficialRecord = {
 			page,
@@ -227,8 +230,14 @@ export class ManufacturerProvider implements MotorcycleProvider {
 
 function brandName(brand: string): string {
 	return (
-		{ honda: 'Honda', suzuki: 'Suzuki', yamaha: 'Yamaha', triumph: 'Triumph', ktm: 'KTM' }[brand] ??
-		brand
+		{
+			honda: 'Honda',
+			suzuki: 'Suzuki',
+			yamaha: 'Yamaha',
+			triumph: 'Triumph',
+			ktm: 'KTM',
+			kawasaki: 'Kawasaki'
+		}[brand] ?? brand
 	);
 }
 
