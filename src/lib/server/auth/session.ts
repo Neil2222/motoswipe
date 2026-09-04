@@ -82,7 +82,9 @@ export async function validateSession(token: string): Promise<ResolvedSession | 
 					email: true,
 					username: true,
 					displayName: true,
-					role: true
+					role: true,
+					isGuest: true,
+					emailVerifiedAt: true
 				}
 			}
 		}
@@ -105,7 +107,8 @@ export async function validateSession(token: string): Promise<ResolvedSession | 
 			.catch(() => {});
 	}
 
-	return { user: session.user, sessionId: session.id };
+	const { emailVerifiedAt, ...user } = session.user;
+	return { user: { ...user, emailVerified: emailVerifiedAt !== null }, sessionId: session.id };
 }
 
 export async function revokeSession(sessionId: string): Promise<void> {

@@ -11,6 +11,10 @@ export interface SessionUser {
 	username: string;
 	displayName: string;
 	role: Role;
+	/** The silent account behind a demo. See `User.isGuest` in the schema. */
+	isGuest: boolean;
+	/** Whether the email address has been confirmed through a link. */
+	emailVerified: boolean;
 }
 
 declare global {

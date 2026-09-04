@@ -2,6 +2,7 @@ import { error, json } from '@sveltejs/kit';
 import { requireOwnedRoundApi } from '$lib/server/guards';
 import { comparisonVoteSchema } from '$lib/domain/validation';
 import { nextComparison, recordVote } from '$lib/server/services/ranking.service';
+import { demoComparison } from '$lib/server/services/demo.service';
 import { isDomainError } from '$lib/server/errors';
 import type { RequestHandler } from './$types';
 
@@ -12,7 +13,7 @@ import type { RequestHandler } from './$types';
  * are already in the response by the time the previous pair fades out.
  */
 export const POST: RequestHandler = async (event) => {
-	const { round } = await requireOwnedRoundApi(event, event.params.id);
+	const { user, round } = await requireOwnedRoundApi(event, event.params.id);
 
 	const body = await event.request.json().catch(() => null);
 	const parsed = comparisonVoteSchema.safeParse(body);
@@ -27,11 +28,11 @@ export const POST: RequestHandler = async (event) => {
 		throw err;
 	}
 
-	return json({ ok: true, next: await nextComparison(round.id) });
+	return json({ ok: true, next: demoComparison(user, await nextComparison(round.id)) });
 };
 
 /** Next pair without voting — used to skip a matchup. */
 export const GET: RequestHandler = async (event) => {
-	const { round } = await requireOwnedRoundApi(event, event.params.id);
-	return json({ next: await nextComparison(round.id) });
+	const { user, round } = await requireOwnedRoundApi(event, event.params.id);
+	return json({ next: demoComparison(user, await nextComparison(round.id)) });
 };

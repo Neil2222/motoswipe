@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { requireUser } from '$lib/server/guards';
+import { requireFullUser } from '$lib/server/guards';
 import { listFavorites } from '$lib/server/services/favorite.service';
 import { createRound } from '$lib/server/services/round.service';
 import { ConflictError, ValidationError } from '$lib/server/errors';
@@ -12,7 +12,7 @@ import type { Actions, PageServerLoad } from './$types';
  * this app — there is no code path here that could return somebody else's.
  */
 export const load: PageServerLoad = async (event) => {
-	const user = requireUser(event);
+	const user = requireFullUser(event);
 	return { saved: await listFavorites(user.id) };
 };
 
@@ -27,7 +27,7 @@ export const actions: Actions = {
 	 * want" that a garage full of motorcycles eventually poses.
 	 */
 	startRound: async (event) => {
-		const user = requireUser(event);
+		const user = requireFullUser(event);
 		const saved = await listFavorites(user.id);
 
 		if (saved.length < 2) {

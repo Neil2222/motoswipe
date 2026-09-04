@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, requireUserApi } from '$lib/server/guards';
+import { isUuid, requireFullUserApi } from '$lib/server/guards';
 import { setFavorite, toggleFavorite } from '$lib/server/services/favorite.service';
 import type { RequestHandler } from './$types';
 
@@ -15,7 +15,7 @@ import type { RequestHandler } from './$types';
  * and the server toggles, which is what a no-JavaScript caller would want.
  */
 export const POST: RequestHandler = async (event) => {
-	const user = requireUserApi(event);
+	const user = requireFullUserApi(event);
 
 	const body = (await event.request.json().catch(() => null)) as {
 		motorcycleId?: unknown;

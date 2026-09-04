@@ -68,14 +68,36 @@
 		</p>
 
 		<div class="mt-10 flex flex-wrap items-center gap-3">
-			{#if data.user}
+			{#if data.user?.isGuest}
+				{#if data.demoRoundId}
+					<a href="/rounds/{data.demoRoundId}/swipe" class="btn btn-primary btn-lg">
+						Continue your demo
+					</a>
+				{/if}
+				<a href="/register?claim=1" class="btn btn-secondary btn-lg">Create account &amp; save</a>
+			{:else if data.user}
 				<a href="/dashboard" class="btn btn-primary btn-lg">Go to dashboard</a>
 				<a href="/rounds/new" class="btn btn-secondary btn-lg">Start a new round</a>
 			{:else}
-				<a href="/register" class="btn btn-primary btn-lg">Start swiping</a>
-				<a href="/login" class="btn btn-secondary btn-lg">Sign in</a>
+				<!-- One click, no form: the demo creates its own guest account. -->
+				<form method="POST" action="/demo?/start">
+					<button type="submit" class="btn btn-primary btn-lg">Try the demo</button>
+				</form>
+				<a href="/register" class="btn btn-secondary btn-lg">Create an account</a>
+				<a href="/login" class="btn btn-ghost btn-lg">Sign in</a>
 			{/if}
 		</div>
+
+		{#if !data.user}
+			<p class="text-dim mt-4 text-xs">
+				The demo puts the 20 most popular bikes in front of you, no sign-up. Save the result later
+				if you want to.
+			</p>
+		{/if}
+
+		{#if data.discarded}
+			<p class="text-ash mt-4 text-sm" role="status">Your demo has been deleted.</p>
+		{/if}
 
 		<div class="text-dim mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
 			<span class="numeral">{data.motorcycleCount} motorcycles in the catalogue</span>
@@ -114,6 +136,10 @@
 			</p>
 			{#if !data.user}
 				<a href="/register" class="btn btn-primary mt-5 self-start">Create an account</a>
+			{:else if data.user.isGuest}
+				<a href="/register?claim=1" class="btn btn-primary mt-5 self-start">
+					Create an account &amp; keep this round
+				</a>
 			{/if}
 		</li>
 	</ol>

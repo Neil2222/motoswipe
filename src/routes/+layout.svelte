@@ -37,13 +37,33 @@
 		>
 			<div class="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
 				<a
-					href={data.user ? '/dashboard' : '/'}
+					href={data.user?.isGuest
+						? data.demoRoundId
+							? `/rounds/${data.demoRoundId}`
+							: '/demo'
+						: data.user
+							? '/dashboard'
+							: '/'}
 					class="display text-bone hover:text-sodium shrink-0 text-lg tracking-tight transition-colors"
 				>
 					Moto<span class="text-sodium">Swipe</span>
 				</a>
 
-				{#if data.user}
+				{#if data.user?.isGuest}
+					<span class="chip ml-1">Demo</span>
+					<div class="ml-auto flex items-center gap-2">
+						{#if data.demoRoundId}
+							<a
+								href="/rounds/{data.demoRoundId}"
+								class="btn btn-ghost btn-sm hidden sm:inline-flex"
+							>
+								My round
+							</a>
+						{/if}
+						<a href="/login" class="btn btn-ghost btn-sm hidden sm:inline-flex">Sign in</a>
+						<a href="/register?claim=1" class="btn btn-primary btn-sm">Create account &amp; save</a>
+					</div>
+				{:else if data.user}
 					<nav class="ml-4 hidden items-center gap-1 sm:flex" aria-label="Main">
 						{#each nav as item (item.href)}
 							<a
@@ -91,13 +111,14 @@
 					</div>
 				{:else}
 					<div class="ml-auto flex items-center gap-2">
+						<a href="/demo" class="btn btn-ghost btn-sm hidden sm:inline-flex">Try the demo</a>
 						<a href="/login" class="btn btn-ghost btn-sm">Sign in</a>
 						<a href="/register" class="btn btn-primary btn-sm">Create account</a>
 					</div>
 				{/if}
 			</div>
 
-			{#if menuOpen && data.user}
+			{#if menuOpen && data.user && !data.user.isGuest}
 				<nav id="mobile-nav" class="border-graphite/80 border-t px-4 py-3 sm:hidden">
 					<div class="flex flex-col gap-1">
 						{#each nav as item (item.href)}
@@ -116,6 +137,37 @@
 				</nav>
 			{/if}
 		</header>
+
+		{#if data.user?.isGuest}
+			<div class="border-sodium/30 bg-sodium/8 border-b">
+				<div
+					class="text-ash mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 text-xs"
+				>
+					<p class="min-w-0 flex-1">
+						<span class="text-bone">You are trying MotoSwipe as a guest.</span>
+						Your round is kept on this device for a while. Create an account to keep it for good.
+					</p>
+					<div class="flex items-center gap-2">
+						<a href="/register?claim=1" class="text-sodium hover:underline"
+							>Create account &amp; save</a
+						>
+						<span class="text-steel" aria-hidden="true">·</span>
+						<form method="POST" action="/demo?/discard">
+							<button type="submit" class="hover:text-bone underline">Discard demo</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		{:else if data.user && !data.user.emailVerified && data.mailEnabled && !page.url.pathname.startsWith('/profile')}
+			<div class="border-graphite/80 bg-charcoal/60 border-b">
+				<p class="text-dim mx-auto max-w-6xl px-4 py-2 text-xs">
+					Your email address is not confirmed yet, so a password reset could not reach you.
+					<a href="/profile#email" class="text-ash hover:text-bone underline"
+						>Confirm it from your profile</a
+					>.
+				</p>
+			</div>
+		{/if}
 	{/if}
 
 	<main class="flex-1">

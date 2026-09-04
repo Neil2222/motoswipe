@@ -1,7 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema, fieldErrors, type FormErrors } from '$lib/domain/validation';
 import { login } from '$lib/server/services/auth.service';
-import { createSession, setSessionCookie } from '$lib/server/auth/session';
+import { adoptGuestInto } from '$lib/server/services/demo.service';
+import { createSession, revokeSession, setSessionCookie } from '$lib/server/auth/session';
+import { getMailer } from '$lib/server/mail/mailer';
 import { clientKey } from '$lib/server/guards';
 import { isDomainError } from '$lib/server/errors';
 import { env } from '$lib/server/env';
@@ -19,10 +21,16 @@ function safeRedirect(target: string | null): string {
 }
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	if (locals.user) redirect(303, safeRedirect(url.searchParams.get('redirectTo')));
+	// A guest may sign in to an existing account; their demo round comes along.
+	if (locals.user && !locals.user.isGuest) {
+		redirect(303, safeRedirect(url.searchParams.get('redirectTo')));
+	}
 	return {
 		redirectTo: safeRedirect(url.searchParams.get('redirectTo')),
-		allowRegistration: env.allowRegistration
+		allowRegistration: env.allowRegistration,
+		fromDemo: Boolean(locals.user?.isGuest),
+		canReset: getMailer().enabled,
+		justReset: url.searchParams.get('reset') === '1'
 	};
 };
 
@@ -42,6 +50,15 @@ export const actions: Actions = {
 
 		try {
 			const user = await login(parsed.data, clientKey(event));
+
+			// Signing in from a demo: the demo round becomes this account's, and
+			// the guest — session included — is deleted.
+			const guest = event.locals.user?.isGuest ? event.locals.user : null;
+			if (guest) {
+				await adoptGuestInto(guest.id, user.id);
+				if (event.locals.sessionId) await revokeSession(event.locals.sessionId);
+			}
+
 			const session = await createSession(user.id, event.request.headers.get('user-agent'));
 			setSessionCookie(event.cookies, session.token, session.expiresAt);
 		} catch (error) {

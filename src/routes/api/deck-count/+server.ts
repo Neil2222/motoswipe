@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { requireUserApi } from '$lib/server/guards';
+import { requireFullUserApi } from '$lib/server/guards';
 import { parseFilterForm } from '$lib/server/services/filter-form';
 import { countCandidates } from '$lib/server/services/motorcycle.service';
 import type { RequestHandler } from './$types';
@@ -12,7 +12,7 @@ import type { RequestHandler } from './$types';
  * a lot of fragility for one integer.
  */
 export const POST: RequestHandler = async (event) => {
-	requireUserApi(event);
+	requireFullUserApi(event);
 
 	const form = await event.request.formData();
 	const filters = parseFilterForm(form);

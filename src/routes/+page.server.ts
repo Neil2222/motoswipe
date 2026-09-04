@@ -6,7 +6,7 @@ import type { PageServerLoad } from './$types';
  * self-hosted instance they tell the visitor how much catalogue is actually
  * loaded, which is genuinely useful before signing up.
  */
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
 	const [motorcycleCount, manufacturerCount, withPhoto, bySource] = await Promise.all([
 		prisma.motorcycle.count({ where: { isActive: true } }),
 		prisma.manufacturer.count(),
@@ -21,5 +21,11 @@ export const load: PageServerLoad = async () => {
 	// real imported data should not.
 	const demoOnly = bySource.length > 0 && bySource.every((s) => s.source === 'sample');
 
-	return { motorcycleCount, manufacturerCount, withPhoto, demoOnly };
+	return {
+		motorcycleCount,
+		manufacturerCount,
+		withPhoto,
+		demoOnly,
+		discarded: url.searchParams.get('discarded') === '1'
+	};
 };

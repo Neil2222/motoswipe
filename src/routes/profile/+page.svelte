@@ -10,9 +10,11 @@
 	const welcome = $derived(page.url.searchParams.get('welcome') === '1');
 	const profileErrors = $derived(form?.section === 'profile' ? (form.errors ?? {}) : {});
 	const passwordErrors = $derived(form?.section === 'password' ? (form.errors ?? {}) : {});
+	const emailErrors = $derived(form?.section === 'email' ? (form.errors ?? {}) : {});
 
 	let savingProfile = $state(false);
 	let savingPassword = $state(false);
+	let resending = $state(false);
 </script>
 
 <svelte:head><title>Profile — MotoSwipe</title></svelte:head>
@@ -177,6 +179,49 @@
 					</div>
 				</div>
 			{/each}
+		</div>
+	</section>
+
+	<!-- ================= Email ================= -->
+	<section class="mt-10" id="email">
+		<h2 class="display text-bone text-xl">Email address</h2>
+		<div class="panel mt-5 p-6">
+			<p class="text-bone text-sm">{page.data.user?.email}</p>
+			{#if page.data.user?.emailVerified}
+				<p class="text-like mt-2 text-xs">Confirmed. A password reset can reach you here.</p>
+			{:else if data.mailEnabled}
+				<p class="text-ash mt-2 text-sm leading-relaxed">
+					Not confirmed yet. Nothing is locked, but until you confirm it a forgotten password cannot
+					be reset by email.
+				</p>
+				{#if emailErrors._}
+					<p class="text-nope mt-3 text-xs" role="alert">{emailErrors._}</p>
+				{/if}
+				<form
+					method="POST"
+					action="?/resendVerification"
+					class="mt-4"
+					use:enhance={() => {
+						resending = true;
+						return async ({ update, result }) => {
+							await update();
+							resending = false;
+							if (result.type === 'success') {
+								toasts.success('Verification email sent. Check your inbox.');
+							}
+						};
+					}}
+				>
+					<button class="btn btn-secondary btn-sm" type="submit" disabled={resending}>
+						{resending ? 'Sending…' : 'Send the confirmation email again'}
+					</button>
+				</form>
+			{:else}
+				<p class="text-dim mt-2 text-xs leading-relaxed">
+					This instance has no email configured, so addresses are not confirmed and passwords cannot
+					be reset by link.
+				</p>
+			{/if}
 		</div>
 	</section>
 

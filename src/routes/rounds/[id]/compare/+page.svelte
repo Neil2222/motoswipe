@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 	import { CATEGORY_LABELS, type MotorcycleCategory } from '$lib/domain/enums';
 	import { money, unit, progressWidth } from '$lib/utils/format';
 	import { toasts } from '$lib/stores/toast.svelte';
+	import BikePhoto from '$lib/components/BikePhoto.svelte';
+	import GalleryControls from '$lib/components/GalleryControls.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -16,6 +19,15 @@
 	/** Bumped on each vote so the transition keys change and the pair animates. */
 	let round = $state(0);
 
+	/** Which photograph each card shows, by bike id. */
+	let gallery = $state<Record<string, number>>({});
+
+	function stepImage(bike: { id: string; images: { url: string }[] }, delta: 1 | -1) {
+		const n = bike.images.length;
+		if (n < 2) return;
+		gallery[bike.id] = ((((gallery[bike.id] ?? 0) + delta) % n) + n) % n;
+	}
+
 	const votes = $derived(comparison?.votes ?? 0);
 	const suggested = $derived(comparison?.suggested ?? 0);
 	const enough = $derived(suggested > 0 && votes >= suggested);
@@ -27,11 +39,11 @@
 	$effect(() => {
 		if (!comparison) return;
 		for (const bike of [comparison.a, comparison.b]) {
-			const url = bike.images[0]?.url;
-			if (!url) continue;
-			const img = new Image();
-			img.decoding = 'async';
-			img.src = url;
+			for (const image of bike.images) {
+				const img = new Image();
+				img.decoding = 'async';
+				img.src = image.url;
+			}
 		}
 	});
 
@@ -59,6 +71,19 @@
 			const result = (await response.json()) as { next: Comparison | null };
 			// Hold the highlight briefly so the choice registers visually.
 			await new Promise((resolve) => setTimeout(resolve, 260));
+
+			// The demo stops at its (short) target and goes straight to the
+			// result; a real round keeps the arena open for as long as wanted.
+			if (
+				data.isDemo &&
+				result.next &&
+				result.next.suggested > 0 &&
+				result.next.votes >= result.next.suggested
+			) {
+				await goto(`/rounds/${data.round.id}/results`);
+				return;
+			}
+
 			comparison = result.next;
 			round++;
 		} catch (error) {
@@ -147,7 +172,12 @@
 				<h1 class="display text-bone text-center text-2xl sm:text-3xl">
 					Which would you rather own?
 				</h1>
-				<p class="text-dim mt-2 text-center text-xs">No wrong answers. Trust the first reaction.</p>
+				<p class="text-dim mt-2 text-center text-xs">
+					No wrong answers. Trust the first reaction.
+					{#if data.isDemo && suggested > votes}
+						{suggested - votes} to go, then your result.
+					{/if}
+				</p>
 
 				{#key round}
 					<!-- The arena has to fit the viewport: two cards side by side on
@@ -172,35 +202,53 @@
 								</div>
 							{/if}
 
-							<button
-								type="button"
-								class="panel group relative flex min-h-0 flex-col overflow-hidden text-left transition-all duration-200 hover:-translate-y-1 disabled:cursor-wait
+							<!-- The card is a group of two vote buttons — the photograph and
+							     the spec strip — with the gallery controls floating above the
+							     photograph, because a button cannot contain buttons. -->
+							<div
+								class="panel group relative flex min-h-0 flex-col overflow-hidden text-left transition-all duration-200 hover:-translate-y-1
 									{chosen === bike.id ? 'border-sodium ring-sodium/40 ring-2' : 'hover:border-chrome'}
 									{chosen && chosen !== bike.id ? 'scale-97 opacity-40' : ''}"
-								onclick={() => vote(bike.id)}
-								disabled={submitting}
 								in:fly={{ y: 16, duration: 260, delay: index * 60 }}
 							>
 								<div
-									class="bg-ink relative h-[32dvh] w-full shrink-0 overflow-hidden sm:h-auto sm:min-h-40 sm:flex-1 sm:shrink"
+									class="bg-ink relative h-[38dvh] w-full shrink-0 overflow-hidden sm:h-auto sm:min-h-40 sm:flex-1 sm:shrink"
 								>
-									{#if bike.images[0]}
-										<img
-											src={bike.images[0].url}
-											alt="{bike.manufacturer.name} {bike.model}"
-											class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-											draggable="false"
-										/>
-									{/if}
+									<BikePhoto
+										url={bike.images[gallery[bike.id] ?? 0]?.url}
+										alt="{bike.manufacturer.name} {bike.model}"
+										class="absolute inset-0"
+										priority
+									/>
 									<div
-										class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent"
+										class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-black/30"
 									></div>
 
-									<span class="chip absolute top-3 left-3 bg-black/50 backdrop-blur-sm">
+									<button
+										type="button"
+										class="absolute inset-0 cursor-pointer disabled:cursor-wait"
+										onclick={() => vote(bike.id)}
+										disabled={submitting}
+										aria-label="Pick the {bike.manufacturer.name} {bike.model}"
+									></button>
+
+									<GalleryControls
+										count={bike.images.length}
+										active={gallery[bike.id] ?? 0}
+										onstep={(delta) => stepImage(bike, delta)}
+										label="{bike.manufacturer.name} {bike.model}"
+									/>
+
+									<span
+										class="chip pointer-events-none absolute left-3 bg-black/50 backdrop-blur-sm {bike
+											.images.length > 1
+											? 'top-5'
+											: 'top-3'}"
+									>
 										{CATEGORY_LABELS[bike.category as MotorcycleCategory]}
 									</span>
 
-									<div class="absolute inset-x-0 bottom-0 p-4">
+									<div class="pointer-events-none absolute inset-x-0 bottom-0 p-4">
 										<p class="stencil text-sodium/90">{bike.manufacturer.name}</p>
 										<h2 class="display text-bone mt-1 text-2xl leading-tight sm:text-3xl">
 											{bike.model}
@@ -211,27 +259,34 @@
 									</div>
 								</div>
 
-								<!-- A minimal spec strip. Enough to break a tie, not enough to
-								     turn this back into a spec-sheet comparison. -->
-								<dl class="text-ash grid grid-cols-3 gap-2 px-4 py-3 text-xs">
-									<div>
-										<dt class="text-dim">Engine</dt>
-										<dd class="numeral">{unit(bike.displacementCc, 'cc')}</dd>
-									</div>
-									<div>
-										<dt class="text-dim">Power</dt>
-										<dd class="numeral">{unit(bike.powerHp, 'hp')}</dd>
-									</div>
-									<div>
-										<dt class="text-dim">Price</dt>
-										<dd class="numeral">{money(bike.msrpAmount, bike.msrpCurrency)}</dd>
-									</div>
-								</dl>
+								<button
+									type="button"
+									class="flex w-full flex-col text-left disabled:cursor-wait"
+									onclick={() => vote(bike.id)}
+									disabled={submitting}
+								>
+									<!-- A minimal spec strip. Enough to break a tie, not enough to
+									     turn this back into a spec-sheet comparison. -->
+									<dl class="text-ash grid w-full grid-cols-3 gap-2 px-4 py-3 text-xs">
+										<div>
+											<dt class="text-dim">Engine</dt>
+											<dd class="numeral">{unit(bike.displacementCc, 'cc')}</dd>
+										</div>
+										<div>
+											<dt class="text-dim">Power</dt>
+											<dd class="numeral">{unit(bike.powerHp, 'hp')}</dd>
+										</div>
+										<div>
+											<dt class="text-dim">Price</dt>
+											<dd class="numeral">{money(bike.msrpAmount, bike.msrpCurrency)}</dd>
+										</div>
+									</dl>
 
-								<span class="stencil border-graphite border-t px-4 py-2 text-center">
-									{index === 0 ? 'Pick this  ·  ←' : 'Pick this  ·  →'}
-								</span>
-							</button>
+									<span class="stencil border-graphite w-full border-t px-4 py-2 text-center">
+										{index === 0 ? 'Pick this  ·  ←' : 'Pick this  ·  →'}
+									</span>
+								</button>
+							</div>
 						{/each}
 					</div>
 				{/key}

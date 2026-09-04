@@ -118,13 +118,48 @@ model User {
   updatedAt    DateTime  @updatedAt
   lastLoginAt  DateTime?
 
+  /// A guest is the account behind the sign-up-free demo: created silently
+  /// when a visitor presses "Try it", holding one hand-picked round, and
+  /// either claimed (email, username and password filled in, flag cleared)
+  /// or purged once its sessions have expired. Guests hold synthetic
+  /// `guest-…@guest.invalid` addresses and cannot sign in with a password.
+  isGuest         Boolean   @default(false)
+  /// Set when the address was confirmed through a verification link. Null
+  /// means unverified; nothing is blocked on it, the profile just says so.
+  emailVerifiedAt DateTime?
+
   profile   UserProfile?
   sessions  AuthSession[]
   rounds    DiscoveryRound[]
   favorites Favorite[]
+  tokens    UserToken[]
 
   @@index([role])
+  @@index([isGuest])
   @@map("users")
+}
+
+enum UserTokenKind {
+  PASSWORD_RESET
+  EMAIL_VERIFY
+}
+
+/// Single-use, expiring tokens sent by email. As with sessions only an HMAC of
+/// the token is stored, so a database read cannot reset anybody's password.
+model UserToken {
+  id        String        @id @default(uuid()) @db.Uuid
+  userId    String        @db.Uuid
+  kind      UserTokenKind
+  tokenHash String        @unique
+  createdAt DateTime      @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
+  @@index([expiresAt])
+  @@map("user_tokens")
 }
 
 /// Server-side sessions. Only a hash of the session token is stored, so a

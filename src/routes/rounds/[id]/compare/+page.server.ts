@@ -2,6 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import { requireOwnedRound } from '$lib/server/guards';
 import { nextComparison } from '$lib/server/services/ranking.service';
 import { getRoundProgress } from '$lib/server/services/round.service';
+import { demoComparison } from '$lib/server/services/demo.service';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -12,7 +13,7 @@ import type { PageServerLoad } from './$types';
  * endpoint next door.
  */
 export const load: PageServerLoad = async (event) => {
-	const { round } = await requireOwnedRound(event, event.params.id);
+	const { user, round } = await requireOwnedRound(event, event.params.id);
 
 	const progress = await getRoundProgress(round.id, round.filters);
 
@@ -22,11 +23,12 @@ export const load: PageServerLoad = async (event) => {
 		redirect(303, `/rounds/${round.id}`);
 	}
 
-	const comparison = await nextComparison(round.id);
+	const comparison = demoComparison(user, await nextComparison(round.id));
 
 	return {
 		round: { id: round.id, name: round.name },
 		comparison,
-		progress
+		progress,
+		isDemo: user.isGuest
 	};
 };

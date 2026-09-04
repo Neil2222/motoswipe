@@ -19,13 +19,17 @@ function toSessionUser(u: {
 	username: string;
 	displayName: string;
 	role: 'USER' | 'ADMIN';
+	isGuest: boolean;
+	emailVerifiedAt: Date | null;
 }): SessionUser {
 	return {
 		id: u.id,
 		email: u.email,
 		username: u.username,
 		displayName: u.displayName,
-		role: u.role
+		role: u.role,
+		isGuest: u.isGuest,
+		emailVerified: u.emailVerifiedAt !== null
 	};
 }
 
@@ -56,8 +60,9 @@ export async function register(input: RegisterInput, clientKey: string): Promise
 	const passwordHash = await hashPassword(input.password);
 
 	// The very first account becomes the admin. Otherwise a fresh self-hosted
-	// instance has no way to reach /admin without a manual SQL update.
-	const isFirstUser = (await prisma.user.count()) === 0;
+	// instance has no way to reach /admin without a manual SQL update. Guests
+	// do not count: somebody trying the demo before you has not taken your seat.
+	const isFirstUser = (await prisma.user.count({ where: { isGuest: false } })) === 0;
 
 	const user = await prisma.user.create({
 		data: {
@@ -70,7 +75,15 @@ export async function register(input: RegisterInput, clientKey: string): Promise
 			// Created eagerly so the profile page never has to handle "no row yet".
 			profile: { create: {} }
 		},
-		select: { id: true, email: true, username: true, displayName: true, role: true }
+		select: {
+			id: true,
+			email: true,
+			username: true,
+			displayName: true,
+			role: true,
+			isGuest: true,
+			emailVerifiedAt: true
+		}
 	});
 
 	return toSessionUser(user);
@@ -82,7 +95,10 @@ export async function login(input: LoginInput, clientKey: string): Promise<Sessi
 
 	const user = await prisma.user.findFirst({
 		where: {
-			OR: [{ email: input.identifier }, { username: input.identifier }]
+			OR: [{ email: input.identifier }, { username: input.identifier }],
+			// A guest's password is random and unknown to anyone; refusing the
+			// row outright means a guessed guest handle cannot even be attempted.
+			isGuest: false
 		},
 		select: {
 			id: true,
@@ -90,6 +106,8 @@ export async function login(input: LoginInput, clientKey: string): Promise<Sessi
 			username: true,
 			displayName: true,
 			role: true,
+			isGuest: true,
+			emailVerifiedAt: true,
 			passwordHash: true
 		}
 	});

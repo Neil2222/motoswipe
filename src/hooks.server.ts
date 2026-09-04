@@ -7,6 +7,8 @@ import {
 	purgeExpiredSessions,
 	validateSession
 } from '$lib/server/auth/session';
+import { purgeStaleTokens } from '$lib/server/auth/tokens';
+import { purgeStaleGuests } from '$lib/server/services/demo.service';
 import { assertConfig, configWarnings, env } from '$lib/server/env';
 import { isDomainError } from '$lib/server/errors';
 
@@ -95,11 +97,15 @@ const housekeeping: Handle = async ({ event, resolve }) => {
 
 	if (Date.now() - lastPurge > PURGE_INTERVAL_MS) {
 		lastPurge = Date.now();
+		// Sessions first: a guest is only stale once its sessions are gone.
 		purgeExpiredSessions()
-			.then((count) => {
-				if (count > 0) console.log(`[motoswipe] purged ${count} expired sessions`);
+			.then(async (sessions) => {
+				if (sessions > 0) console.log(`[motoswipe] purged ${sessions} expired sessions`);
+				const [guests, tokens] = await Promise.all([purgeStaleGuests(), purgeStaleTokens()]);
+				if (guests > 0) console.log(`[motoswipe] purged ${guests} abandoned demo accounts`);
+				if (tokens > 0) console.log(`[motoswipe] purged ${tokens} spent email tokens`);
 			})
-			.catch((error) => console.error('[motoswipe] session purge failed:', error));
+			.catch((error) => console.error('[motoswipe] housekeeping failed:', error));
 	}
 
 	return response;

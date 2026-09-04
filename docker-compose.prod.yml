@@ -40,6 +40,16 @@ services:
       XFF_DEPTH: ${TRUST_PROXY_HOPS:-1}
       # Close sign-up once your friends have accounts.
       ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      REGISTRATIONS_PER_HOUR: ${REGISTRATIONS_PER_HOUR:-10}
+      # Caddy sets X-Forwarded-For; adapter-node needs to be told to read it.
+      ADDRESS_HEADER: ${ADDRESS_HEADER:-X-Forwarded-For}
+      # Email (password reset, address confirmation). Empty = feature hidden.
+      MAIL_PROVIDER: ${MAIL_PROVIDER:-auto}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      # The sign-up-free demo.
+      DEMOS_PER_HOUR: ${DEMOS_PER_HOUR:-30}
+      GUEST_RETENTION_DAYS: ${GUEST_RETENTION_DAYS:-7}
     networks:
       - motoswipe-internal
       # Shared with the reverse proxy. Create it once:

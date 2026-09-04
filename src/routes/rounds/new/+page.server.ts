@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { requireUser } from '$lib/server/guards';
+import { requireFullUser } from '$lib/server/guards';
 import { createRound } from '$lib/server/services/round.service';
 import { fieldErrors, roundCreateSchema, type FormErrors } from '$lib/domain/validation';
 import { RoundFiltersSchema, normalizeFilters } from '$lib/domain/filters';
@@ -14,7 +14,7 @@ import { isDomainError } from '$lib/server/errors';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	requireUser(event);
+	requireFullUser(event);
 
 	const [manufacturers, categories, bounds, catalogueSize] = await Promise.all([
 		listManufacturers(),
@@ -28,7 +28,7 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	default: async (event) => {
-		const user = requireUser(event);
+		const user = requireFullUser(event);
 		const form = await event.request.formData();
 
 		const filtersParsed = RoundFiltersSchema.safeParse(readFilterForm(form));

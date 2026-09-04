@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { PageProps } from './$types';
 
-	let { form }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 
 	let submitting = $state(false);
 	let password = $state('');
@@ -23,12 +23,23 @@
 	);
 </script>
 
-<svelte:head><title>Create an account — MotoSwipe</title></svelte:head>
+<svelte:head>
+	<title>{data.claim ? 'Save your demo' : 'Create an account'} — MotoSwipe</title>
+</svelte:head>
 
 <div class="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-md items-center px-4 py-12">
 	<div class="w-full">
-		<p class="stencil text-sodium mb-3">Get started</p>
-		<h1 class="display text-bone text-4xl">Create an account</h1>
+		{#if data.claim}
+			<p class="stencil text-sodium mb-3">Keep what you swiped</p>
+			<h1 class="display text-bone text-4xl">Save your demo</h1>
+			<p class="text-ash mt-4 text-sm leading-relaxed">
+				Choose an email and a password and your demo round — every swipe, every comparison — becomes
+				the first round of your own account.
+			</p>
+		{:else}
+			<p class="stencil text-sodium mb-3">Get started</p>
+			<h1 class="display text-bone text-4xl">Create an account</h1>
+		{/if}
 
 		<form
 			method="POST"
@@ -141,13 +152,25 @@
 			</div>
 
 			<button class="btn btn-primary w-full" type="submit" disabled={submitting}>
-				{submitting ? 'Creating account…' : 'Create account'}
+				{submitting
+					? 'Creating account…'
+					: data.claim
+						? 'Create account and save my round'
+						: 'Create account'}
 			</button>
 		</form>
 
 		<p class="text-ash mt-6 text-center text-sm">
 			Already have an account?
 			<a href="/login" class="text-sodium hover:underline">Sign in</a>
+			{#if data.claim}
+				<span class="text-dim">— your demo round moves to that account.</span>
+			{/if}
 		</p>
+		{#if data.claim && data.demoRoundId}
+			<p class="text-dim mt-3 text-center text-xs">
+				<a href="/rounds/{data.demoRoundId}" class="hover:text-ash underline">Back to the demo</a>
+			</p>
+		{/if}
 	</div>
 </div>

@@ -28,6 +28,27 @@ export function requireUserApi(event: RequestEvent): SessionUser {
 	return user;
 }
 
+/**
+ * A signed-in user who is not a guest.
+ *
+ * The demo hands a visitor one round and nothing else. Everything that would
+ * make a guest account grow into a real one without the person ever choosing
+ * an email and password — new rounds, favourites, the profile — sends them to
+ * the sign-up page instead, where the guest's round is kept.
+ */
+export function requireFullUser(event: RequestEvent): SessionUser {
+	const user = requireUser(event);
+	if (user.isGuest) redirect(303, '/register?claim=1');
+	return user;
+}
+
+/** API variant of `requireFullUser`. */
+export function requireFullUserApi(event: RequestEvent): SessionUser {
+	const user = requireUserApi(event);
+	if (user.isGuest) error(403, { message: 'Create an account to do that' });
+	return user;
+}
+
 export function requireAdmin(event: RequestEvent): SessionUser {
 	const user = requireUser(event);
 	if (user.role !== 'ADMIN') {

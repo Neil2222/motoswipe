@@ -1,5 +1,7 @@
 <script lang="ts">
 	import EmptyState from '$lib/components/EmptyState.svelte';
+	import BikePhoto from '$lib/components/BikePhoto.svelte';
+	import GalleryControls from '$lib/components/GalleryControls.svelte';
 	import { CATEGORY_LABELS, type MotorcycleCategory } from '$lib/domain/enums';
 	import { describeFilters, type RoundFilters } from '$lib/domain/filters';
 	import { EMPTY, money, num, percent, unit, year } from '$lib/utils/format';
@@ -8,6 +10,7 @@
 	let { data }: PageProps = $props();
 
 	const winner = $derived(data.ranked[0] ?? null);
+	let winnerImage = $state(0);
 	const rest = $derived(data.ranked.slice(1));
 	const stats = $derived(data.statistics);
 
@@ -46,22 +49,60 @@
 		</div>
 	</div>
 
+	{#if data.justSaved}
+		<div class="border-like/40 bg-like/10 mt-6 rounded-lg border p-4" role="status">
+			<p class="display text-like text-sm">Saved to your account</p>
+			<p class="text-ash mt-1.5 text-sm leading-relaxed">
+				This round is yours now — every swipe and comparison from the demo came along. Add your
+				height and inseam on your <a href="/profile" class="text-sodium hover:underline">profile</a>
+				to see seat heights in context.
+			</p>
+		</div>
+	{/if}
+
+	{#if data.isDemo}
+		<div class="panel border-sodium/35 mt-6 p-5 sm:p-6">
+			<p class="stencil text-sodium">End of the demo</p>
+			<h2 class="display text-bone mt-2 text-xl">Keep this, or throw it away?</h2>
+			<p class="text-ash mt-2 max-w-2xl text-sm leading-relaxed">
+				Create an account and this round — winner, ranking, every swipe — is saved for good. Or
+				discard it and nothing about your visit is kept. Undecided? It stays on this device for a
+				while either way.
+			</p>
+			<div class="mt-5 flex flex-wrap gap-2">
+				<a href="/register?claim=1" class="btn btn-primary">Create account and save</a>
+				<a href="/login" class="btn btn-secondary">I have an account</a>
+				<form method="POST" action="/demo?/discard">
+					<button type="submit" class="btn btn-ghost">Discard</button>
+				</form>
+			</div>
+		</div>
+	{/if}
+
 	<!-- ================= Winner ================= -->
 	{#if winner}
 		<section class="relative mt-10 overflow-hidden rounded-2xl">
 			<div class="panel relative overflow-hidden p-0">
 				<div class="grid sm:grid-cols-[minmax(0,22rem)_1fr]">
-					<div class="bg-ink relative aspect-4/5 sm:aspect-auto sm:min-h-80">
-						{#if winner.motorcycle.images[0]}
-							<img
-								src={winner.motorcycle.images[0].url}
-								alt="{winner.motorcycle.manufacturer.name} {winner.motorcycle.model}"
-								class="absolute inset-0 h-full w-full object-cover"
-							/>
-						{/if}
+					<div class="bg-ink relative aspect-4/3 sm:aspect-auto sm:min-h-80">
+						<BikePhoto
+							url={winner.motorcycle.images[winnerImage]?.url}
+							alt="{winner.motorcycle.manufacturer.name} {winner.motorcycle.model}"
+							class="absolute inset-0"
+							priority
+						/>
 						<div
-							class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-black/70"
+							class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-black/70"
 						></div>
+						<GalleryControls
+							count={winner.motorcycle.images.length}
+							active={winnerImage}
+							onstep={(delta) => {
+								const n = winner.motorcycle.images.length;
+								winnerImage = (((winnerImage + delta) % n) + n) % n;
+							}}
+							label="{winner.motorcycle.manufacturer.name} {winner.motorcycle.model}"
+						/>
 					</div>
 
 					<div class="relative flex flex-col justify-center p-6 sm:p-8">

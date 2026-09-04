@@ -125,6 +125,61 @@ export const env = {
 
 	get port(): number {
 		return int('PORT', 3000);
+	},
+
+	// --- Email --------------------------------------------------------------
+
+	/**
+	 * Which mail provider to use. `auto` (the default) picks Resend when a key
+	 * is present, the console logger in development, and nothing in production.
+	 */
+	get mailProvider(): 'resend' | 'console' | 'none' {
+		const raw = (process.env.MAIL_PROVIDER ?? 'auto').toLowerCase();
+		if (raw === 'resend' || raw === 'console' || raw === 'none') return raw;
+		if (raw !== 'auto') {
+			throw new Error(`MAIL_PROVIDER must be one of auto, resend, console or none, got "${raw}".`);
+		}
+		// A test run must never pick up a real key from a developer's .env and
+		// start emailing people; tests install their own recording mailer.
+		if (this.isTest) return 'none';
+		if (process.env.RESEND_API_KEY) return 'resend';
+		return this.isProduction ? 'none' : 'console';
+	},
+
+	get resendApiKey(): string {
+		const value = process.env.RESEND_API_KEY;
+		if (!value) {
+			throw new Error('RESEND_API_KEY is not set but MAIL_PROVIDER=resend was requested.');
+		}
+		return value;
+	},
+
+	/** Sender, RFC 5322 style: `MotoSwipe <noreply@example.com>`. */
+	get mailFrom(): string {
+		const value = process.env.MAIL_FROM;
+		if (value) return value;
+		if (this.mailProvider === 'resend') {
+			throw new Error(
+				'MAIL_FROM is not set. Resend needs a sender on a domain you have verified, ' +
+					'for example "MotoSwipe <noreply@example.com>".'
+			);
+		}
+		return 'MotoSwipe <noreply@localhost>';
+	},
+
+	// --- Demo -------------------------------------------------------------
+
+	/** Demo rounds (guest accounts) started per client address per hour. */
+	get demosPerHour(): number {
+		return int('DEMOS_PER_HOUR', 30);
+	},
+
+	/**
+	 * Days a guest account survives after its last session expires. The demo
+	 * is meant to be resumable for a while, not to accumulate forever.
+	 */
+	get guestRetentionDays(): number {
+		return int('GUEST_RETENTION_DAYS', 7);
 	}
 };
 
@@ -139,6 +194,10 @@ export function assertConfig(): void {
 	void env.sessionTtlDays;
 	void env.trustProxyHops;
 	void env.port;
+	void env.mailProvider;
+	void env.mailFrom;
+	void env.demosPerHour;
+	void env.guestRetentionDays;
 }
 
 /**
@@ -164,6 +223,12 @@ export function configWarnings(): string[] {
 		warnings.push(
 			'TRUST_PROXY_HOPS=0. If MotoSwipe sits behind Caddy/nginx, set it to 1 so rate limiting ' +
 				'sees real client addresses instead of the proxy address.'
+		);
+	}
+	if (env.isProduction && env.mailProvider === 'none') {
+		warnings.push(
+			'No mail provider is configured, so password resets and address verification are ' +
+				'switched off. Set RESEND_API_KEY and MAIL_FROM to enable them.'
 		);
 	}
 	if (!env.isProduction && process.env.SESSION_SECRET === undefined) {

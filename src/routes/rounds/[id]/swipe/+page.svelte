@@ -59,8 +59,13 @@
 	 * that can happen to the feel of the deck.
 	 */
 	$effect(() => {
-		for (const card of cards.slice(1, 5)) {
-			const url = card.images[0]?.url;
+		// The live card's other photographs too, so stepping through them
+		// does not show a blank.
+		const urls = [
+			...cards.slice(1, 5).map((card) => card.images[0]?.url),
+			...(cards[0]?.images.slice(1) ?? []).map((image) => image.url)
+		];
+		for (const url of urls) {
 			if (!url) continue;
 			const img = new Image();
 			img.decoding = 'async';
@@ -228,6 +233,14 @@
 				break;
 			case 'z':
 				void undo();
+				break;
+			case ' ':
+			case '.':
+				event.preventDefault();
+				deck?.stepImage(1);
+				break;
+			case ',':
+				deck?.stepImage(-1);
 				break;
 			case '?':
 				showHelp = true;
@@ -497,7 +510,7 @@
 		<div class="panel relative w-full max-w-sm p-6" role="dialog" aria-modal="true">
 			<h2 class="display text-bone text-xl">Shortcuts</h2>
 			<dl class="mt-5 space-y-2.5 text-sm">
-				{#each [['←', 'Nope'], ['→', 'Like'], ['↑', 'Superlike'], ['↓', 'Skip'], ['I', 'Specifications'], ['Z', 'Undo']] as [key, label] (key)}
+				{#each [['←', 'Nope'], ['→', 'Like'], ['↑', 'Superlike'], ['↓', 'Skip'], ['Space', 'Next photograph'], ['I', 'Specifications'], ['Z', 'Undo']] as [key, label] (key)}
 					<div class="flex items-center gap-3">
 						<kbd
 							class="border-graphite bg-gunmetal text-bone numeral inline-flex h-7 min-w-8 items-center justify-center rounded border px-2 text-xs"

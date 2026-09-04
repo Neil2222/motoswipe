@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { prisma } from '$lib/server/db/client';
-import { requireUser } from '$lib/server/guards';
+import { requireFullUser } from '$lib/server/guards';
 import {
 	fieldErrors,
 	passwordChangeSchema,
@@ -8,6 +8,8 @@ import {
 	type FormErrors
 } from '$lib/domain/validation';
 import { changePassword } from '$lib/server/services/auth.service';
+import { resendVerificationEmail } from '$lib/server/services/account.service';
+import { getMailer } from '$lib/server/mail/mailer';
 import { revokeAllSessionsForUser } from '$lib/server/auth/session';
 import { isDomainError } from '$lib/server/errors';
 import { assessFit } from '$lib/server/fit/fit';
@@ -15,7 +17,7 @@ import { FIT_DISCLAIMER } from '$lib/domain/fit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	const user = requireUser(event);
+	const user = requireFullUser(event);
 
 	const profile = await prisma.userProfile.findUnique({
 		where: { userId: user.id },
@@ -52,6 +54,7 @@ export const load: PageServerLoad = async (event) => {
 	}));
 
 	return {
+		mailEnabled: getMailer().enabled,
 		profile: profile ?? {
 			heightCm: null,
 			inseamCm: null,
@@ -67,7 +70,7 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	profile: async (event) => {
-		const user = requireUser(event);
+		const user = requireFullUser(event);
 		const form = await event.request.formData();
 
 		const parsed = profileSchema.safeParse({
@@ -97,8 +100,26 @@ export const actions: Actions = {
 		return { section: 'profile' as const, saved: true, revoked: 0 };
 	},
 
+	resendVerification: async (event) => {
+		const user = requireFullUser(event);
+		try {
+			const outcome = await resendVerificationEmail(user.id, event.url.origin);
+			if (!outcome.sent) {
+				const errors: FormErrors = { _: outcome.reason ?? 'Nothing was sent.' };
+				return fail(400, { section: 'email' as const, errors });
+			}
+		} catch (error) {
+			if (isDomainError(error)) {
+				const errors: FormErrors = error.toFormErrors();
+				return fail(error.status, { section: 'email' as const, errors });
+			}
+			throw error;
+		}
+		return { section: 'email' as const, saved: true, revoked: 0 };
+	},
+
 	password: async (event) => {
-		const user = requireUser(event);
+		const user = requireFullUser(event);
 		const form = await event.request.formData();
 
 		const parsed = passwordChangeSchema.safeParse({

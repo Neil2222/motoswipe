@@ -39,8 +39,23 @@ export const RATE_LIMITS = {
 	loginByIp: { limit: 20, windowMs: 10 * 60_000, blockMs: 10 * 60_000 },
 	/** Per account. Tighter — one account should not see 20 failures in 10 min. */
 	loginByAccount: { limit: 8, windowMs: 10 * 60_000, blockMs: 15 * 60_000 },
-	passwordChange: { limit: 10, windowMs: 15 * 60_000 }
+	passwordChange: { limit: 10, windowMs: 15 * 60_000 },
+	/** Reset requests per client address. Each one is an email somebody pays for. */
+	passwordResetByIp: { limit: 10, windowMs: 60 * 60_000, blockMs: 30 * 60_000 },
+	/** Per target address: nobody's inbox should fill with reset links. */
+	passwordResetByEmail: { limit: 3, windowMs: 60 * 60_000, blockMs: 60 * 60_000 },
+	/** "Send the verification email again", per account. */
+	verificationResend: { limit: 5, windowMs: 60 * 60_000 }
 } as const satisfies Record<string, RateLimitRule>;
+
+/** Demo starts per client address; each one creates a guest account. */
+export function demoRule(): RateLimitRule {
+	return {
+		limit: env.demosPerHour,
+		windowMs: 60 * 60_000,
+		blockMs: 30 * 60_000
+	};
+}
 
 /**
  * Registration is read from configuration rather than fixed, because the right

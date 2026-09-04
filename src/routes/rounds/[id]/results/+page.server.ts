@@ -3,11 +3,12 @@ import { getRoundProgress } from '$lib/server/services/round.service';
 import { comparisonCount, getRanking } from '$lib/server/services/ranking.service';
 import { getRoundStatistics, MIN_SAMPLE } from '$lib/server/statistics/statistics.service';
 import { suggestedComparisonCount } from '$lib/server/ranking/elo';
+import { DEMO_COMPARISON_TARGET } from '$lib/server/services/demo.service';
 import { prisma } from '$lib/server/db/client';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	const { round } = await requireOwnedRound(event, event.params.id);
+	const { user, round } = await requireOwnedRound(event, event.params.id);
 
 	const [progress, ranking, comparisons, statistics, manufacturers] = await Promise.all([
 		getRoundProgress(round.id, round.filters),
@@ -35,9 +36,13 @@ export const load: PageServerLoad = async (event) => {
 		ranking,
 		ranked,
 		comparisons,
-		suggestedComparisons: suggestedComparisonCount(ranking.length),
+		suggestedComparisons: user.isGuest
+			? Math.min(suggestedComparisonCount(ranking.length), DEMO_COMPARISON_TARGET)
+			: suggestedComparisonCount(ranking.length),
 		statistics,
 		minSample: MIN_SAMPLE,
-		manufacturers
+		manufacturers,
+		isDemo: user.isGuest,
+		justSaved: event.url.searchParams.get('saved') === '1'
 	};
 };

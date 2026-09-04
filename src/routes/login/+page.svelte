@@ -28,6 +28,15 @@
 		>
 			<input type="hidden" name="redirectTo" value={data.redirectTo} />
 
+			{#if data.justReset}
+				<div
+					class="border-like/40 bg-like/10 text-like rounded-lg border px-4 py-3 text-sm"
+					role="status"
+				>
+					Password changed. Sign in with the new one.
+				</div>
+			{/if}
+
 			{#if errors._}
 				<div
 					class="border-nope/40 bg-nope/10 text-nope rounded-lg border px-4 py-3 text-sm"
@@ -74,7 +83,21 @@
 			<button class="btn btn-primary w-full" type="submit" disabled={submitting}>
 				{submitting ? 'Signing in…' : 'Sign in'}
 			</button>
+
+			{#if data.canReset}
+				<p class="text-center text-xs">
+					<a href="/forgot-password" class="text-dim hover:text-ash underline"
+						>Forgot your password?</a
+					>
+				</p>
+			{/if}
 		</form>
+
+		{#if data.fromDemo}
+			<p class="text-dim mt-4 text-center text-xs leading-relaxed">
+				Signing in moves your demo round to that account.
+			</p>
+		{/if}
 
 		{#if data.allowRegistration}
 			<p class="text-ash mt-6 text-center text-sm">

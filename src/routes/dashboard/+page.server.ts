@@ -1,5 +1,6 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { requireUser } from '$lib/server/guards';
+import { demoRoundFor } from '$lib/server/services/demo.service';
 import {
 	deleteRound,
 	duplicateRound,
@@ -14,6 +15,14 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireUser(event);
+
+	// A guest's whole world is one round; the dashboard would be a list of one
+	// with buttons for things a guest cannot do.
+	if (user.isGuest) {
+		const round = await demoRoundFor(user.id);
+		redirect(303, round ? `/rounds/${round.id}` : '/demo');
+	}
+
 	const includeArchived = event.url.searchParams.get('archived') === '1';
 
 	const [rounds, manufacturers, catalogueSize, savedCount] = await Promise.all([

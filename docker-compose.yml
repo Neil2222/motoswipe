@@ -29,15 +29,24 @@ services:
       ORIGIN: '${ORIGIN:-http://localhost:3000}'
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-0}
       ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      REGISTRATIONS_PER_HOUR: ${REGISTRATIONS_PER_HOUR:-10}
       # adapter-node uses these to read the real client address when
       # TRUST_PROXY_HOPS says a proxy is in front.
       ADDRESS_HEADER: ${ADDRESS_HEADER:-}
       XFF_DEPTH: ${TRUST_PROXY_HOPS:-0}
+      # Email (password reset, address confirmation). Empty = feature hidden.
+      MAIL_PROVIDER: ${MAIL_PROVIDER:-auto}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      # The sign-up-free demo.
+      DEMOS_PER_HOUR: ${DEMOS_PER_HOUR:-30}
+      GUEST_RETENTION_DAYS: ${GUEST_RETENTION_DAYS:-7}
     ports:
-      # Bound to loopback: behind Caddy the proxy reaches it over the compose
-      # network, and nothing needs to be exposed on the LAN. Remove this block
-      # entirely once Caddy shares a network with the app.
-      - '127.0.0.1:${APP_PORT:-3000}:3000'
+      # Bound to loopback by default: behind a Caddy on this machine the proxy
+      # reaches it locally and nothing is exposed on the LAN. Set APP_BIND to
+      # the machine's LAN address (or 0.0.0.0) when the reverse proxy runs on
+      # another host, such as a NAS forwarding to this PC.
+      - '${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000'
     healthcheck:
       test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:3000/healthz']
       interval: 30s
