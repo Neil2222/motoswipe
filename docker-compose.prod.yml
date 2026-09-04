@@ -1,0 +1,103 @@
+# =============================================================================
+# MotoSwipe — NAS deployment from a published image.
+#
+# This is the file to copy onto the NAS. It builds nothing: it pulls the image
+# you pushed to Docker Hub.
+#
+#   1. Copy this file and .env.example to the NAS.
+#   2. cp .env.example .env   and fill it in. At minimum:
+#        MOTOSWIPE_IMAGE=youruser/motoswipe:latest
+#        POSTGRES_PASSWORD=<a long random string>
+#        SESSION_SECRET=<openssl rand -base64 48>
+#        ORIGIN=https://motoswipe.example.com
+#        TRUST_PROXY_HOPS=1
+#   3. docker compose -f docker-compose.prod.yml up -d
+#
+# To upgrade later:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+# Migrations run automatically on start; the database volume is untouched.
+# =============================================================================
+
+services:
+  motoswipe:
+    image: '${MOTOSWIPE_IMAGE:?set MOTOSWIPE_IMAGE, for example youruser/motoswipe:latest}'
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: 'postgresql://${POSTGRES_USER:-motoswipe}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-motoswipe}?schema=public'
+      SESSION_SECRET: '${SESSION_SECRET:?set SESSION_SECRET - generate one with openssl rand -base64 48}'
+      SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-30}
+      # MUST be the public https URL. SvelteKit checks the Origin header of every
+      # form POST against it; get this wrong and every form silently fails.
+      ORIGIN: '${ORIGIN:?set ORIGIN to your public https URL}'
+      # 1 when exactly one reverse proxy (Caddy) sits in front.
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      XFF_DEPTH: ${TRUST_PROXY_HOPS:-1}
+      # Close sign-up once your friends have accounts.
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+    networks:
+      - motoswipe-internal
+      # Shared with the reverse proxy. Create it once:
+      #   docker network create edge
+      - edge
+    # No `ports:` at all. Caddy reaches the container by name over the `edge`
+    # network, so nothing is exposed on the NAS LAN.
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:3000/healthz']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-motoswipe}
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}'
+      POSTGRES_DB: ${POSTGRES_DB:-motoswipe}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      - motoswipe-db:/var/lib/postgresql/data
+      # Uncomment to write backups somewhere you actually back up.
+      # - /volume1/backups/motoswipe:/backups
+    networks:
+      # Database is NOT on the edge network: only the app can reach it.
+      - motoswipe-internal
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-motoswipe} -d ${POSTGRES_DB:-motoswipe}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+networks:
+  motoswipe-internal:
+    driver: bridge
+  edge:
+    # Created outside compose and shared with Caddy:
+    #   docker network create edge
+    external: true
+
+volumes:
+  motoswipe-db:
+    driver: local

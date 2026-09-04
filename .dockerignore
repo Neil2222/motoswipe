@@ -1,0 +1,32 @@
+# Keep the build context small and never leak local secrets into an image.
+node_modules
+.svelte-kit
+build
+coverage
+test-results
+playwright-report
+.playwright
+
+.git
+.gitignore
+.github
+
+.env
+.env.*
+!.env.example
+
+*.md
+!README.md
+
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Generated at build time inside the image
+src/lib/server/db/generated
+static/media

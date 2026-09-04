@@ -1,0 +1,752 @@
+// MotoSwipe database schema
+//
+// Design notes:
+//  - UUID primary keys everywhere (safe to expose in URLs, no enumeration).
+//  - Every swipe / comparison / ranking row belongs to a DiscoveryRound, never
+//    directly to a User. Rounds are independent experiments; a user can run
+//    "First bike 2026" and "New bike 2027" without them contaminating each other.
+//  - Visibility + profileVisibility exist now (defaulting to PRIVATE) so the
+//    future social layer does not require a core redesign. Nothing reads them
+//    for public access yet.
+//  - Motorcycle rows are never hard-deleted when an external source drops them;
+//    swipe FKs are Restrict and the row is retired via `isActive`.
+
+// Prisma 7 generates a pure-TypeScript client backed by a driver adapter
+// (@prisma/adapter-pg). There is no Rust query-engine binary to ship, which is
+// why the Docker image needs no platform-specific engine files and works on
+// amd64 and arm64 alike.
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/lib/server/db/generated"
+  moduleFormat = "esm"
+}
+
+// The connection URL lives in prisma.config.ts (for the CLI / migrations) and
+// is passed to PrismaClient via the adapter at runtime. Prisma 7 no longer
+// accepts `url` here.
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  USER
+  ADMIN
+}
+
+/// Prepared for the future social layer. Everything defaults to PRIVATE.
+enum ProfileVisibility {
+  PRIVATE
+  PUBLIC
+}
+
+enum RoundStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum RoundVisibility {
+  PRIVATE
+  UNLISTED
+  PUBLIC
+}
+
+enum SwipeDecision {
+  LIKE
+  DISLIKE
+  SUPERLIKE
+  SKIP
+}
+
+/// Primary, queryable taxonomy. Deliberately coarse: importers that carry a
+/// richer taxonomy keep their original string in `Motorcycle.categoryRaw` and
+/// may add free-form `tags`, so a new source never forces a migration.
+enum MotorcycleCategory {
+  NAKED
+  HYPER_NAKED
+  SPORT
+  SUPERSPORT
+  CRUISER
+  BOBBER
+  TOURING
+  SPORT_TOURING
+  ADVENTURE
+  DUAL_SPORT
+  SUPERMOTO
+  CLASSIC
+  CAFE_RACER
+  SCRAMBLER
+  SCOOTER
+  OTHER
+}
+
+enum RidingPosition {
+  UPRIGHT
+  SPORT_UPRIGHT
+  AGGRESSIVE
+  FEET_FORWARD
+  UNKNOWN
+}
+
+/// European A-license ladder plus an explicit unknown. Non-EU markets map onto
+/// UNKNOWN rather than being forced into a wrong bucket.
+enum LicenseCategory {
+  AM
+  A1
+  A2
+  A
+  UNKNOWN
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique
+  username     String    @unique
+  displayName  String
+  passwordHash String
+  role         Role      @default(USER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastLoginAt  DateTime?
+
+  profile   UserProfile?
+  sessions  AuthSession[]
+  rounds    DiscoveryRound[]
+  favorites Favorite[]
+
+  @@index([role])
+  @@map("users")
+}
+
+/// Server-side sessions. Only a hash of the session token is stored, so a
+/// database leak does not hand out live sessions.
+///
+/// Note: no IP address is stored. It is not needed by any implemented feature,
+/// and storing it would be personal data we would then have to justify, secure
+/// and expire. Rate limiting uses in-memory buckets instead.
+model AuthSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  tokenHash String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("auth_sessions")
+}
+
+model UserProfile {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @db.Uuid
+
+  heightCm          Int?
+  inseamCm          Int?
+  countryCode       String? @db.VarChar(2)
+  preferredCurrency String? @db.VarChar(3)
+
+  /// Reserved for the future social layer; nothing grants access on it yet.
+  profileVisibility ProfileVisibility @default(PRIVATE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+// ---------------------------------------------------------------------------
+// Motorcycle catalogue
+// ---------------------------------------------------------------------------
+
+/// How a generation's start and end years were arrived at.
+///
+/// The distinction is the point. A registry records what a machine weighs and
+/// costs, not what it looks like, so a restyle that changes neither is
+/// invisible in the data — the Kawasaki Z900 was restyled in 2020 and again in
+/// 2025 and gained three kilograms in total. Rather than invent a boundary from
+/// a signal that cannot carry it, an unknown boundary stays UNKNOWN and the
+/// card says so.
+enum BoundarySource {
+  /// A human established it and left a reason and a reference.
+  CURATED
+  /// Derived from a material change in engine capacity or rated power — the
+  /// only two signals in the registry strong enough to mean anything.
+  DETECTED
+  /// We do not know, and the generation spans the whole era we have evidence
+  /// for. This is the honest default and most rows have it.
+  UNKNOWN
+}
+
+/// The narrowest identity a photograph can be attributed to.
+///
+/// A picture is the primary input to a swipe decision, so attributing one too
+/// broadly is worse than having none: a 2017 photograph shown as "the Z900"
+/// misrepresents every bike sold after the restyle. An image is never promoted
+/// to a wider scope than its evidence supports.
+/// How well the primary photograph is known to be of this generation.
+enum ImageStatus {
+  MODEL_YEAR
+  GENERATION
+  FAMILY_ONLY
+  NONE
+  SUSPICIOUS
+}
+
+/// Whether a model is on sale new, as far as the evidence goes.
+enum Availability {
+  NEW
+  USED
+  UNKNOWN
+}
+
+enum ImageScope {
+  /// Of this exact model year.
+  MODEL_YEAR
+  /// Of this generation, but the year is not established.
+  GENERATION
+  /// Of the family, with no generation established. The weakest claim.
+  FAMILY
+}
+
+model Manufacturer {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique
+  slug        String  @unique
+  countryCode String? @db.VarChar(2)
+  website     String?
+
+  /// Normalised brand, from `normalizeBrand` in importers/match.ts.
+  ///
+  /// Sources name the same company differently — "BMW", "BMW Motorrad" and
+  /// "BMW Group" arrived as three manufacturers with the bikes split between
+  /// them, which breaks the manufacturer filter and reads as a bug on a card.
+  /// Unique, so it cannot happen again.
+  matchKey String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  motorcycles Motorcycle[]
+  families    ModelFamily[]
+
+  @@map("manufacturers")
+}
+
+model Motorcycle {
+  id             String @id @default(uuid()) @db.Uuid
+  manufacturerId String @db.Uuid
+
+  model     String
+  slug      String  @unique
+  variant   String?
+  modelYear Int?
+
+  category    MotorcycleCategory
+  /// Original taxonomy string from the source, kept verbatim for provenance and
+  /// for smarter re-mapping later without a re-import.
+  categoryRaw String?
+  subCategory String?
+  /// Free-form flexible taxonomy ("retro", "shaft-drive", "a2-restrictable").
+  tags        String[]           @default([])
+  description String?
+
+  // -- Engine ---------------------------------------------------------------
+  displacementCc      Int?
+  cylinders           Int?
+  engineConfiguration String?
+  cooling             String?
+  powerHp             Float?
+  powerKw             Float?
+  torqueNm            Float?
+  transmission        String?
+  gears               Int?
+
+  // -- Physical -------------------------------------------------------------
+  wetWeightKg        Float?
+  dryWeightKg        Float?
+  seatHeightMm       Int?
+  seatWidthMm        Int?
+  wheelbaseMm        Int?
+  fuelCapacityLiters Float?
+
+  // -- Usage ----------------------------------------------------------------
+  passengerAllowed Boolean?
+  seatCount        Int?
+  /// Factual only. A pillion seat is not a comfort claim.
+  passengerPegs    Boolean?
+  ridingPosition   RidingPosition?
+  licenseCategory  LicenseCategory?
+
+  // -- Commercial -----------------------------------------------------------
+  msrpAmount        Float?
+  msrpCurrency      String?  @db.VarChar(3)
+  marketCountryCode String?  @db.VarChar(2)
+  availableNew      Boolean?
+
+  /// Earliest and latest year an example of this model was first registered in
+  /// the Netherlands, from the RDW registry.
+  ///
+  /// These answer a question `modelYear` cannot. `modelYear` is when a model was
+  /// introduced, so the Kawasaki Z650 carries 1977 — yet it is on sale today.
+  /// Filtering a round to "2015 and newer" on `modelYear` alone would drop it,
+  /// which is exactly the opposite of what the user asked for. Registration
+  /// years describe when a machine was actually being bought, which is what
+  /// "recent" means to somebody shopping.
+  firstRegistrationYear Int?
+  lastRegistrationYear  Int?
+
+  /// How many are registered in the Netherlands. A real popularity signal, and
+  /// an honestly interesting fact in its own right.
+  registrationCount Int?
+
+  // -- Provenance -----------------------------------------------------------
+  source     String
+  sourceUrl  String?
+  externalId String?
+  importedAt DateTime?
+
+  /// Normalised "make|model" used to recognise the same motorcycle across
+  /// sources — RDW's "KAWASAKI / Z900" and Wikipedia's "Kawasaki / Z900" are one
+  /// machine and must be one row, or the deck shows it twice.
+  matchKey String?
+
+  /// The family this generation belongs to: Kawasaki Z900, across every year.
+  familyId String? @db.Uuid
+
+  /// The years this generation covers, and how we know.
+  ///
+  /// UNKNOWN — and a span covering the whole era — is the honest default. See
+  /// `BoundarySource`.
+  generationFrom    Int?
+  generationTo      Int?
+  boundarySource    BoundarySource @default(UNKNOWN)
+  /// What to print on a card: "2021–", "2017–2019". Null when unknown.
+  generationLabel   String?
+  /// Why this boundary is where it is, and what says so. Curated only.
+  boundaryReason    String?
+  boundaryReference String?
+
+  /// The canonical identity this motorcycle is: brand, model family and
+  /// generation, from `catalog/identity.ts`.
+  ///
+  /// Unique, because that is the whole point — "Z900", "Z900 ABS" and Wikidata's
+  /// "Kawasaki Z900" are one machine and must be one row for the deck to work.
+  /// The raw records that produced it live in `SourceRecord` and are never
+  /// thrown away.
+  identityKey String? @unique
+
+  /// What the evidence behind this card amounts to, field by field: which
+  /// fields are verified, which are inferred from a name, which are unknown,
+  /// and where sources disagree. Computed by the rebuild from `fieldSources`,
+  /// the sources' own confidence and the images; see `catalog/evidence.ts`.
+  evidence Json @default("{}")
+
+  /// How narrowly the primary photograph is known to be of this generation.
+  /// `NONE` when there is no photograph; `SUSPICIOUS` when the file name
+  /// suggests a different machine. See `ImageStatus`.
+  imageStatus ImageStatus @default(NONE)
+
+  /// Whether this card may enter a discovery round at all: its identity is
+  /// established and its photograph is of the right generation. Filters then
+  /// narrow further per round. Browse ignores this — the whole catalogue stays
+  /// visible there.
+  discoveryEligible Boolean  @default(false)
+  /// Why not, when not. Short machine-readable reasons, for the audit.
+  ineligibleReasons String[] @default([])
+
+  /// Whether the model is being sold new now, as the registry's first
+  /// admissions show it: `NEW` needs a meaningful number of examples first put
+  /// on the road this year or last, `USED` needs that to have stopped, and a
+  /// handful of stragglers proves neither. `availableNew` is derived from this.
+  availability Availability @default(UNKNOWN)
+
+  /// The model year the list price refers to — the latest year with enough
+  /// priced registrations. A 2019 list price is not a current price.
+  msrpYear Int?
+
+  /// Which source supplied each merged field, e.g.
+  /// `{"seatHeightMm":"wikipedia","msrpAmount":"rdw"}`.
+  ///
+  /// Without this a merged row is unfalsifiable: you can see a seat height but
+  /// not whether to believe it, and no way to tell later which source to go and
+  /// fix.
+  fieldSources Json @default("{}")
+
+  /// When Wikimedia Commons was last searched for photographs of this
+  /// motorcycle.
+  ///
+  /// Most of the registry's machines have never been photographed by anyone who
+  /// uploaded the result, and a search that finds nothing costs the same as one
+  /// that succeeds. Recording the attempt keeps a re-run from repeating
+  /// thousands of fruitless queries against somebody else's infrastructure.
+  photosSearchedAt DateTime?
+
+  /// Sources that contributed data to this row beyond the one that created it.
+  /// A row created from Wikipedia and later given a price by RDW says so here,
+  /// rather than silently claiming a single origin.
+  enrichedBy String[] @default([])
+
+  /// Set when a human has corrected this row. Importers must respect it.
+  manuallyEdited  Boolean  @default(false)
+  /// Field names an importer must never overwrite, even on a full refresh.
+  protectedFields String[] @default([])
+
+  /// External sources come and go. When one drops a model we retire the row
+  /// instead of deleting it, so historical swipes stay meaningful.
+  isActive  Boolean   @default(true)
+  retiredAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  manufacturer  Manufacturer             @relation(fields: [manufacturerId], references: [id], onDelete: Restrict)
+  family        ModelFamily?             @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  modelYears    ModelYear[]
+  sourceRecords SourceRecord[]
+  images        MotorcycleImage[]
+  swipes        Swipe[]
+  rankings      RoundMotorcycleRanking[]
+  votesAsA      ComparisonVote[]         @relation("comparisonA")
+  votesAsB      ComparisonVote[]         @relation("comparisonB")
+  votesWon      ComparisonVote[]         @relation("comparisonWinner")
+  favorites     Favorite[]
+
+  @@unique([source, externalId])
+  @@index([manufacturerId])
+  @@index([category])
+  @@index([modelYear])
+  @@index([availableNew])
+  @@index([lastRegistrationYear])
+  @@index([seatHeightMm])
+  @@index([displacementCc])
+  @@index([powerHp])
+  @@index([isActive])
+  @@index([category, isActive])
+  @@index([matchKey])
+  @@index([identityKey])
+  @@index([familyId])
+  @@index([discoveryEligible])
+  @@index([availability])
+  @@map("motorcycles")
+}
+
+/// Images are addressed by `url` today. `localPath` is the migration hatch: a
+/// later job downloads the file, sets localPath, and the resolver prefers it
+/// over the remote URL. An S3/MinIO backend slots into the same seam without a
+/// schema change.
+model MotorcycleImage {
+  id           String  @id @default(uuid()) @db.Uuid
+  motorcycleId String  @db.Uuid
+  url          String
+  localPath    String?
+  sourceUrl    String?
+  sortOrder    Int     @default(0)
+  isPrimary    Boolean @default(false)
+  width        Int?
+  height       Int?
+  /// STUDIO / ACTION / DETAIL / PLACEHOLDER
+  imageType    String?
+  /// Attribution or licence note. Required before a file may be self-hosted.
+  attribution  String?
+
+  createdAt DateTime @default(now())
+
+  motorcycle Motorcycle @relation(fields: [motorcycleId], references: [id], onDelete: Cascade)
+  /// How narrowly this photograph can be attributed.
+  ///
+  /// GENERATION is the default because that is what a provider's images
+  /// support: an article's photographs are of the bike the article is about.
+  /// MODEL_YEAR requires the year to be established — usually from the file
+  /// name. Nothing is ever widened beyond its evidence.
+  scope      ImageScope @default(GENERATION)
+  /// The year this photograph shows, when scope is MODEL_YEAR.
+  modelYear  Int?
+
+  /// What proves this photograph is of this motorcycle at this scope, in one
+  /// line a person can check: "file name states 2021", "photographed 2018-09,
+  /// before the 2020 redesign", "official Yamaha model page, fetched 2026-09".
+  evidence String?
+  /// How the image may be used: `cc` for a Commons file (attribution required,
+  /// may be self-hosted), `manufacturer` for an official image that is only
+  /// ever hotlinked, never copied.
+  license String?
+
+  /// Which job put this image here: a provider name, or `commons-search` for
+  /// the photograph job that fills in bikes the registry has no picture of.
+  ///
+  /// A rebuild replaces the images a provider claims and must leave everything
+  /// else alone, or every re-import would throw away thousands of photographs
+  /// that took hours to find.
+  source String?
+
+  @@index([motorcycleId])
+  @@index([motorcycleId, isPrimary])
+  @@index([motorcycleId, sortOrder])
+  @@map("motorcycle_images")
+}
+
+// ---------------------------------------------------------------------------
+/// A model name as a rider uses it: "Z900", "MT-07", "R 1250 GS".
+///
+/// One family spans every generation of that motorcycle. It is deliberately
+/// *not* the thing you swipe — a 2017 Z900 and a 2026 Z900 do not look alike,
+/// and the family is the level at which that difference is invisible.
+///
+/// Families that merely share letters stay separate: Z900 and Z900RS are two
+/// families, as `catalog/identity.ts` already established.
+model ModelFamily {
+  id             String @id @default(uuid()) @db.Uuid
+  manufacturerId String @db.Uuid
+
+  name      String
+  slug      String @unique
+  /// Normalised `brand|model`, from `catalog/identity.ts`.
+  familyKey String @unique
+
+  /// When the Commons category tree for this family was last walked for
+  /// photographs, so a re-run continues rather than starting again.
+  categorySearchedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  manufacturer Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Restrict)
+  generations  Motorcycle[]
+
+  @@index([manufacturerId])
+  @@map("model_families")
+}
+
+/// One year of one generation, as the Dutch registry recorded it.
+///
+/// This is the level at which the registry is genuinely reliable: how many were
+/// put on the road that year, what they cost, what they weighed. A generation's
+/// own figures are the blend across its years; where a year differs, its values
+/// override — so a card can show the 2026 price against the 2026 photograph
+/// instead of an average of a decade.
+///
+/// Only fields the registry measures per vehicle belong here. Nothing is
+/// derived, and a year with too few registrations to mean anything is simply
+/// absent.
+model ModelYear {
+  id           String @id @default(uuid()) @db.Uuid
+  /// The generation this year belongs to.
+  motorcycleId String @db.Uuid
+  year         Int
+
+  registrationCount    Int
+  medianPriceEur       Float?
+  medianMassKg         Float?
+  medianDisplacementCc Int?
+  maxPowerKw           Float?
+
+  /// Which source supplied each of the above, exactly as on a motorcycle.
+  fieldSources Json @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  motorcycle Motorcycle @relation(fields: [motorcycleId], references: [id], onDelete: Cascade)
+
+  @@unique([motorcycleId, year])
+  @@index([motorcycleId])
+  @@map("model_years")
+}
+
+/// What one source said about one machine, kept exactly as it said it.
+///
+/// The canonical `Motorcycle` above is a *projection* of these: several records
+/// from different sources merge into one row the deck can show. Keeping the
+/// raw records means a merge is always reversible, a provider can be re-run
+/// without re-fetching, and "where did this seat height come from" has an
+/// answer that is not a guess.
+///
+/// This is also what makes deduplication safe. Merging destroys information
+/// when it is the only copy; here it destroys nothing.
+model SourceRecord {
+  id         String @id @default(uuid()) @db.Uuid
+  source     String
+  /// Stable id within that source. Together with `source`, this row's identity.
+  externalId String
+
+  /// The canonical motorcycle this record contributes to. Null while a record
+  /// is imported but not yet resolved, or when its identity cannot be decided.
+  motorcycleId String? @db.Uuid
+
+  /// The canonical identity this record claims — see `catalog/identity.ts`.
+  identityKey String?
+
+  // -- Identity inputs, lifted out of the payload so they are queryable ------
+  manufacturerName String
+  model            String
+  variant          String?
+  /// The era this record describes: production years where a source knows them,
+  /// otherwise the span over which examples were registered. Two records only
+  /// merge when their eras are compatible — a 1976 Z650 and a 2017 Z650 are not
+  /// the same motorcycle however identical their names.
+  eraFrom          Int?
+  eraTo            Int?
+
+  /// The provider's full normalised output, verbatim. Every merged field can be
+  /// traced back to a value in here.
+  payload Json
+
+  /// Per-field confidence the provider attached, 0–1. A registry figure derived
+  /// from three registrations is not the same claim as one derived from one.
+  confidence Json @default("{}")
+
+  fetchedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  motorcycle Motorcycle? @relation(fields: [motorcycleId], references: [id], onDelete: SetNull)
+
+  @@unique([source, externalId])
+  @@index([motorcycleId])
+  @@index([identityKey])
+  @@index([source])
+  @@map("source_records")
+}
+
+/// A motorcycle somebody has kept, outside of any round.
+///
+/// Rounds are questions with an end: "which bike should I buy this spring".
+/// This is the other thing people do — come across a machine, like the look of
+/// it, and want it saved. It answers no question and expires with nothing,
+/// which is exactly why it cannot live in `Swipe`: a swipe is an answer given
+/// inside one round, and the same bike can honestly be a LIKE in one and a
+/// DISLIKE in another.
+///
+/// Deliberately thin. A heart is a heart; anything more belongs in a round.
+model Favorite {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  motorcycleId String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Restrict, like every other reference to a motorcycle: a saved bike must
+  /// not vanish because an importer stopped listing it.
+  motorcycle Motorcycle @relation(fields: [motorcycleId], references: [id], onDelete: Restrict)
+
+  /// Hearting twice is the same as hearting once.
+  @@unique([userId, motorcycleId])
+  /// The garage is listed newest first, for one user at a time.
+  @@index([userId, createdAt])
+  @@map("favorites")
+}
+
+// ---------------------------------------------------------------------------
+// Discovery rounds
+// ---------------------------------------------------------------------------
+
+model DiscoveryRound {
+  id          String  @id @default(uuid()) @db.Uuid
+  userId      String  @db.Uuid
+  name        String
+  description String?
+  /// Free-text intent ("cheap commuter", "money no object"). Not used for
+  /// filtering; it makes a round self-explanatory a year later.
+  goal        String?
+
+  status     RoundStatus     @default(ACTIVE)
+  visibility RoundVisibility @default(PRIVATE)
+
+  /// Validated by RoundFiltersSchema (src/lib/domain/filters.ts) before write.
+  /// An empty object means "show me everything".
+  filters Json @default("{}")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  archivedAt  DateTime?
+
+  user            User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  swipes          Swipe[]
+  comparisonVotes ComparisonVote[]
+  rankings        RoundMotorcycleRanking[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([visibility])
+  @@index([userId, status])
+  @@index([userId, createdAt])
+  @@map("discovery_rounds")
+}
+
+model Swipe {
+  id           String        @id @default(uuid()) @db.Uuid
+  roundId      String        @db.Uuid
+  motorcycleId String        @db.Uuid
+  decision     SwipeDecision
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  round      DiscoveryRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  // Restrict: a motorcycle carrying swipe history cannot be deleted out from
+  // under a user's round. Retire it with `isActive = false` instead.
+  motorcycle Motorcycle     @relation(fields: [motorcycleId], references: [id], onDelete: Restrict)
+
+  @@unique([roundId, motorcycleId])
+  @@index([roundId])
+  @@index([motorcycleId])
+  @@index([roundId, decision])
+  @@map("swipes")
+}
+
+model ComparisonVote {
+  id                 String @id @default(uuid()) @db.Uuid
+  roundId            String @db.Uuid
+  motorcycleAId      String @db.Uuid
+  motorcycleBId      String @db.Uuid
+  winnerMotorcycleId String @db.Uuid
+
+  createdAt DateTime @default(now())
+
+  round       DiscoveryRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  motorcycleA Motorcycle     @relation("comparisonA", fields: [motorcycleAId], references: [id], onDelete: Restrict)
+  motorcycleB Motorcycle     @relation("comparisonB", fields: [motorcycleBId], references: [id], onDelete: Restrict)
+  winner      Motorcycle     @relation("comparisonWinner", fields: [winnerMotorcycleId], references: [id], onDelete: Restrict)
+
+  @@index([roundId])
+  @@index([roundId, createdAt])
+  @@index([winnerMotorcycleId])
+  @@map("comparison_votes")
+}
+
+/// Denormalised Elo standings per round. Fully rebuildable from ComparisonVote
+/// (RankingService.rebuildRound), so it is a cache, not a source of truth.
+model RoundMotorcycleRanking {
+  id           String @id @default(uuid()) @db.Uuid
+  roundId      String @db.Uuid
+  motorcycleId String @db.Uuid
+
+  eloScore    Float @default(1500)
+  comparisons Int   @default(0)
+  wins        Int   @default(0)
+  losses      Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  round      DiscoveryRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  motorcycle Motorcycle     @relation(fields: [motorcycleId], references: [id], onDelete: Restrict)
+
+  @@unique([roundId, motorcycleId])
+  @@index([roundId])
+  @@index([roundId, eloScore])
+  @@map("round_motorcycle_rankings")
+}

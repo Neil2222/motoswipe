@@ -1,0 +1,2980 @@
+[
+  {
+    "brand": "kawasaki",
+    "family": "Z900",
+    "generations": [
+      {
+        "id": "5ee14a13-53b0-41b8-ad57-a33cc7a2e566",
+        "eligible": true,
+        "reasons": [],
+        "years": "2020–2024",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2021,
+          "source": "wikipedia-de",
+          "license": "cc",
+          "evidence": "de.wikipedia caption states Baujahr 2021",
+          "url": "https://thumb.wikimedia.org/wikipedia/de/thumb/b/ba/KawasakiZ900MJ2021.JPG/1280px-KawasakiZ900MJ2021.JPG?utm_source=de.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          948,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          125,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          98.6,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          212,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          795,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          10899,
+          2024,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 3556,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "f30342aa-0b49-401a-b9eb-f71f5cfcefad",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2025–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/KawasakiZ900.jpg/1280px-KawasakiZ900.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          948,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          125,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          98.6,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          213,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          795,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          10899,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 1346,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "kawasaki",
+    "family": "Z650",
+    "generations": [
+      {
+        "id": "530840be-6447-4dd8-8d04-6fa47f1440a8",
+        "eligible": true,
+        "reasons": [],
+        "years": "2020–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2020,
+          "source": "wikipedia-de",
+          "license": "cc",
+          "evidence": "de.wikipedia caption states Baujahr 2020",
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Kawasaki_Z650_schwarz_2020.jpg/1280px-Kawasaki_Z650_schwarz_2020.jpg?utm_source=de.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          649,
+          "HIGH"
+        ],
+        "powerHp": [
+          68,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          64,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          188,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          790,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          7999,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 3405,
+        "fieldSources": {
+          "gears": "wikipedia-de",
+          "powerHp": "wikipedia-de",
+          "powerKw": "wikipedia-de",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "description": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "displacementCc": "wikipedia-de",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "yamaha",
+    "family": "MT-07",
+    "generations": [
+      {
+        "id": "ed2a7b59-1051-4b1d-aa1c-c6cca6f7e157",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2018–2020",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Yamaha_MT-07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+        },
+        "displacementCc": [
+          689,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          73.8,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          68,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          183,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          805,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          7599,
+          2020,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 2498,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "b9740043-09f9-48a3-a11e-bab3020b72cc",
+        "eligible": true,
+        "reasons": [],
+        "years": "2021–2024",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2021,
+          "source": "commons-search",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/2021_Black_Yamaha_MT-07.jpg/1280px-2021_Black_Yamaha_MT-07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          689,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          73.8,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          68,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          184,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          805,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          8599,
+          2024,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 2721,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "aef74eae-2bd6-4455-8406-75bad9abe2e1",
+        "eligible": true,
+        "reasons": [],
+        "years": "2025–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2025,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Yamaha NL image; asset path states model year 2025",
+          "url": "https://cdn2.yamaha-motor.eu/prod/product-assets/2025/MT07A/2025-Yamaha-MT07A-EU-Ice_Storm-Action-001-03.jpg"
+        },
+        "displacementCc": [
+          689,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          73.8,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          68,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          183,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          805,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          8898,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 919,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "yamaha",
+    "family": "MT-09",
+    "generations": [
+      {
+        "id": "927bf5e6-78b8-4f62-ad19-637d155b65eb",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2017–2020",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Yamaha_MT-09_2014.jpg/1280px-Yamaha_MT-09_2014.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          847,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          117.3,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          87.5,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          193,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          820,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          10299,
+          2020,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 2626,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "4064ad09-ba82-4e41-b5e3-1916105982e2",
+        "eligible": true,
+        "reasons": [],
+        "years": "2021–2023",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2022,
+          "source": "wikipedia-de",
+          "license": "cc",
+          "evidence": "de.wikipedia caption states Baujahr 2022",
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/2022_Yamaha_MT-09.jpg/1280px-2022_Yamaha_MT-09.jpg?utm_source=de.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          890,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          117.3,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          87.5,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          189,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          820,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          11799,
+          2023,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 1429,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "abc96c9c-cd77-4383-807d-1575dab1fd6a",
+        "eligible": true,
+        "reasons": [],
+        "years": "2024–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2025,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Yamaha NL image; asset path states model year 2025",
+          "url": "https://cdn2.yamaha-motor.eu/prod/product-assets/2025/MT09A/2025-Yamaha-MT09A-EU-Ice_Storm-Action-001-03.jpg"
+        },
+        "displacementCc": [
+          890,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          117.3,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          87.5,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          193,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          820,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          12299,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 1392,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "yamaha",
+    "family": "Tracer 9",
+    "generations": [
+      {
+        "id": "772169df-774f-4983-b5af-e7ed87f09cd2",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2017–2020",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia-de",
+          "license": "cc",
+          "evidence": "infobox image of the de.wikipedia article \"Yamaha Tracer 9\"",
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Yamaha_Tracer_9_GT%2B_2025.jpg/1280px-Yamaha_Tracer_9_GT%2B_2025.jpg?utm_source=de.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          847,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          113.5,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          215,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          13898,
+          2020,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "SPORT_TOURING",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 2064,
+        "fieldSources": {
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "displacementCc": "rdw",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "d7754e5f-0fed-4d86-99bd-15e88f7c6358",
+        "eligible": true,
+        "reasons": [],
+        "years": "2021–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2025,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Yamaha NL image; asset path states model year 2025",
+          "url": "https://cdn2.yamaha-motor.eu/prod/product-assets/2025/MT09ATRDX/2025-Yamaha-MT09ATRDX-EU-Tech_Back-Action-001-03.jpg"
+        },
+        "displacementCc": [
+          890,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          117.3,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          223,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          17299,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "SPORT_TOURING",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 3268,
+        "fieldSources": {
+          "gears": "wikipedia-de",
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia-de",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia-de",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "yamaha",
+    "family": "Ténéré 700",
+    "generations": [
+      {
+        "id": "a02e7e3a-3329-45fa-8f73-8c7a04f0da67",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2019–2024",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/Yamaha_Tenere_700.jpg/1280px-Yamaha_Tenere_700.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          689,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          72.1,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          68,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          204,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          875,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          12499,
+          2024,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 2403,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "5a059586-48fe-49d7-a533-2d3094a8af7a",
+        "eligible": true,
+        "reasons": [],
+        "years": "2025–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2025,
+          "source": "commons-search",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Yamaha_T%C3%A9n%C3%A9r%C3%A9_700_2025.jpg/1280px-Yamaha_T%C3%A9n%C3%A9r%C3%A9_700_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          689,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          72.1,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          68,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          208,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          875,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          12698,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 845,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "kawasaki",
+    "family": "Ninja 650",
+    "generations": [
+      {
+        "id": "3c4a0406-415c-4865-9380-51303099c9f9",
+        "eligible": true,
+        "reasons": [],
+        "years": "2020–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2020,
+          "source": "commons-search",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Kawasaki_Ninja_650_2020.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+        },
+        "displacementCc": [
+          649,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          68,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          64,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          193,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          790,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          8599,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "SPORT",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 1396,
+        "fieldSources": {
+          "gears": "wikipedia-de",
+          "powerHp": "wikipedia-de",
+          "powerKw": "wikipedia-de",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia-de",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia-de",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "displacementCc": "rdw",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "kawasaki",
+    "family": "Versys 650",
+    "generations": [
+      {
+        "id": "c964c757-e0c9-408d-be16-ffa942792493",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2015–2021",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Kawasaki_Versys_red.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+        },
+        "displacementCc": [
+          649,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          67,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          56.9,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          217,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          845,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          8449,
+          2021,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "SPORT_TOURING",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 2560,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "d9abb463-c964-46c8-b9de-ae407425245a",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2022–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Kawasaki_Versys_red.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+        },
+        "displacementCc": [
+          649,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          67,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          56.9,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          219,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          845,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          8849,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "SPORT_TOURING",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 1536,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "honda",
+    "family": "NC750X",
+    "generations": [
+      {
+        "id": "580ab7a0-2d55-4406-9b62-37ed2a7d236e",
+        "eligible": true,
+        "reasons": [],
+        "years": "2016–2020",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2017,
+          "source": "commons-category",
+          "license": "cc",
+          "evidence": "file name or caption states the year",
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/2017_Honda_NC750X.jpg/1280px-2017_Honda_NC750X.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          745,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          58,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          69,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          220,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          800,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          9199,
+          2020,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 2097,
+        "fieldSources": {
+          "gears": "wikipedia-de",
+          "powerHp": "wikipedia-de",
+          "powerKw": "wikipedia-de",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia-de",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia-de",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia-de",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "255f2c9c-c0fd-43c9-b30b-e50bf9abf78d",
+        "eligible": true,
+        "reasons": [],
+        "years": "2021–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2025,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Honda NL image; asset name states model year 2025",
+          "url": "https://www.honda.nl/content/dam/central/motorcycles/colour-picker/adventure/nc750x/nc750x_mt_35kw_2025/nh-c99r_earth_black/25YM_NC750X_EARTH-BLACK_MT_RHS.png"
+        },
+        "displacementCc": [
+          745,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          57.7,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          69,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          224,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          802,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          10269,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 2101,
+        "fieldSources": {
+          "gears": "wikipedia-de",
+          "powerHp": "manufacturer",
+          "powerKw": "manufacturer",
+          "category": "curated",
+          "torqueNm": "manufacturer",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia-de",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia-de",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "manufacturer",
+          "displacementCc": "manufacturer",
+          "ridingPosition": "wikipedia-de",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "manufacturer",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "honda",
+    "family": "CB750 Hornet",
+    "generations": [
+      {
+        "id": "68c554f0-a769-401c-8482-9ca7ed256cbb",
+        "eligible": true,
+        "reasons": [],
+        "years": "2023–",
+        "boundary": "UNKNOWN",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2025,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Honda NL image; asset name states model year 2025",
+          "url": "https://www.honda.nl/content/dam/central/motorcycles/colour-picker/street/cb1000_hornet/cb1000_hornet_2025/nh-c64m_matte_iridium_grey_metallic/25YM_Hornet-1000_Studio_MAT-IRIDIUM-GRAY-METALLIC_RHS.png"
+        },
+        "displacementCc": [
+          755,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          89.8,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          75,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          190,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          795,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          9369,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 945,
+        "fieldSources": {
+          "gears": "wikipedia-de",
+          "powerHp": "manufacturer",
+          "powerKw": "manufacturer",
+          "category": "curated",
+          "torqueNm": "manufacturer",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia-de",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "manufacturer",
+          "displacementCc": "manufacturer",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "manufacturer",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "honda",
+    "family": "CRF1100L Africa Twin",
+    "generations": [
+      {
+        "id": "61e8c0be-bfba-4d67-b19c-d71fba42a910",
+        "eligible": true,
+        "reasons": [],
+        "years": "2019–",
+        "boundary": "UNKNOWN",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2026,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Honda NL image; asset name states model year 2026",
+          "url": "https://www.honda.nl/content/dam/central/motorcycles/colour-picker/adventure/crf1100l_at/crf1100l_at_mt_2026/r-380_grand_prix_red/26YM_CRF1100L_L1_MT_R-380_GrandPrixRed_RHS.png"
+        },
+        "displacementCc": [
+          1084,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          100.6,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          105,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          229,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          850,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          17968,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 710,
+        "fieldSources": {
+          "gears": "wikipedia-de",
+          "powerHp": "manufacturer",
+          "powerKw": "manufacturer",
+          "category": "curated",
+          "torqueNm": "manufacturer",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia-de",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "manufacturer",
+          "displacementCc": "manufacturer",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "manufacturer",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "honda",
+    "family": "CB1000 Hornet",
+    "generations": [
+      {
+        "id": "d7eb8a30-9dd8-4d70-b93e-9791f1b13598",
+        "eligible": true,
+        "reasons": [],
+        "years": "2025–",
+        "boundary": "UNKNOWN",
+        "image": {
+          "status": "GENERATION",
+          "scope": "GENERATION",
+          "modelYear": null,
+          "source": "commons-search",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Honda_CB1000_Hornet.jpg/1280px-Honda_CB1000_Hornet.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          1000,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          155,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          211,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          13450,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "HYPER_NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 239,
+        "fieldSources": {
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "displacementCc": "rdw",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "bmw",
+    "family": "R 1300 GS",
+    "generations": [
+      {
+        "id": "2ada3dd7-fc45-4d0d-a980-0151711fb5b1",
+        "eligible": true,
+        "reasons": [],
+        "years": "2023–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "GENERATION",
+          "scope": "GENERATION",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/3_BMW_R1300GS_2024-06-07_v2.jpg/1280px-3_BMW_R1300GS_2024-06-07_v2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          1300,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          145,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          149,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          237,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          850,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          31979,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 2077,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "description": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "bmw",
+    "family": "R 1300 GS Adventure",
+    "generations": [
+      {
+        "id": "e8d0f1f8-a0fc-4451-ae1d-fd11181a353d",
+        "eligible": true,
+        "reasons": [],
+        "years": "2024–",
+        "boundary": "UNKNOWN",
+        "image": {
+          "status": "GENERATION",
+          "scope": "GENERATION",
+          "modelYear": null,
+          "source": "commons-search",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/BMW_R1300GS_Adventure_2025.jpg/1280px-BMW_R1300GS_Adventure_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          1300,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          143.5,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          269,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          33328,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 1223,
+        "fieldSources": {
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "displacementCc": "rdw",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "bmw",
+    "family": "F 900 GS",
+    "generations": [
+      {
+        "id": "425a7905-afaf-45ae-8603-c56894ce6862",
+        "eligible": true,
+        "reasons": [],
+        "years": "2024–",
+        "boundary": "UNKNOWN",
+        "image": {
+          "status": "GENERATION",
+          "scope": "GENERATION",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/BMW_F900_GS_2024-06.jpg/1280px-BMW_F900_GS_2024-06.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          895,
+          "HIGH"
+        ],
+        "powerHp": [
+          103.3,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          93,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          219,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          870,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          20367,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 254,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia-de",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "wikipedia-de",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "bmw",
+    "family": "S 1000 RR",
+    "generations": [
+      {
+        "id": "d892bc81-f3c8-4a8e-a8c6-edfcc29e6d43",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2019–2022",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/BMW_S1000_RR_Studio.JPG/1280px-BMW_S1000_RR_Studio.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          999,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          215,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          112,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          197,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          832,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          23721,
+          2022,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "SUPERSPORT",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 320,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "7cc2b354-3d8a-4b87-83d4-2e333baff13e",
+        "eligible": true,
+        "reasons": [],
+        "years": "2023–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2025,
+          "source": "wikipedia-de",
+          "license": "cc",
+          "evidence": "de.wikipedia caption states Baujahr 2025",
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Japan-Mobility-Show-2025-RuinDig_0435.jpg/1280px-Japan-Mobility-Show-2025-RuinDig_0435.jpg?utm_source=de.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          999,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          215,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          112,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          197,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          832,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          28343,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "SUPERSPORT",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 261,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "powerHp": "wikipedia",
+          "powerKw": "wikipedia",
+          "category": "curated",
+          "torqueNm": "wikipedia-de",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "dryWeightKg": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia-de",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "bmw",
+    "family": "S 1000 XR",
+    "generations": [
+      {
+        "id": "2b758f58-9109-46d3-a239-c5373bedea73",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2020–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/BMW_S_1000_XR.jpg/1280px-BMW_S_1000_XR.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          999,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          167.6,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          226,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          27071,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "SPORT_TOURING",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 1448,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "suzuki",
+    "family": "GSX-8S",
+    "generations": [
+      {
+        "id": "1fe56e8e-741d-4b7c-9a62-c970d92bcb0c",
+        "eligible": true,
+        "reasons": [],
+        "years": "2023–",
+        "boundary": "UNKNOWN",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2023,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Suzuki NL image; asset code GSX800RQM3 states model year 2023",
+          "url": "https://www.suzuki.nl/images/dWpaPq7hTizB2G7gBTpwBuF8OdM=/2969/original/-227989167253691440/Suzuki_GSX800RQM3_action_147_header.jpg"
+        },
+        "displacementCc": [
+          776,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          83,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          78,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          202,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          810,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          9699,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 961,
+        "fieldSources": {
+          "powerHp": "manufacturer",
+          "powerKw": "manufacturer",
+          "category": "curated",
+          "torqueNm": "manufacturer",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "manufacturer",
+          "displacementCc": "manufacturer",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "suzuki",
+    "family": "V-Strom 800DE",
+    "generations": [
+      {
+        "id": "85fed2b2-c4cf-42f7-aa39-a4842a9bc694",
+        "eligible": true,
+        "reasons": [],
+        "years": "2023–",
+        "boundary": "UNKNOWN",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2026,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Suzuki NL model page image; current model page as of 2026-09-04",
+          "url": "https://www.suzuki.nl/images/BpHLGiW0TIF1Zv4xKFqYFKYS6Xg=/5153/original/6700165780943691318/DL800DERCM5_action_3.webp"
+        },
+        "displacementCc": [
+          776,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          83.9,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          78,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          223,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          855,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          11699,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 1029,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "cooling": "wikipedia",
+          "powerHp": "manufacturer",
+          "powerKw": "manufacturer",
+          "category": "curated",
+          "torqueNm": "manufacturer",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "description": "wikipedia",
+          "dryWeightKg": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "manufacturer",
+          "transmission": "wikipedia",
+          "displacementCc": "manufacturer",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "engineConfiguration": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "triumph",
+    "family": "Street Triple 765",
+    "generations": [
+      {
+        "id": "e48f23e1-e377-4f28-9900-3dd4212fe086",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2020–2022",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "commons-search",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/TRIUMPH_STREET_TRIPLE_765_MOTO2_EDITION_at_50th_Tokyo_Motorcycle_Show_%282023%29.jpg/1280px-TRIUMPH_STREET_TRIPLE_765_MOTO2_EDITION_at_50th_Tokyo_Motorcycle_Show_%282023%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          765,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          121.4,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          187,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          14095,
+          2022,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 200,
+        "fieldSources": {
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "displacementCc": "rdw",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "f17523ae-8b75-4d5f-8e5c-f8a2c60e8f7b",
+        "eligible": true,
+        "reasons": [],
+        "years": "2023–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2026,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Triumph NL image; file name states model year MY26",
+          "url": "https://media.triumphmotorcycles.co.uk/image/upload/w_1200,c_scale/q_auto:eco/sitecoremedialibrary/media-library/images/motorcycles/my26%20colours/street%20triple/street-triple-r-my26-phantom-black-rhs-1080.png"
+        },
+        "displacementCc": [
+          765,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          128.2,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          80,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          188,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          826,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          15095,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "NAKED",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 285,
+        "fieldSources": {
+          "powerHp": "manufacturer",
+          "powerKw": "manufacturer",
+          "category": "curated",
+          "torqueNm": "manufacturer",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "manufacturer",
+          "displacementCc": "rdw",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "manufacturer",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "triumph",
+    "family": "Tiger 900",
+    "generations": [
+      {
+        "id": "1005db5b-ccbe-46c8-89c2-8cc393e8065a",
+        "eligible": false,
+        "reasons": [
+          "family-image-on-divided-family"
+        ],
+        "years": "2020–2023",
+        "boundary": "CURATED",
+        "image": {
+          "status": "FAMILY_ONLY",
+          "scope": "FAMILY",
+          "modelYear": null,
+          "source": "wikipedia",
+          "license": "cc",
+          "evidence": null,
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/2021_Triumph_Tiger_900_GT_LRH.jpg/1280px-2021_Triumph_Tiger_900_GT_LRH.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        "displacementCc": [
+          888,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          93.9,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          216,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          820,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          18495,
+          2023,
+          "VERIFIED",
+          "HISTORICAL"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "USED",
+          "VERIFIED"
+        ],
+        "registrations": 724,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "description": "wikipedia",
+          "dryWeightKg": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "wikipedia",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "wikipedia",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      },
+      {
+        "id": "32e13da6-0dcf-4921-a975-9fe3d288c266",
+        "eligible": true,
+        "reasons": [],
+        "years": "2024–",
+        "boundary": "CURATED",
+        "image": {
+          "status": "MODEL_YEAR",
+          "scope": "MODEL_YEAR",
+          "modelYear": 2026,
+          "source": "manufacturer",
+          "license": "manufacturer",
+          "evidence": "official Triumph NL image; file name states model year MY26",
+          "url": "https://media.triumphmotorcycles.co.uk/image/upload/w_1200,c_scale/f_auto/q_auto:eco/sitecoremedialibrary/media-library/images/motorcycles/my26%20colours/tiger%20900/tiger-900-rally-pro-my26-triumph-performance-yellow-rhs-1080.png"
+        },
+        "displacementCc": [
+          888,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          106.6,
+          "VERIFIED"
+        ],
+        "torqueNm": [
+          90,
+          "VERIFIED"
+        ],
+        "wetWeightKg": [
+          222,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          820,
+          "VERIFIED"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          18795,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 344,
+        "fieldSources": {
+          "gears": "wikipedia",
+          "powerHp": "manufacturer",
+          "powerKw": "manufacturer",
+          "category": "curated",
+          "torqueNm": "manufacturer",
+          "cylinders": "rdw",
+          "modelYear": "wikipedia",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "categoryRaw": "wikipedia",
+          "description": "wikipedia",
+          "dryWeightKg": "wikipedia",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "seatHeightMm": "manufacturer",
+          "transmission": "wikipedia",
+          "displacementCc": "rdw",
+          "ridingPosition": "wikipedia",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "fuelCapacityLiters": "manufacturer",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "cfmoto",
+    "family": "450MT",
+    "generations": [
+      {
+        "id": "0b68d7dd-d155-466c-bb34-36920b878e29",
+        "eligible": false,
+        "reasons": [
+          "no-image"
+        ],
+        "years": "2024–",
+        "boundary": "UNKNOWN",
+        "image": null,
+        "displacementCc": [
+          449,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          41.6,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          185,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          7399,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 844,
+        "fieldSources": {
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "displacementCc": "rdw",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  },
+  {
+    "brand": "cfmoto",
+    "family": "800MT",
+    "generations": [
+      {
+        "id": "1b47033b-9bc0-4e75-b97e-aa14ab001c3a",
+        "eligible": false,
+        "reasons": [
+          "no-image"
+        ],
+        "years": "2022–",
+        "boundary": "UNKNOWN",
+        "image": null,
+        "displacementCc": [
+          799,
+          "VERIFIED"
+        ],
+        "powerHp": [
+          89.8,
+          "HIGH"
+        ],
+        "torqueNm": [
+          null,
+          "UNKNOWN"
+        ],
+        "wetWeightKg": [
+          231,
+          "VERIFIED"
+        ],
+        "seatHeightMm": [
+          null,
+          "UNKNOWN"
+        ],
+        "passengerAllowed": [
+          true,
+          "VERIFIED"
+        ],
+        "price": [
+          12999,
+          2026,
+          "VERIFIED",
+          "CURRENT"
+        ],
+        "category": [
+          "ADVENTURE",
+          "VERIFIED"
+        ],
+        "availability": [
+          "NEW",
+          "VERIFIED"
+        ],
+        "registrations": 661,
+        "fieldSources": {
+          "powerHp": "rdw",
+          "powerKw": "rdw",
+          "category": "curated",
+          "cylinders": "rdw",
+          "modelYear": "rdw",
+          "seatCount": "rdw",
+          "msrpAmount": "rdw",
+          "wetWeightKg": "rdw",
+          "wheelbaseMm": "rdw",
+          "msrpCurrency": "rdw",
+          "displacementCc": "rdw",
+          "ridingPosition": "category",
+          "licenseCategory": "rdw",
+          "passengerAllowed": "rdw",
+          "marketCountryCode": "rdw",
+          "registrationCount": "rdw",
+          "lastRegistrationYear": "rdw",
+          "firstRegistrationYear": "rdw"
+        }
+      }
+    ]
+  }
+]

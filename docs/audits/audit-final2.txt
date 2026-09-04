@@ -1,0 +1,176 @@
+MODERN CATALOGUE AUDIT — generations on sale 2020 or later
+==============================================================================
+generations           990   (207,542 registrations)
+
+IMAGES
+  MODEL_YEAR   116    11.7%   of cards   29.8% of registrations
+  GENERATION   222    22.4%   of cards   23.2% of registrations
+  FAMILY_ONLY  89     9.0%    of cards   24.5% of registrations
+  SUSPICIOUS   0      0.0%    of cards   0.0% of registrations
+  NONE         563    56.9%   of cards   22.5% of registrations
+  trustworthy primary image: 338 (34.1% of cards, 53.0% of registrations)
+
+FIELD COVERAGE   (non-null / by evidence status)
+  field              present        verified  high   inferred  unknown  conflict
+  category           822 (83.0%)    442       43     337       168      0
+  displacementCc     982 (99.2%)    332       646    0         8        4
+  powerHp            975 (98.5%)    180       781    0         15       14
+  torqueNm           193 (19.5%)    191       0      0         797      2
+  wetWeightKg        972 (98.2%)    385       584    0         18       3
+  seatHeightMm       204 (20.6%)    204       0      0         786      0
+  ridingPosition     705 (71.2%)    0         0      705       285      0
+  passengerAllowed   960 (97.0%)    960       0      0         30       0
+  seatCount          960 (97.0%)    960       0      0         30       0
+  licenseCategory    952 (96.2%)    0         952    0         38       0
+  msrpAmount         955 (96.5%)    955       0      0         35       0
+  availability       837 (84.5%)    837       0      0         153      0
+  category = OTHER: 168
+  price for a current model year: 504; historical list price: 451
+  availability: NEW 570, USED 267, UNKNOWN 153
+
+DISCOVERY ELIGIBILITY
+  eligible for baseline discovery: 300 (30.3% of cards, 52.9% of registrations)
+    no-image                             563
+    identity-thin                        212
+    family-image-on-divided-family       89
+    not-on-dutch-market                  24
+
+DECK SIZES FOR TYPICAL ROUNDS
+  unfiltered visual round                    563
+  from 2020                                  300
+  from 2020, under €20,000                   229
+  from 2020, NEW                             213
+  from 2020, ≥100 hp, passenger, NEW         65
+  from 2020, NAKED                           43
+
+BY MANUFACTURER   (modern generations: eligible / total, image-trusted)
+  Yamaha             24/53     45.3%   image 50.9%   regs 32,969
+  BMW                30/55     54.5%   image 58.2%   regs 29,959
+  Honda              38/74     51.4%   image 56.8%   regs 28,972
+  Kawasaki           25/41     61.0%   image 65.9%   regs 25,923
+  Suzuki             24/33     72.7%   image 75.8%   regs 16,133
+  KTM                10/63     15.9%   image 20.6%   regs 15,318
+  Harley-Davidson    16/94     17.0%   image 18.1%   regs 13,282
+  Triumph            11/77     14.3%   image 14.3%   regs 9,381
+  Ducati             16/82     19.5%   image 22.0%   regs 7,680
+  Piaggio            3/18      16.7%   image 22.2%   regs 5,439
+  Cfmoto             3/20      15.0%   image 15.0%   regs 3,284
+  Royal Enfield      8/23      34.8%   image 47.8%   regs 2,822
+  Aprilia            15/23     65.2%   image 65.2%   regs 2,707
+  Husqvarna          10/18     55.6%   image 55.6%   regs 2,230
+  Moto Guzzi         6/18      33.3%   image 50.0%   regs 2,036
+  Indian             9/48      18.8%   image 20.8%   regs 1,821
+  Benelli            6/18      33.3%   image 33.3%   regs 1,783
+  Kymco              4/25      16.0%   image 16.0%   regs 1,030
+  SYM                7/20      35.0%   image 40.0%   regs 902
+  MV Agusta          7/25      28.0%   image 32.0%   regs 808
+
+BY POPULARITY   (registrations per generation)
+  ≥ 1000     48     eligible 26    54.2%
+  300–999    129    eligible 76    58.9%
+  100–299    187    eligible 87    46.5%
+  30–99      203    eligible 68    33.5%
+  < 30       423    eligible 43    10.2%
+
+TOP 100 MODERN GENERATIONS BY REGISTRATIONS
+  #   motorcycle                               years      gen      regs   avail   cat           cc    hp     kg    seat  pax  price    pyr   image        eligible / reasons
+  1   BMW R 1250 GS Adventure                  2018–      CURATED  4154   NEW     ADVENTURE     1254  134.1  268   —     yes  30679    2025  NONE         no: no-image 
+  2   Kawasaki Z900                            2020–2024  CURATED  3556   USED    NAKED         948   125    212   795   yes  10899    2024  MODEL_YEAR   YES 
+  3   Kawasaki Z650                            2020–      CURATED  3405   NEW     NAKED         649   68     188   790   yes  7999     2026  MODEL_YEAR   YES 
+  4   Yamaha Tracer 9                          2021–      CURATED  3268   NEW     SPORT_TOURING 890   117.3  223   —     yes  17299    2026  MODEL_YEAR   YES 
+  5   BMW R 1250 GS                            2018–2024  CURATED  3106   USED    ADVENTURE     1254  134    249   850   yes  28425    2024  GENERATION   YES 
+  6   Yamaha MT-07                             2021–2024  CURATED  2721   USED    NAKED         689   73.8   184   805   yes  8599     2024  MODEL_YEAR   YES 
+  7   Yamaha MT-09                             2017–2020  CURATED  2626   USED    NAKED         847   117.3  193   820   yes  10299    2020  FAMILY_ONLY  no: family-image-on-divided-family 
+  8   Kawasaki Versys 650                      2015–2021  CURATED  2560   USED    SPORT_TOURING 649   67     217   845   yes  8449     2021  FAMILY_ONLY  no: family-image-on-divided-family 
+  9   Suzuki V-Strom 650                       2017–      CURATED  2541   NEW     ADVENTURE     645   66     213   820   yes  9999     2026  FAMILY_ONLY  no: family-image-on-divided-family  [power conflict]
+  10  Yamaha MT-07                             2018–2020  CURATED  2498   USED    NAKED         689   73.8   183   805   yes  7599     2020  FAMILY_ONLY  no: family-image-on-divided-family 
+  11  Piaggio Vespa GTS                        2019–2024  DETECTED 2415   USED    SCOOTER       278   23.5   160   —     yes  7599     2024  FAMILY_ONLY  no: family-image-on-divided-family 
+  12  Yamaha Ténéré 700                        2019–2024  CURATED  2403   USED    ADVENTURE     689   72.1   204   875   yes  12499    2024  FAMILY_ONLY  no: family-image-on-divided-family 
+  13  Kawasaki Vulcan S                        2015–      CURATED  2220   NEW     CRUISER       649   60.3   229   705   yes  9399     2026  GENERATION   YES 
+  14  Honda NC750X                             2021–      CURATED  2101   NEW     ADVENTURE     745   57.7   224   802   yes  10269    2026  MODEL_YEAR   YES 
+  15  Honda NC750X                             2016–2020  CURATED  2097   USED    ADVENTURE     745   57.7   220   802   yes  9199     2020  MODEL_YEAR   YES 
+  16  BMW R 1300 GS                            2023–      CURATED  2077   NEW     ADVENTURE     1300  145    237   850   yes  31979    2026  GENERATION   YES 
+  17  Yamaha Tracer 9                          2017–2020  CURATED  2064   USED    SPORT_TOURING 847   113.5  215   —     yes  13898    2020  FAMILY_ONLY  no: family-image-on-divided-family 
+  18  Honda X-ADV                              2021–      CURATED  1915   NEW     SCOOTER       745   57.7   236   820   yes  15189    2026  MODEL_YEAR   YES 
+  19  Honda CMX500 Rebel                       2017–      UNKNOWN  1710   NEW     CRUISER       471   45.6   191   690   yes  6950     2026  MODEL_YEAR   YES 
+  20  Kawasaki Versys 1000                     2019–      CURATED  1635   NEW     SPORT_TOURING 1043  116.4  255   840   yes  16599    2025  FAMILY_ONLY  no: family-image-on-divided-family 
+  21  Yamaha Tracer 7                          2020–2024  CURATED  1595   USED    SPORT_TOURING 689   73.8   196   840   yes  10498    2024  NONE         no: no-image 
+  22  Kawasaki Versys 650                      2022–      CURATED  1536   NEW     SPORT_TOURING 649   67     219   845   yes  8849     2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  23  BMW K 1600 GT                            2011–      UNKNOWN  1533   NEW     TOURING       1649  160    332   810   yes  35295    2026  GENERATION   YES 
+  24  Suzuki V-Strom 1000                      2014–2022  CURATED  1491   USED    ADVENTURE     1037  100    228   850   yes  13799    2022  MODEL_YEAR   YES 
+  25  Yamaha X-MAX 300                         2017–      UNKNOWN  1472   NEW     SCOOTER       292   27.6   180   —     yes  8399     2026  NONE         no: no-image 
+  26  BMW S 1000 XR                            2020–      CURATED  1448   NEW     SPORT_TOURING 999   160    226   840   yes  27071    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  27  BMW F 900 R                              2020–      UNKNOWN  1448   NEW     NAKED         895   95     211   770   yes  12219    2026  MODEL_YEAR   YES 
+  28  Harley-Davidson Iron 883                 2009–2022  UNKNOWN  1435   USED    CRUISER       883   52.3   256   —     no   12410    2021  GENERATION   YES 
+  29  Yamaha MT-09                             2021–2023  CURATED  1429   USED    NAKED         890   117.3  189   820   yes  11799    2023  MODEL_YEAR   YES 
+  30  Suzuki SV650                             2016–      CURATED  1416   NEW     NAKED         645   76     200   785   yes  7799     2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  31  Kawasaki Ninja 650                       2020–      CURATED  1396   NEW     SPORT         649   68     193   790   yes  8599     2026  MODEL_YEAR   YES 
+  32  Yamaha MT-09                             2024–      CURATED  1392   NEW     NAKED         890   117.3  193   820   yes  12299    2026  MODEL_YEAR   YES 
+  33  Kawasaki Z900                            2025–      CURATED  1346   NEW     NAKED         948   125    213   795   yes  10899    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  34  Suzuki Burgman 650                       2002–2020  UNKNOWN  1336   USED    SCOOTER       638   55     277   —     yes  12600    2020  NONE         no: no-image 
+  35  BMW F 900 XR                             2020–      UNKNOWN  1327   NEW     SPORT_TOURING 895   103.3  219   —     yes  16557    2026  NONE         no: no-image 
+  36  Honda CB650R                             2019–2023  CURATED  1287   USED    NAKED         649   93.9   203   810   yes  10100    2023  FAMILY_ONLY  no: family-image-on-divided-family 
+  37  Suzuki GSX-S750                          2017–2021  UNKNOWN  1228   USED    NAKED         749   112.6  213   815   yes  9298     2021  GENERATION   YES 
+  38  BMW R 1300 GS Adventure                  2024–      UNKNOWN  1223   NEW     ADVENTURE     1300  143.5  269   —     yes  33328    2026  GENERATION   YES 
+  39  Honda CRF1000L Africa Twin               2015–2021  CURATED  1198   USED    ADVENTURE     998   93.9   232   850   yes  17097    2020  GENERATION   YES 
+  40  Suzuki V-Strom 1050                      2020–      UNKNOWN  1117   NEW     ADVENTURE     1037  143.5  247   880   yes  15900    2026  MODEL_YEAR   YES  [power conflict]
+  41  BMW R 1250 RT                            2021–      CURATED  1100   NEW     TOURING       1254  136    279   760   yes  28495    2025  MODEL_YEAR   YES 
+  42  KTM 450 EXC-F                            2016–      UNKNOWN  1092   NEW     DUAL_SPORT    450   16.4   120   —     no   14099    2026  NONE         no: no-image 
+  43  Yamaha MT-10                             2016–2021  CURATED  1087   USED    HYPER_NAKED   998   158.2  210   825   yes  15599    2021  FAMILY_ONLY  no: family-image-on-divided-family 
+  44  Suzuki Burgman 400                       2006–      DETECTED 1067   NEW     SCOOTER       400   30     215   755   yes  8200     2026  MODEL_YEAR   YES 
+  45  Suzuki V-Strom 800DE                     2023–      UNKNOWN  1029   NEW     ADVENTURE     776   112.6  223   825   yes  11699    2026  MODEL_YEAR   YES  [power conflict]
+  46  KTM 350 EXC-F                            2017–      DETECTED 1029   NEW     DUAL_SPORT    350   16.1   115   —     no   13699    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  47  KTM 1290 Super Adventure S               2021–      CURATED  1025   NEW     ADVENTURE     1301  158.2  245   —     yes  23280    2026  NONE         no: no-image 
+  48  BMW F 750 GS                             2018–2024  UNKNOWN  1000   USED    ADVENTURE     853   77     224   815   yes  16036    2024  MODEL_YEAR   YES 
+  49  BMW S 1000 R                             2014–      UNKNOWN  979    NEW     HYPER_NAKED   999   158.2  205   814   yes  22852    2026  GENERATION   YES 
+  50  KTM 1290 Super Adventure S               2017–2020  CURATED  976    USED    ADVENTURE     1301  158.2  245   —     yes  20600    2020  NONE         no: no-image 
+  51  Kawasaki Z1000                           2014–2021  CURATED  970    USED    HYPER_NAKED   1043  140    221   820   yes  14699    2021  FAMILY_ONLY  no: family-image-on-divided-family 
+  52  Suzuki GSX-8S                            2023–      UNKNOWN  961    NEW     NAKED         776   83     202   810   yes  9699     2026  MODEL_YEAR   YES 
+  53  Honda CB750 Hornet                       2023–      UNKNOWN  945    NEW     NAKED         755   89.8   190   795   yes  9369     2026  MODEL_YEAR   YES 
+  54  Yamaha MT-07                             2025–      CURATED  919    NEW     NAKED         689   73.8   183   805   yes  8898     2026  MODEL_YEAR   YES 
+  55  Honda VFR1200X Crosstourer               2012–2021  UNKNOWN  907    USED    ADVENTURE     1237  127.4  275   850   yes  18198    2021  NONE         no: no-image 
+  56  Honda NC750S                             2014–2021  UNKNOWN  891    USED    NAKED         745   54     217   —     yes  8399     2020  GENERATION   YES 
+  57  Ducati Scrambler 800                     2015–2022  CURATED  874    USED    SCRAMBLER     803   86     192   790   yes  11745    2022  FAMILY_ONLY  no: family-image-on-divided-family 
+  58  Yamaha Ténéré 700                        2025–      CURATED  845    NEW     ADVENTURE     689   72.1   208   875   yes  12698    2026  MODEL_YEAR   YES 
+  59  Cfmoto 450MT                             2024–      UNKNOWN  844    NEW     ADVENTURE     449   41.6   185   —     yes  7399     2026  NONE         no: no-image 
+  60  KTM 1290 Super Duke R                    2020–      CURATED  844    NEW     HYPER_NAKED   1301  177    210   835   yes  15482    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  61  Harley-Davidson Forty-Eight              2010–2021  UNKNOWN  843    USED    CRUISER       1202  67.1   255   —     yes  14750    2021  GENERATION   YES 
+  62  Honda CB500X                             2019–      CURATED  810    NEW     ADVENTURE     471   46.9   197   810   yes  8300     2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  63  Honda NT1100                             2022–      UNKNOWN  805    NEW     SPORT_TOURING 1084  100.6  248   820   yes  19669    2026  MODEL_YEAR   YES 
+  64  Yamaha XSR700                            2015–      UNKNOWN  800    NEW     CLASSIC       690   73.8   186   815   yes  8599     2026  MODEL_YEAR   YES 
+  65  KTM 790 Duke                             2018–2022  DETECTED 795    USED    NAKED         799   105    187   825   yes  11900    2022  FAMILY_ONLY  no: family-image-on-divided-family 
+  66  Honda XL750 Transalp                     2023–      UNKNOWN  792    NEW     ADVENTURE     755   89.8   208   850   yes  12769    2026  MODEL_YEAR   YES 
+  67  Kawasaki Z900RS                          2018–      CURATED  780    NEW     CLASSIC       948   114    215   —     yes  15749    2026  GENERATION   YES 
+  68  Piaggio Beverly 400                      2021–      UNKNOWN  771    NEW     SCOOTER       399   35.4   195   —     yes  7450     2026  NONE         no: no-image 
+  69  Honda CRF1100L Africa Twin Adventure Spo 2019–      UNKNOWN  764    NEW     ADVENTURE     1084  100.6  250   835   yes  23368    2026  NONE         no: no-image 
+  70  KTM 390 Duke                             2017–2023  CURATED  758    USED    NAKED         373   44.3   163   830   yes  6700     2023  MODEL_YEAR   YES 
+  71  KTM 690 SMC R                            2008–      UNKNOWN  757    NEW     SUPERMOTO     690   75     150   890   yes  14530    2026  MODEL_YEAR   YES 
+  72  BMW F 850 GS                             2018–2024  UNKNOWN  738    USED    ADVENTURE     853   93.9   229   860   yes  18227    2024  MODEL_YEAR   YES 
+  73  Yamaha TMAX                              2022–      CURATED  726    NEW     SCOOTER       562   39.4   220   795   yes  16799    2026  MODEL_YEAR   YES 
+  74  Triumph Tiger 900                        2020–2023  CURATED  724    USED    ADVENTURE     888   93.9   216   820   yes  18495    2023  FAMILY_ONLY  no: family-image-on-divided-family 
+  75  Honda CRF1100L Africa Twin               2019–      UNKNOWN  710    NEW     ADVENTURE     1084  100.6  229   850   yes  17968    2026  MODEL_YEAR   YES 
+  76  Kawasaki Ninja 1000SX                    2020–      CURATED  683    NEW     SPORT_TOURING 1043  138    235   820   yes  16649    2025  FAMILY_ONLY  no: family-image-on-divided-family 
+  77  Honda CMX1100 Rebel                      2021–      UNKNOWN  672    NEW     CRUISER       1084  87.2   233   710   yes  13710    2026  MODEL_YEAR   YES 
+  78  Cfmoto 800MT                             2022–      UNKNOWN  661    NEW     ADVENTURE     799   89.8   231   —     yes  12999    2026  NONE         no: no-image 
+  79  BMW F 800 GS                             2013–2023  CURATED  659    USED    ADVENTURE     798   85     214   880   yes  14760    2018  MODEL_YEAR   YES 
+  80  Suzuki GSX-S1000                         2015–2020  CURATED  651    USED    NAKED         999   151.9  209   810   yes  14299    2020  MODEL_YEAR   YES 
+  81  Honda VFR800X Crossrunner                2011–2020  UNKNOWN  640    USED    SPORT_TOURING 782   100.4  242   815   yes  13498    2020  MODEL_YEAR   YES 
+  82  Yamaha YZF-R7                            2021–      UNKNOWN  633    NEW     SPORT         689   72.4   188   840   yes  11399    2026  MODEL_YEAR   YES  [power conflict]
+  83  Harley-Davidson Sport Glide              2018–      UNKNOWN  624    NEW     CRUISER       1745  83.1   317   —     yes  24295    2025  GENERATION   YES 
+  84  Triumph Tiger 1200                       2022–      CURATED  614    NEW     ADVENTURE     1160  148    249   —     yes  26195    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  85  Triumph Bonneville T120                  2016–      UNKNOWN  606    NEW     CLASSIC       1200  59     243   785   yes  16495    2026  GENERATION   YES  [power conflict]
+  86  Yamaha FJR1300                           2016–2021  CURATED  604    USED    SPORT_TOURING 1298  141.5  292   805   yes  22198    2021  FAMILY_ONLY  no: family-image-on-divided-family  [power conflict]
+  87  Honda Monkey 125                         2018–      UNKNOWN  597    NEW     CLASSIC       124   9.3    104   —     no   4889     2026  MODEL_YEAR   YES 
+  88  Kawasaki Versys 1100                     2025–      UNKNOWN  596    NEW     SPORT_TOURING 1099  132.8  259   —     yes  18349    2026  MODEL_YEAR   YES 
+  89  Harley-Davidson Street Glide Special     2019–2022  DETECTED 591    USED    TOURING       1868  92.5   375   —     yes  36140    2022  NONE         no: no-image 
+  90  Honda SH150i                             2005–2022  DETECTED 576    USED    SCOOTER       153   14.8   135   —     yes  4300     2022  FAMILY_ONLY  no: family-image-on-divided-family 
+  91  KTM 890 Duke                             2020–      UNKNOWN  567    NEW     NAKED         889   119.4  187   —     yes  12590    2025  GENERATION   YES 
+  92  Ducati Multistrada V4                    2020–      UNKNOWN  566    NEW     ADVENTURE     1158  167.6  244   —     yes  29440    2026  GENERATION   YES 
+  93  Yamaha Tracer 7                          2025–      CURATED  560    NEW     SPORT_TOURING 689   72.4   212   840   yes  12698    2026  MODEL_YEAR   YES 
+  94  Aprilia SR GT 200                        2022–      UNKNOWN  557    NEW     SCOOTER       174   17.4   148   —     yes  4900     2026  GENERATION   YES 
+  95  KTM 1290 Super Duke GT                   2019–      CURATED  556    NEW     SPORT_TOURING 1301  173    231   835   yes  20599    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  96  Honda X-ADV                              2017–2020  CURATED  556    USED    SCOOTER       745   57.7   238   820   yes  13698    2020  FAMILY_ONLY  no: family-image-on-divided-family 
+  97  Honda MSX125 Grom                        2013–      UNKNOWN  555    NEW     NAKED         125   9.9    103   754   yes  4300     2026  MODEL_YEAR   YES 
+  98  BMW K 1600 GTL                           2010–      UNKNOWN  554    NEW     TOURING       1649  158.2  348   —     yes  40512    2026  GENERATION   YES 
+  99  BMW R 1250 RT                            2018–2020  CURATED  552    USED    TOURING       1254  136    279   760   yes  26223    2020  FAMILY_ONLY  no: family-image-on-divided-family 
+  100 Triumph Trident 660                      2021–      DETECTED 547    NEW     NAKED         660   81     189   805   yes  9295     2025  MODEL_YEAR   YES 

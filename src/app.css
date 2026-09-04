@@ -1,0 +1,424 @@
+@import 'tailwindcss';
+
+/* ===========================================================================
+   MotoSwipe design language
+
+   Night workshop / Neo-Tokyo. Near-black grounds, gunmetal surfaces, brushed
+   chrome edges, sodium-lamp orange as the single warm accent and a cold cyan
+   reserved almost entirely for SUPERLIKE. Colour is used to mean something —
+   there is no decorative neon.
+
+   Fonts are deliberately system stacks: the app must run on a NAS with no
+   outbound internet, and a webfont round-trip is the one thing that would make
+   the swipe deck feel slow. See README ("Typography") for dropping in a
+   condensed display face if you want one.
+   =========================================================================== */
+
+@theme {
+	/* -- Ground / surfaces ------------------------------------------------ */
+	--color-void: #07080a;
+	--color-ink: #0b0d10;
+	--color-charcoal: #121519;
+	--color-gunmetal: #1a1e24;
+	--color-graphite: #232830;
+	--color-steel: #2e343d;
+	--color-chrome: #6b737f;
+
+	/* -- Text ------------------------------------------------------------- */
+	--color-bone: #eef0f3;
+	--color-ash: #a8aeb8;
+	--color-dim: #6d747f;
+
+	/* -- Accents ---------------------------------------------------------- */
+	--color-sodium: #ff6a1f;
+	--color-sodium-dim: #b8471080;
+	--color-cyan: #35d6e8;
+
+	/* -- Decision semantics ----------------------------------------------- */
+	--color-like: #34d977;
+	--color-nope: #ff3f55;
+	--color-superlike: #35d6e8;
+	--color-skip: #b9a24a;
+
+	/* -- Type ------------------------------------------------------------- */
+	--font-display:
+		ui-sans-serif, system-ui, 'Segoe UI Variable Display', 'Segoe UI', Roboto, 'Helvetica Neue',
+		Arial, sans-serif;
+	--font-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--font-mono:
+		ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+	/* -- Motion ----------------------------------------------------------- */
+	--ease-mech: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-snap: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@layer base {
+	:root {
+		color-scheme: dark;
+	}
+
+	html {
+		-webkit-text-size-adjust: 100%;
+		/* The swipe deck owns the viewport; never let a rubber-band scroll fight
+		   a horizontal drag. */
+		overscroll-behavior-y: none;
+	}
+
+	body {
+		background-color: var(--color-void);
+		color: var(--color-bone);
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+		min-height: 100dvh;
+	}
+
+	/* Workshop ambience: a faint sodium pool top-left, cold light top-right,
+	   over a machined grid. Fixed so it does not scroll with content. */
+	body::before {
+		content: '';
+		position: fixed;
+		inset: 0;
+		z-index: -2;
+		pointer-events: none;
+		background:
+			radial-gradient(60rem 40rem at 8% -10%, rgb(255 106 31 / 0.07), transparent 60%),
+			radial-gradient(50rem 36rem at 100% 0%, rgb(53 214 232 / 0.05), transparent 55%),
+			linear-gradient(180deg, #0b0d10 0%, #07080a 55%, #050608 100%);
+	}
+
+	body::after {
+		content: '';
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		opacity: 0.5;
+		background-image:
+			linear-gradient(rgb(255 255 255 / 0.016) 1px, transparent 1px),
+			linear-gradient(90deg, rgb(255 255 255 / 0.016) 1px, transparent 1px);
+		background-size: 44px 44px;
+		mask-image: radial-gradient(ellipse 120% 90% at 50% 0%, #000 20%, transparent 78%);
+	}
+
+	::selection {
+		background: var(--color-sodium);
+		color: #0a0a0a;
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--color-sodium);
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
+
+	/* Scrollbars that match the machine shop rather than the OS default. */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-steel) transparent;
+	}
+	*::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+	*::-webkit-scrollbar-thumb {
+		background: var(--color-steel);
+		border: 3px solid transparent;
+		background-clip: content-box;
+		border-radius: 99px;
+	}
+	*::-webkit-scrollbar-thumb:hover {
+		background: var(--color-chrome);
+		background-clip: content-box;
+	}
+
+	input,
+	textarea,
+	select {
+		font-family: inherit;
+	}
+}
+
+@layer components {
+	/* -- Typographic voice ------------------------------------------------ */
+
+	/* Big machined headline. Used for the landing hero, the winner, round names. */
+	.display {
+		font-family: var(--font-display);
+		font-weight: 800;
+		letter-spacing: -0.035em;
+		line-height: 0.92;
+		text-transform: uppercase;
+	}
+
+	/* Small stamped label — the text you find on a frame sticker. */
+	.stencil {
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--color-dim);
+	}
+
+	/* Instrument-cluster numerals. */
+	.numeral {
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: -0.02em;
+	}
+
+	/* -- Surfaces --------------------------------------------------------- */
+
+	/* A panel milled from a solid block: dark face, lit top edge, dark base. */
+	.panel {
+		position: relative;
+		background:
+			linear-gradient(180deg, rgb(255 255 255 / 0.035) 0%, transparent 22%),
+			linear-gradient(180deg, var(--color-charcoal), var(--color-ink));
+		border: 1px solid var(--color-graphite);
+		border-radius: 0.875rem;
+		box-shadow:
+			inset 0 1px 0 0 rgb(255 255 255 / 0.05),
+			0 1px 2px rgb(0 0 0 / 0.6),
+			0 12px 32px -12px rgb(0 0 0 / 0.9);
+	}
+
+	.panel-inset {
+		background: linear-gradient(180deg, #0a0c0f, #0e1114);
+		border: 1px solid #1c2128;
+		border-radius: 0.625rem;
+		box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.55);
+	}
+
+	/* Brushed-metal strip. The repeating gradient is the grain; keep it subtle
+	   or it turns into corduroy. */
+	.brushed {
+		background:
+			repeating-linear-gradient(
+				90deg,
+				rgb(255 255 255 / 0.028) 0px,
+				rgb(255 255 255 / 0.028) 1px,
+				transparent 1px,
+				transparent 3px
+			),
+			linear-gradient(180deg, #2b3038 0%, #1d2229 45%, #171b21 100%);
+	}
+
+	/* Thin chrome hairline used as a section divider. */
+	.hairline {
+		height: 1px;
+		background: linear-gradient(
+			90deg,
+			transparent,
+			var(--color-steel) 12%,
+			var(--color-chrome) 50%,
+			var(--color-steel) 88%,
+			transparent
+		);
+		opacity: 0.55;
+	}
+
+	/* -- Controls --------------------------------------------------------- */
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.6875rem 1.125rem;
+		border-radius: 0.5rem;
+		font-family: var(--font-display);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		cursor: pointer;
+		border: 1px solid transparent;
+		transition:
+			transform 0.12s var(--ease-snap),
+			background-color 0.18s ease,
+			border-color 0.18s ease,
+			box-shadow 0.18s ease,
+			color 0.18s ease;
+		user-select: none;
+	}
+	.btn:active:not(:disabled) {
+		transform: translateY(1px) scale(0.99);
+	}
+	.btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.btn-primary {
+		background: linear-gradient(180deg, #ff7d38, #eb5410);
+		color: #140800;
+		box-shadow:
+			inset 0 1px 0 rgb(255 255 255 / 0.35),
+			0 6px 20px -8px rgb(255 106 31 / 0.85);
+	}
+	.btn-primary:hover:not(:disabled) {
+		background: linear-gradient(180deg, #ff8c4d, #f75f18);
+		box-shadow:
+			inset 0 1px 0 rgb(255 255 255 / 0.4),
+			0 8px 26px -8px rgb(255 106 31 / 0.95);
+	}
+
+	.btn-secondary {
+		background: linear-gradient(180deg, var(--color-graphite), var(--color-gunmetal));
+		border-color: var(--color-steel);
+		color: var(--color-bone);
+		box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+	}
+	.btn-secondary:hover:not(:disabled) {
+		border-color: var(--color-chrome);
+		background: linear-gradient(180deg, #2b313a, #20252c);
+	}
+
+	.btn-ghost {
+		background: transparent;
+		border-color: transparent;
+		color: var(--color-ash);
+	}
+	.btn-ghost:hover:not(:disabled) {
+		color: var(--color-bone);
+		background: rgb(255 255 255 / 0.045);
+	}
+
+	.btn-danger {
+		background: transparent;
+		border-color: #4a2028;
+		color: #ff8092;
+	}
+	.btn-danger:hover:not(:disabled) {
+		background: rgb(255 63 85 / 0.1);
+		border-color: var(--color-nope);
+		color: #ffb3bd;
+	}
+
+	.btn-sm {
+		padding: 0.4375rem 0.75rem;
+		font-size: 0.6875rem;
+		letter-spacing: 0.09em;
+	}
+	.btn-lg {
+		padding: 0.9375rem 1.75rem;
+		font-size: 0.9375rem;
+	}
+
+	/* -- Form fields ------------------------------------------------------ */
+
+	.field {
+		width: 100%;
+		background: #0a0c0f;
+		border: 1px solid var(--color-graphite);
+		border-radius: 0.5rem;
+		padding: 0.6875rem 0.875rem;
+		color: var(--color-bone);
+		font-size: 0.9375rem;
+		box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.5);
+		transition:
+			border-color 0.16s ease,
+			box-shadow 0.16s ease;
+	}
+	.field::placeholder {
+		color: #545a64;
+	}
+	.field:focus {
+		outline: none;
+		border-color: var(--color-sodium);
+		box-shadow:
+			inset 0 2px 5px rgb(0 0 0 / 0.5),
+			0 0 0 3px rgb(255 106 31 / 0.16);
+	}
+	.field:disabled {
+		opacity: 0.5;
+	}
+
+	.label {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--color-ash);
+		margin-bottom: 0.4375rem;
+	}
+
+	/* -- Chips / badges --------------------------------------------------- */
+
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.25rem 0.5625rem;
+		border-radius: 999px;
+		border: 1px solid var(--color-graphite);
+		background: rgb(255 255 255 / 0.03);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+		color: var(--color-ash);
+	}
+	.chip-active {
+		border-color: var(--color-sodium);
+		background: rgb(255 106 31 / 0.14);
+		color: #ffc9a8;
+	}
+
+	/* -- Skeleton loading ------------------------------------------------- */
+
+	.skeleton {
+		background: linear-gradient(90deg, #14171c 0%, #1e232a 50%, #14171c 100%);
+		background-size: 200% 100%;
+		animation: shimmer 1.35s linear infinite;
+		border-radius: 0.375rem;
+	}
+
+	@keyframes shimmer {
+		to {
+			background-position: -200% 0;
+		}
+	}
+}
+
+@layer utilities {
+	/* Fill the visual viewport, not the layout viewport — mobile browser
+	   chrome otherwise crops the bottom of the swipe deck. */
+	.h-dvh-safe {
+		height: 100dvh;
+	}
+
+	.pb-safe {
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+	}
+	.pt-safe {
+		padding-top: env(safe-area-inset-top, 0px);
+	}
+
+	/* Applied to the card stack while dragging. */
+	.no-touch-pan {
+		touch-action: none;
+		-webkit-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.text-balance {
+		text-wrap: balance;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

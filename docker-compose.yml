@@ -1,0 +1,82 @@
+# =============================================================================
+# MotoSwipe — build from source and run locally.
+#
+#   cp .env.example .env      # then edit it, especially SESSION_SECRET
+#   docker compose up -d --build
+#   docker compose exec motoswipe npx tsx prisma/seed.ts   # optional demo data
+#
+# For a NAS running a published image, use docker-compose.prod.yml instead.
+# =============================================================================
+
+services:
+  motoswipe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: motoswipe:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        # Wait for Postgres to accept connections, not merely to have started.
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # `postgres` is the service name on the compose network.
+      DATABASE_URL: 'postgresql://${POSTGRES_USER:-motoswipe}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-motoswipe}?schema=public'
+      SESSION_SECRET: '${SESSION_SECRET:?set SESSION_SECRET in .env - generate one with openssl rand -base64 48}'
+      SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-30}
+      ORIGIN: '${ORIGIN:-http://localhost:3000}'
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-0}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      # adapter-node uses these to read the real client address when
+      # TRUST_PROXY_HOPS says a proxy is in front.
+      ADDRESS_HEADER: ${ADDRESS_HEADER:-}
+      XFF_DEPTH: ${TRUST_PROXY_HOPS:-0}
+    ports:
+      # Bound to loopback: behind Caddy the proxy reaches it over the compose
+      # network, and nothing needs to be exposed on the LAN. Remove this block
+      # entirely once Caddy shares a network with the app.
+      - '127.0.0.1:${APP_PORT:-3000}:3000'
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:3000/healthz']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    security_opt:
+      - no-new-privileges:true
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-motoswipe}
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}'
+      POSTGRES_DB: ${POSTGRES_DB:-motoswipe}
+      # Initialise with data checksums so silent corruption is detected.
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      # A named volume, NOT a path inside the app container: the database has to
+      # survive `docker compose pull && up -d`.
+      - motoswipe-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-motoswipe} -d ${POSTGRES_DB:-motoswipe}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # Published on loopback so `npm run dev` and the test suite on the host can
+      # reach this database — that is the documented local-development setup.
+      # 5433 avoids colliding with a Postgres already installed on the machine.
+      #
+      # docker-compose.prod.yml publishes nothing at all; there, only the app
+      # container can reach the database.
+      - '127.0.0.1:${POSTGRES_PORT:-5433}:5432'
+
+volumes:
+  motoswipe-db:
+    driver: local
