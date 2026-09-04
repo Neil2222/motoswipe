@@ -35,6 +35,18 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   `evidence` and `license`. Manufacturer images are hotlinked only
   (`license: 'manufacturer'`; `MANUFACTURER_IMAGES=off` disables them). Never
   copy or redistribute manufacturer photography. Commons/Wikipedia images are CC.
+- Photographs are pooled by picture, not URL (`images/identity.ts`): the same
+  Commons file via en- and de-Wikipedia is one image. Photographs that show a
+  different machine despite a correct file name go in `REJECTED_IMAGES` in
+  `curated.ts` with a reason. Photo-job images (commons-search/-category) live
+  only in `motorcycle_images`; the rebuild keeps their dated evidence over an
+  article's undated copy of the same file.
+- The rebuild is deterministic: records are ordered by source rank
+  (wikipedia, manufacturer, wikipedia-de, then the rest) and a family is
+  named by the spelling most records use, then the longest-filed one. After
+  a rebuild, `npm run db:audit -- --since 2020 --top 100` must still give
+  990 / 338 / Top 100 = 69 (2026-09-04 baseline); compare before touching
+  anything else.
 - Audits: `npm run db:audit -- --since 2020 --top 100 --json <file>` and
   `npm run db:audit:focus -- --json <file>`. Earlier outputs live in
   `docs/audits/`; a new audit must rerun the exact same metrics so a

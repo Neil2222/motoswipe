@@ -2454,3 +2454,46 @@ export const CURATED: CuratedModel[] = [
 		category: 'SCOOTER'
 	}
 ];
+
+// ---------------------------------------------------------------------------
+// Photographs that are not the motorcycle they are filed under
+// ---------------------------------------------------------------------------
+
+export interface RejectedImage {
+	/** The Commons file name (without `File:`), or any other URL's file name. */
+	file: string;
+	/** Why it must not stand for this motorcycle. Shown to nobody, read by everybody. */
+	reason: string;
+}
+
+/**
+ * Photographs no rule can catch: the file name names the right model, the
+ * article uses it, and it still shows something else — a one-off custom, a
+ * concept, a race bike. Each entry says why. A rejected file is dropped from
+ * every generation at rebuild; nothing about the source record changes.
+ */
+export const REJECTED_IMAGES: RejectedImage[] = [
+	{
+		file: "Kawasaki_Vulcan_S_-_MRS_Oficina_-_Mondial_de_l'Automobile_de_Paris_2018_-_001.jpg",
+		reason:
+			'A one-off café racer built by MRS Oficina, shown at the 2018 Paris show. Not the production Vulcan S.'
+	}
+];
+
+const REJECTED_BY_FILE = new Map(
+	REJECTED_IMAGES.map((r) => [r.file.toLowerCase().replace(/ /g, '_'), r])
+);
+
+/** The rejection for a URL or file title, if there is one. */
+export function rejectedImage(urlOrTitle: string): RejectedImage | undefined {
+	const last = urlOrTitle.split(/[?#]/)[0].split('/').pop() ?? '';
+	let name = last;
+	try {
+		name = decodeURIComponent(last);
+	} catch {
+		/* keep the raw segment */
+	}
+	// A thumbnail rendering is "<width>px-<file>"; the file is what is listed.
+	name = name.replace(/^\d+px-/, '').replace(/^File:/i, '');
+	return REJECTED_BY_FILE.get(name.toLowerCase().replace(/ /g, '_'));
+}

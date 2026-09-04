@@ -1,4 +1,6 @@
 import { prisma } from '../db/client';
+import { imageIdentityKey } from '../images/identity';
+import { rejectedImage } from './curated';
 import { slugify } from '../utils/slug';
 import { upsertManufacturer } from '../importers/import.service';
 import type { NormalizedImage, NormalizedMotorcycle } from '../importers/types';
@@ -130,6 +132,18 @@ export async function rebuildCatalogue(
 		}
 	});
 
+	// The rebuild must be a pure function of the source records. Postgres hands
+	// rows back in whatever physical order it likes, and the first record of a
+	// family names it, so without an explicit order two rebuilds of the same
+	// data could disagree about whether a bike is the "ZX-6R" or the "ZX 6R".
+	// An encyclopedia's spelling beats a maker's page beats a registry's code.
+	raw.sort(
+		(a, b) =>
+			nameSourceRank(a.source) - nameSourceRank(b.source) ||
+			a.source.localeCompare(b.source) ||
+			a.externalId.localeCompare(b.externalId)
+	);
+
 	// --- 1. Give every record an identity, then group them into families -------
 	const loaded: LoadedRecord[] = [];
 	let unresolved = 0;
@@ -253,7 +267,7 @@ async function upsertFamily(
 	catalogue: Catalogue,
 	result: RebuildResult
 ): Promise<string[]> {
-	const identity = records[0].identity;
+	const identity = familyIdentity(records);
 
 	// The manufacturer name to display: the shortest a source used, which is
 	// reliably the one a rider would say out loud.
@@ -471,6 +485,49 @@ async function upsertFamily(
 	await reassessImages(ids, () => vettingContext(identity, catalogue));
 
 	return ids;
+}
+
+/**
+ * The identity a family goes by.
+ *
+ * Every record in the group has the same normalised key; they differ in
+ * spelling — the registry files one Kawasaki as "ZX-6R", "ZX 6R", "ZX6R" and
+ * "Ninja ZX-6R" across its type approvals. The name shown is the one the
+ * best-ranked source uses, and where that source uses several, the spelling
+ * that most records agree on; then the one filed for the most years; then the
+ * shortest; then alphabetical. Every step is a total order, so the same
+ * records always give the same name.
+ */
+function familyIdentity(records: readonly LoadedRecord[]): Identity {
+	const best = Math.min(...records.map((r) => nameSourceRank(r.source)));
+	const counts = new Map<string, number>();
+	for (const r of records) {
+		counts.set(r.identity.canonicalModel, (counts.get(r.identity.canonicalModel) ?? 0) + 1);
+	}
+	// Years the registry filed each spelling under, summed: the entry that
+	// lived longest is the one the market knew the machine by.
+	const years = new Map<string, number>();
+	for (const r of records) {
+		const span = r.eraFrom !== null && r.eraTo !== null ? r.eraTo - r.eraFrom + 1 : 0;
+		years.set(r.identity.canonicalModel, (years.get(r.identity.canonicalModel) ?? 0) + span);
+	}
+	const spelled = (r: LoadedRecord) => r.identity.canonicalModel;
+	return [...records]
+		.filter((r) => nameSourceRank(r.source) === best)
+		.sort(
+			(a, b) =>
+				counts.get(spelled(b))! - counts.get(spelled(a))! ||
+				years.get(spelled(b))! - years.get(spelled(a))! ||
+				spelled(a).length - spelled(b).length ||
+				spelled(a).localeCompare(spelled(b))
+		)[0].identity;
+}
+
+/** Which source's spelling of a model name is preferred, lowest first. */
+const NAME_SOURCE_ORDER = ['wikipedia', 'manufacturer', 'wikipedia-de'];
+function nameSourceRank(source: string): number {
+	const index = NAME_SOURCE_ORDER.indexOf(source);
+	return index === -1 ? NAME_SOURCE_ORDER.length : index;
 }
 
 /** Everything a photograph of this family has to be checked against. */
@@ -951,6 +1008,9 @@ async function syncFamilyImages(
 ): Promise<void> {
 	const vetting = vettingContext(identity, catalogue);
 	const isWrongBike = (title: string) => namesADifferentMotorcycle(title, vetting);
+	// A curated rejection is a fact about one file; it is checked on the URL
+	// (which names the file) rather than the credit line.
+	const isRejected = (url: string) => rejectedImage(url) !== undefined;
 	const providerSources = new Set([...records.map((r) => r.source), 'legacy']);
 	const divided = generations.length > 1;
 
@@ -966,19 +1026,24 @@ async function syncFamilyImages(
 			if (image.license !== 'manufacturer' && isWrongBike(image.attribution ?? image.url)) {
 				continue;
 			}
-			const pooled = pool.get(image.url);
+			if (isRejected(image.url)) continue;
+			// Keyed by the picture, not the URL: the English and German articles
+			// link the same Commons file under different renderings and tracking
+			// parameters, and a gallery must not show it twice.
+			const key = imageIdentityKey(image.url);
+			const pooled = pool.get(key);
 			if (pooled) {
 				// The same file from two articles: the one that states a model year
 				// is the narrower evidence, whichever came first.
 				if (pooled.modelYear === null && typeof image.modelYear === 'number') {
-					pool.set(image.url, {
+					pool.set(key, {
 						...fromProvider(image, record.source, divided, pooled.order),
 						sourceUrl: pooled.sourceUrl ?? image.sourceUrl ?? null
 					});
 				}
 				continue;
 			}
-			pool.set(image.url, fromProvider(image, record.source, divided, order++));
+			pool.set(key, fromProvider(image, record.source, divided, order++));
 		}
 	}
 
@@ -991,8 +1056,27 @@ async function syncFamilyImages(
 	for (const image of held) {
 		if (image.source !== null && providerSources.has(image.source)) continue;
 		if (image.source === null) continue;
-		if (pool.has(image.url)) continue;
 		if (isWrongBike(image.attribution ?? image.url)) continue;
+		if (isRejected(image.url)) continue;
+
+		const key = imageIdentityKey(image.url);
+		const pooled = pool.get(key);
+		if (pooled) {
+			// The photo job dated a file an article also links undated: the date
+			// is the narrower evidence and must not be lost to the article's copy.
+			if (pooled.modelYear === null && image.scope === 'MODEL_YEAR' && image.modelYear) {
+				pool.set(key, {
+					...pooled,
+					url: image.url,
+					scope: 'MODEL_YEAR',
+					modelYear: image.modelYear,
+					source: image.source,
+					sourceUrl: image.sourceUrl ?? pooled.sourceUrl,
+					evidence: image.evidence ?? pooled.evidence
+				});
+			}
+			continue;
+		}
 
 		// A year the file name states is the strongest evidence there is; a
 		// search by name found some example of the family.
@@ -1002,7 +1086,7 @@ async function syncFamilyImages(
 				: divided
 					? 'FAMILY'
 					: 'GENERATION';
-		pool.set(image.url, {
+		pool.set(key, {
 			url: image.url,
 			scope,
 			modelYear: scope === 'MODEL_YEAR' ? image.modelYear : null,
@@ -1054,7 +1138,11 @@ async function syncFamilyImages(
 		const rank = (i: PooledImage) => (i.scope === 'FAMILY' ? 1 : 0);
 		wanted.sort((a, b) => rank(a) - rank(b) || a.order - b.order);
 
-		const byUrl = new Map((heldByRow.get(id) ?? []).map((i) => [i.url, i]));
+		// Existing rows are matched by picture as well, so a duplicate row
+		// under another URL is replaced rather than kept alongside.
+		const byKey = new Map(
+			(heldByRow.get(id) ?? []).map((i) => [imageIdentityKey(i.url), i] as const)
+		);
 		const kept: string[] = [];
 
 		for (const [index, image] of wanted.entries()) {
@@ -1072,9 +1160,12 @@ async function syncFamilyImages(
 				evidence: image.evidence,
 				license: image.license
 			};
-			const found = byUrl.get(image.url);
-			if (found) {
-				await prisma.motorcycleImage.update({ where: { id: found.id }, data });
+			const found = byKey.get(imageIdentityKey(image.url));
+			if (found && !kept.includes(found.id)) {
+				await prisma.motorcycleImage.update({
+					where: { id: found.id },
+					data: { ...data, url: image.url }
+				});
 				kept.push(found.id);
 			} else {
 				const created = await prisma.motorcycleImage.create({
