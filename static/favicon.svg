@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!--
+    MotoSwipe mark: a naked bike from the side. Two wheels, an engine block,
+    a sodium-orange tank and a headlight with a cold glint. Bold shapes only,
+    so it still reads as a motorcycle at 48 px and as two wheels at 20 px.
+    PNG icons are rendered from this file by scripts/render-icons.ts.
+  -->
+  <defs>
+    <radialGradient id="glow" cx="0.82" cy="0.4" r="0.4">
+      <stop offset="0" stop-color="#ff6a1f" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ff6a1f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#0b0d10"/>
+  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="#232830" stroke-width="4"/>
+  <circle cx="420" cy="205" r="140" fill="url(#glow)"/>
+
+  <!-- wheels: thick rings, the anchor at every size -->
+  <circle cx="132" cy="350" r="74" fill="none" stroke="#eef0f3" stroke-width="30"/>
+  <circle cx="380" cy="350" r="74" fill="none" stroke="#eef0f3" stroke-width="30"/>
+
+  <!-- engine block between the wheels -->
+  <rect x="196" y="286" width="120" height="86" rx="22" fill="#6b737f"/>
+  <!-- exhaust -->
+  <path d="M316 336 L372 336" fill="none" stroke="#6b737f" stroke-width="24" stroke-linecap="round"/>
+  <!-- swingarm -->
+  <path d="M132 350 L206 318" fill="none" stroke="#6b737f" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- seat (bone) then tank (sodium) on top of the frame line -->
+  <path d="M112 262 L214 262 L214 232 L150 232 Q120 236 112 262 Z" fill="#eef0f3"/>
+  <path d="M206 262 Q214 196 286 188 Q340 186 356 232 L346 262 Z" fill="#ff6a1f"/>
+
+  <!-- fork + headlight -->
+  <path d="M340 262 L392 340" fill="none" stroke="#6b737f" stroke-width="24" stroke-linecap="round"/>
+  <path d="M344 244 L392 196" fill="none" stroke="#6b737f" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="404" cy="182" r="34" fill="#ff6a1f"/>
+  <circle cx="396" cy="172" r="11" fill="#35d6e8"/>
+  <!-- handlebar -->
+  <path d="M360 168 L420 140" fill="none" stroke="#eef0f3" stroke-width="18" stroke-linecap="round"/>
+</svg>

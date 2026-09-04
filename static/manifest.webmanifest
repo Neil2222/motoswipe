@@ -1,0 +1,25 @@
+{
+	"name": "MotoSwipe",
+	"short_name": "MotoSwipe",
+	"description": "Swipe through motorcycles, build a shortlist, and rank your favourites head-to-head.",
+	"id": "/",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#07080a",
+	"theme_color": "#07080a",
+	"lang": "en",
+	"categories": ["lifestyle", "shopping"],
+	"icons": [
+		{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+		{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+		{ "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+		{
+			"src": "/icons/icon-maskable-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
+	]
+}
