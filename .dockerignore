@@ -30,3 +30,9 @@ Dockerfile
 # Generated at build time inside the image
 src/lib/server/db/generated
 static/media
+
+# Database dumps handed over between machines
+motoswipe-db-*/
+
+# Local working files
+scratch

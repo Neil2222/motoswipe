@@ -10,6 +10,9 @@ import { config as loadDotenv } from 'dotenv';
  * set DATABASE_URL to the dev database.
  */
 loadDotenv({ path: '.env.test', override: true, quiet: true });
+// A machine-specific override (different port or password) goes in
+// `.env.test.local`, which .gitignore already excludes.
+loadDotenv({ path: '.env.test.local', override: true, quiet: true });
 
 if (!process.env.DATABASE_URL?.includes('test')) {
 	throw new Error(
