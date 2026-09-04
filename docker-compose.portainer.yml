@@ -1,0 +1,89 @@
+# =============================================================================
+# MotoSwipe — as a Portainer stack on the machine that also builds the image.
+#
+# Portainer cannot build from a local directory, so this file runs a
+# pre-built image. Build it first, then (re)deploy the stack:
+#
+#   docker compose build            # produces motoswipe:local from this repo
+#   npx tsx scripts/portainer-deploy.ts   # creates or updates the stack
+#
+# The stack is named `motoswipe`, the same project name `docker compose` uses,
+# so the database volume `motoswipe_motoswipe-db` is shared: switching between
+# `docker compose up` and the Portainer stack keeps the data. Never run both
+# at once.
+#
+# Every ${VAR} is a stack environment variable in Portainer (the deploy
+# script copies them from .env). Edit them under Stacks → motoswipe → Editor.
+# =============================================================================
+
+services:
+  motoswipe:
+    image: '${MOTOSWIPE_IMAGE:-motoswipe:local}'
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: 'postgresql://${POSTGRES_USER:-motoswipe}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-motoswipe}?schema=public'
+      SESSION_SECRET: '${SESSION_SECRET:?set SESSION_SECRET}'
+      SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-30}
+      ORIGIN: '${ORIGIN:?set ORIGIN to the public https URL}'
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      XFF_DEPTH: ${TRUST_PROXY_HOPS:-1}
+      ADDRESS_HEADER: ${ADDRESS_HEADER:-X-Forwarded-For}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      REGISTRATIONS_PER_HOUR: ${REGISTRATIONS_PER_HOUR:-10}
+      MAIL_PROVIDER: ${MAIL_PROVIDER:-auto}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      DEMOS_PER_HOUR: ${DEMOS_PER_HOUR:-30}
+      GUEST_RETENTION_DAYS: ${GUEST_RETENTION_DAYS:-7}
+    ports:
+      # The reverse proxy on the NAS reaches this over the LAN.
+      - '${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000'
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:3000/healthz']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-motoswipe}
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}'
+      POSTGRES_DB: ${POSTGRES_DB:-motoswipe}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      - motoswipe-db:/var/lib/postgresql/data
+    ports:
+      # Loopback only: for `npm run dev`, audits and imports on this machine.
+      - '127.0.0.1:${POSTGRES_PORT:-5433}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-motoswipe} -d ${POSTGRES_DB:-motoswipe}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+volumes:
+  motoswipe-db:
+    driver: local
