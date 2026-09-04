@@ -5,7 +5,12 @@ import { slugify } from '../utils/slug';
 import { upsertManufacturer } from '../importers/import.service';
 import type { NormalizedImage, NormalizedMotorcycle } from '../importers/types';
 import { groupByIdentity, identify, type Identity } from './identity';
-import { namesADifferentMotorcycle } from '../importers/photos/commons-match';
+import {
+	looksLikeDetailShot,
+	namesADifferentMotorcycle,
+	yearInTitle
+} from '../importers/photos/commons-match';
+import { commonsFileName } from '../images/identity';
 import {
 	MERGEABLE_FIELDS,
 	mergeContributions,
@@ -523,6 +528,19 @@ function familyIdentity(records: readonly LoadedRecord[]): Identity {
 		)[0].identity;
 }
 
+/** The evidence the file-name pass writes; its presence marks its own work. */
+const FILE_NAME_YEAR_PHRASE = 'file name states model year';
+
+function stripFileNameYear(evidence: string | null | undefined): string | null {
+	if (!evidence) return null;
+	const rest = evidence
+		.split(';')
+		.map((part) => part.trim())
+		.filter((part) => part && !part.startsWith(FILE_NAME_YEAR_PHRASE))
+		.join('; ');
+	return rest || null;
+}
+
 /** Which source's spelling of a model name is preferred, lowest first. */
 const NAME_SOURCE_ORDER = ['wikipedia', 'manufacturer', 'wikipedia-de'];
 function nameSourceRank(source: string): number {
@@ -1011,6 +1029,12 @@ async function syncFamilyImages(
 	// A curated rejection is a fact about one file; it is checked on the URL
 	// (which names the file) rather than the credit line.
 	const isRejected = (url: string) => rejectedImage(url) !== undefined;
+	// A photograph of a tank or a dashboard is not a photograph of a bike; the
+	// Commons jobs already skip these, an article's gallery does not.
+	const isDetail = (url: string) => {
+		const file = commonsFileName(url);
+		return file !== null && looksLikeDetailShot(file);
+	};
 	const providerSources = new Set([...records.map((r) => r.source), 'legacy']);
 	const divided = generations.length > 1;
 
@@ -1026,7 +1050,7 @@ async function syncFamilyImages(
 			if (image.license !== 'manufacturer' && isWrongBike(image.attribution ?? image.url)) {
 				continue;
 			}
-			if (isRejected(image.url)) continue;
+			if (isRejected(image.url) || isDetail(image.url)) continue;
 			// Keyed by the picture, not the URL: the English and German articles
 			// link the same Commons file under different renderings and tracking
 			// parameters, and a gallery must not show it twice.
@@ -1057,7 +1081,7 @@ async function syncFamilyImages(
 		if (image.source !== null && providerSources.has(image.source)) continue;
 		if (image.source === null) continue;
 		if (isWrongBike(image.attribution ?? image.url)) continue;
-		if (isRejected(image.url)) continue;
+		if (isRejected(image.url) || isDetail(image.url)) continue;
 
 		const key = imageIdentityKey(image.url);
 		const pooled = pool.get(key);
@@ -1078,28 +1102,48 @@ async function syncFamilyImages(
 			continue;
 		}
 
-		// A year the file name states is the strongest evidence there is; a
-		// search by name found some example of the family.
-		const scope: ImageScope =
-			image.scope === 'MODEL_YEAR' && image.modelYear
-				? 'MODEL_YEAR'
-				: divided
-					? 'FAMILY'
-					: 'GENERATION';
+		// A dating the photo job established from a caption or a subcategory is
+		// kept; one that the file-name pass below stamped on an earlier rebuild
+		// is dropped here and derived afresh, so a rule that has since been
+		// tightened cannot leave an old, looser verdict standing.
+		const stamped = image.evidence?.includes(FILE_NAME_YEAR_PHRASE) ?? false;
+		const evidence = stamped ? stripFileNameYear(image.evidence) : image.evidence;
+		const dated = !stamped && image.scope === 'MODEL_YEAR' && image.modelYear;
+		const scope: ImageScope = dated ? 'MODEL_YEAR' : divided ? 'FAMILY' : 'GENERATION';
 		pool.set(key, {
 			url: image.url,
 			scope,
-			modelYear: scope === 'MODEL_YEAR' ? image.modelYear : null,
+			modelYear: dated ? image.modelYear : null,
 			source: image.source,
 			sourceUrl: image.sourceUrl,
 			width: image.width,
 			height: image.height,
 			imageType: image.imageType,
 			attribution: image.attribution,
-			evidence: image.evidence,
+			evidence,
 			license: image.license,
 			order: 1000 + order++
 		});
+	}
+
+	// --- What the file name says ---------------------------------------------------
+	// A year the file name states is evidence of that model year, whichever
+	// road the photograph came in by. The Commons jobs already read it; an
+	// article's photograph arrived undated and stayed family-wide even when
+	// it was called "2019 Honda CB650R". Every photograph here was found in
+	// the family's own article or category, so the brand may be implied.
+	const now = new Date().getFullYear();
+	for (const image of pool.values()) {
+		if (image.modelYear !== null || image.license === 'manufacturer') continue;
+		const file = commonsFileName(image.url);
+		if (!file) continue;
+		const stated = yearInTitle(file, vetting, now, { brandImplied: true });
+		if (stated === undefined) continue;
+		image.scope = 'MODEL_YEAR';
+		image.modelYear = stated;
+		image.evidence = [stripFileNameYear(image.evidence), `${FILE_NAME_YEAR_PHRASE} ${stated}`]
+			.filter(Boolean)
+			.join('; ');
 	}
 
 	// --- Which generation each image belongs on --------------------------------
@@ -1108,20 +1152,33 @@ async function syncFamilyImages(
 
 	for (const image of pool.values()) {
 		if (image.scope === 'MODEL_YEAR' && image.modelYear !== null) {
-			// A next-year model — a 2027 in the maker's catalogue this autumn —
-			// belongs to the generation on sale now, unless a boundary says
-			// otherwise, and none can yet.
+			// The model year after the last generation's — a 2027 in the maker's
+			// catalogue this autumn — belongs to that generation, unless a
+			// boundary says otherwise, and none can yet. Any later year and the
+			// generation may well have ended: a 2024 photograph says nothing
+			// about a machine last registered in 2021.
 			const last = [...generations].reverse().find((g) => g !== null);
 			const nextYear = new Date().getFullYear() + 1;
 			const span =
 				generations.find((g) => g && image.modelYear! >= g.from && image.modelYear! <= g.to) ??
-				(last && image.modelYear > last.to && image.modelYear <= nextYear ? last : undefined);
+				(last && image.modelYear === last.to + 1 && image.modelYear <= nextYear ? last : undefined);
 			const id = span ? rowBySpan.get(span) : undefined;
 			if (id) {
 				wantedByRow.get(id)!.push(image);
 				continue;
 			}
-			// A year no generation covers: still a photograph of the family.
+			// A year no generation covers, and a curated boundary at the edge
+			// says why: the photograph shows an earlier or later machine the
+			// catalogue does not carry. Not this family's, then.
+			const first = generations.find((g) => g !== null);
+			if (
+				(first?.source === 'CURATED' && image.modelYear < first.from) ||
+				(last?.source === 'CURATED' && image.modelYear > last.to)
+			) {
+				continue;
+			}
+			// Otherwise the family's years are only what the registry saw, and
+			// the photograph is still one of the family.
 			image.scope = 'FAMILY';
 		}
 		for (const id of rowBySpan.values()) wantedByRow.get(id)!.push(image);

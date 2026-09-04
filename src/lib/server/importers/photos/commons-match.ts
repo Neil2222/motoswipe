@@ -27,7 +27,12 @@ import { normalizeBrand, normalizeModel, stripBrandPrefix } from '../match';
  * real bike, and it is a close-up of an orange plastic lens.
  */
 const DETAIL_SHOT =
-	/\b(engine|motor detail|dashboard|dash|cockpit|instrument|speedo|speedometer|tachometer|emblem|badge|logo|decal|lens|lense|mirror|handlebar|grip|lever|tank|fuel cap|wheel|tyre|tire|brake|caliper|disc|rotor|exhaust|muffler|silencer|swingarm|fork|shock|chain|sprocket|seat detail|headlight|headlamp|tail ?light|indicator|blinker|licen[cs]e plate|number plate|odometer|switch|key|manual|brochure|advert|poster|patent|diagram|drawing|blueprint|schematic|assembly|frame only|parts?|spares?|close ?-?up|interior|toolkit)\b/i;
+	/\b(engine|motor detail|dashboard|dash|cockpit|instrument|instrumentation|speedo|speedometer|tachometer|emblem|badge|logo|decal|lens|lense|mirror|handlebar|grip|lever|tank|fuel cap|wheel|tyre|tire|brake|caliper|disc|rotor|exhaust|muffler|silencer|swingarm|fork|shock|chain|sprocket|seat detail|headlight|headlamp|tail ?light|indicator|blinker|licen[cs]e plate|number plate|odometer|switch|key|manual|brochure|advert|poster|patent|diagram|drawing|blueprint|schematic|assembly|frame only|parts?|spares?|close ?-?up|interior|toolkit|r[ée]servoir|compteur|tableau de bord|armaturen|tacho|cockpit|auspuff|motorblok|dashboard|uitlaat|kilometerteller)\b/i;
+
+/** Whether a title names a part of the machine rather than the machine. */
+export function looksLikeDetailShot(title: string): boolean {
+	return DETAIL_SHOT.test(title.replace(/^File:/i, '').replace(/[_]/g, ' '));
+}
 
 /**
  * Titles that are a scene rather than a portrait of one machine — a rally
@@ -273,10 +278,36 @@ export function rankCandidates<T extends PhotoCandidate>(
  * This is the only way an image ever reaches `MODEL_YEAR` scope, and a
  * generation ever gets a photograph that is provably its own.
  */
+export interface YearInTitleOptions {
+	/**
+	 * The title may leave the brand out. True when the file was found in the
+	 * model's own article or Commons category, where "MT-09 RN43 2017" cannot
+	 * be anyone else's MT-09. False for a search result, where it could.
+	 */
+	brandImplied?: boolean;
+}
+
+/** Words that make a year the year of an event, not of the machine. */
+const EVENT_WORD =
+	/^(show|salon|eicma|intermot|iaa|expo|fair|exhibition|messe|mondial|festival|rally|ride|meet|meeting|motodays|museum|tms|tokyo|paris|milan|cologne|köln|birmingham|nec|ims|auto|motorshow|motorcycleshow)$/i;
+
+/** A month, in the languages Commons captions come in; a date is following. */
+const MONTH_WORD =
+	/^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december|januar|februar|märz|mai|juni|juli|oktober|dezember|januari|februari|maart|mei|augustus|december|janvier|février|mars|avril|juin|juillet|août|septembre|octobre|novembre|décembre)$/i;
+
+/**
+ * A trim, type or capacity code that may sit between the name and its year:
+ * "XT", "ABS", "RN43", "750", "v1". Capitals, or carrying a digit — a word
+ * ("Moto", "EICMA") or a preposition ("at", "the", "in") is not a code, and
+ * what follows one is a caption.
+ */
+const CODE_TOKEN = /^(?:[A-Z]{1,3}|[A-Za-z0-9-]*\d[A-Za-z0-9-]*)$/;
+
 export function yearInTitle(
 	title: string,
 	context: Pick<MatchContext, 'manufacturerName' | 'model'>,
-	now = new Date().getFullYear()
+	now = new Date().getFullYear(),
+	options: YearInTitleOptions = {}
 ): number | undefined {
 	const readable = title
 		.replace(/^File:/i, '')
@@ -286,35 +317,140 @@ export function yearInTitle(
 	// A date is not a model year, wherever it sits.
 	if (/\b(19|20)\d{2}[-./]\d{1,2}[-./]\d{1,2}\b/.test(readable)) return undefined;
 
-	const tokens = readable.split(/[\s()[\],;]+/).filter(Boolean);
+	const isYear = (token: string) => {
+		const year = Number(token);
+		return /^(19[89]\d|20\d{2})$/.test(token) && year <= now + 1 ? year : undefined;
+	};
+
+	// A year that follows a comma opens a caption's date or place, not a
+	// model year: "Moscow, 2023 Harley-Davidson Road Glide".
+	const datedByComma = new Set<string>();
+	for (const m of readable.matchAll(/,\s*((?:19|20)\d{2})\b/g)) datedByComma.add(m[1]);
+
+	// Tokens, and for each the comma-separated segment it sits in: a year in
+	// another segment than the name ("Triumph Thruxton, May 2026") is a
+	// caption's date, whatever stands between.
+	const tokens: string[] = [];
+	const segmentOf: number[] = [];
+	readable.split(/[,;]/).forEach((segment, index) => {
+		for (const token of segment.split(/[\s()[\]]+/).filter(Boolean)) {
+			tokens.push(token);
+			segmentOf.push(index);
+		}
+	});
 	const model = normalizeModel(context.model);
 	const brand = normalizeBrand(context.manufacturerName);
 	if (!model || !brand) return undefined;
 
-	// Where the name ends: the first token at which "brand … model" is complete.
-	// Plain lower-casing here, not `normalizeModel`, which strips a trailing
-	// year — the very thing being looked for.
+	// The name must be contiguous: the brand (one or more tokens), at most
+	// one year, then the model's tokens in order. Plain lower-casing here,
+	// not `normalizeModel`, which strips a trailing year — the very thing
+	// being looked for. Anything else in the middle means the name was not
+	// found there, and the search starts again at the next token.
 	const joined = tokens.map((t) => t.toLowerCase().replace(/[^a-z0-9]/g, ''));
+	let nameStart = -1;
 	let nameEnd = -1;
-	let running = '';
-	for (const [index, token] of joined.entries()) {
-		running += token;
-		if (running.endsWith(model) && running.includes(brand)) {
+	let between: number | undefined;
+	let brandPart = '';
+	let modelPart = '';
+	let brandDone = false;
+
+	const reset = () => {
+		nameStart = -1;
+		between = undefined;
+		brandPart = '';
+		modelPart = '';
+		brandDone = false;
+	};
+
+	for (let index = 0; index < joined.length; index++) {
+		const token = joined[index];
+		if (!token) continue;
+		if (nameStart === -1) {
+			if (token.includes(brand)) {
+				nameStart = index;
+				brandDone = true;
+				modelPart = token.slice(token.indexOf(brand) + brand.length);
+				if (modelPart && !model.startsWith(modelPart)) {
+					reset();
+					continue;
+				}
+			} else if (brand.startsWith(token)) {
+				nameStart = index;
+				brandPart = token;
+			} else if (options.brandImplied === true && model.startsWith(token)) {
+				nameStart = index;
+				brandDone = true;
+				modelPart = token;
+			} else {
+				continue;
+			}
+		} else if (!brandDone) {
+			if (brand.startsWith(brandPart + token)) {
+				brandPart += token;
+				brandDone = brandPart === brand;
+			} else {
+				reset();
+				index--;
+				continue;
+			}
+		} else if (modelPart === '' && between === undefined && isYear(tokens[index]) !== undefined) {
+			between = isYear(tokens[index]);
+		} else if (model.startsWith(modelPart + token)) {
+			modelPart += token;
+		} else {
+			reset();
+			index--;
+			continue;
+		}
+		if (brandDone && modelPart === model) {
 			nameEnd = index;
 			break;
 		}
 	}
 	if (nameEnd === -1) return undefined;
 
-	const isYear = (token: string) => {
-		const year = Number(token);
-		return /^(19[89]\d|20\d{2})$/.test(token) && year <= now + 1 ? year : undefined;
-	};
+	// Between the brand and the model: "BMW 2010 R1200RT Special".
+	if (between !== undefined) return between;
 
-	// Immediately after the name, or leading the whole title: "2018 Kawasaki
-	// Z900". A year further in front is a show, a rally or a date.
-	const after = isYear(tokens[nameEnd + 1] ?? '');
-	if (after) return after;
-	const leading = isYear(tokens[0] ?? '');
-	return leading && joined[1] && brand.startsWith(joined[1]) ? leading : undefined;
+	// "MY2018", "MY 2016", "Modelljahr 2024", "Bj. 2020": the file says it is
+	// a model year in so many words. Anywhere after the name, unless the
+	// caption then hedges ("oder", "or").
+	const rest = tokens.slice(nameEnd + 1);
+	for (const [i, token] of rest.entries()) {
+		const inline = /^(?:MY|MJ)((?:19|20)\d{2})$/i.exec(token);
+		const stated = inline
+			? isYear(inline[1])
+			: /^(?:MY|MJ|Modelljahr|Modeljaar|Baujahr|Bj\.?)$/i.test(token)
+				? isYear(rest[i + 1] ?? '')
+				: undefined;
+		if (stated) {
+			const next = inline ? rest[i + 1] : rest[i + 2];
+			return next && /^(oder|or|of)$/i.test(next) ? undefined : stated;
+		}
+	}
+
+	// Immediately after the name, or after a trim, type or capacity code
+	// that belongs to it: "Kawasaki Z900 2020", "Honda X-ADV 750 2025",
+	// "MT-09 RN43 2017". A word in between ("Moto Cage 2015", "EICMA 2024")
+	// could introduce a date or an event, and ends the search.
+	for (const [i, token] of rest.entries()) {
+		if (segmentOf[nameEnd + 1 + i] !== segmentOf[nameEnd]) break;
+		const after = isYear(token);
+		if (after) return datedByComma.has(token) ? undefined : after;
+		if (EVENT_WORD.test(token) || MONTH_WORD.test(token) || !CODE_TOKEN.test(token)) break;
+	}
+
+	// Directly before the name, leading the title or after nothing more than
+	// a colour: "2018 Kawasaki Z900", "Alpine white 2017 BMW R1200RT". A year
+	// further in front belongs to a show, a rally or a date; so does one
+	// preceded by the name of an event or written beside a comma.
+	const before = tokens.slice(0, nameStart);
+	if (before.length === 0 || before.length > 3) return undefined;
+	if (segmentOf[nameStart - 1] !== segmentOf[nameStart]) return undefined;
+	const lead = before[before.length - 1];
+	const leading = isYear(lead);
+	if (leading === undefined || datedByComma.has(lead)) return undefined;
+	if (before.slice(0, -1).some((t) => EVENT_WORD.test(t))) return undefined;
+	return leading;
 }

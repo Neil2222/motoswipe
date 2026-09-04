@@ -41,12 +41,28 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   `curated.ts` with a reason. Photo-job images (commons-search/-category) live
   only in `motorcycle_images`; the rebuild keeps their dated evidence over an
   article's undated copy of the same file.
+- A Commons file name that states a model year is evidence
+  (`yearInTitle` in `importers/photos/commons-match.ts`, applied to every
+  pooled photograph by the rebuild with `brandImplied`). Accepted: "MY2018",
+  "Modelljahr 2024", a year directly after the name or after a code in
+  capitals or with a digit ("XT", "RN43", "750"), a year between brand and
+  model, or leading the title after at most a colour. Refused: dates, a year
+  after a word or preposition ("Moto Cage 2015", "at the 2009 Show"), an
+  event or museum name, a year after a comma, another comma segment. The
+  rebuild recomputes this every run and strips stale "file name states model
+  year" evidence, so a rule change takes effect with a rebuild only.
+- A dated photograph the family's generations do not cover becomes a
+  FAMILY image; if a curated boundary at that edge says the family starts
+  later or ended earlier, the photograph is dropped (a 2003 GasGas EC 250
+  is not the 2021 KTM-based one). One model year past the last generation is
+  still that generation; more is not.
 - The rebuild is deterministic: records are ordered by source rank
   (wikipedia, manufacturer, wikipedia-de, then the rest) and a family is
   named by the spelling most records use, then the longest-filed one. After
   a rebuild, `npm run db:audit -- --since 2020 --top 100` must still give
-  990 / 338 / Top 100 = 69 (2026-09-04 baseline); compare before touching
-  anything else.
+  990 / 357 / Top 100 = 76 (`docs/audits/audit-final5.txt`, 2026-09-04;
+  the restored dump gave 990 / 338 / 69); compare before touching anything
+  else.
 - Audits: `npm run db:audit -- --since 2020 --top 100 --json <file>` and
   `npm run db:audit:focus -- --json <file>`. Earlier outputs live in
   `docs/audits/`; a new audit must rerun the exact same metrics so a

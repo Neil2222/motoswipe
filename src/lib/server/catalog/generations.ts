@@ -734,6 +734,20 @@ export const CURATED_GENERATIONS: CuratedFamilyGenerations[] = [
 		]
 	},
 
+	// --- GasGas ----------------------------------------------------------------
+	{
+		brand: 'gasgas',
+		family: 'EC 250',
+		reference: `${WP} "Gas Gas" (Pierer Mobility takeover, 2019; KTM-based range from model year 2021)`,
+		generations: [
+			{
+				from: 2021,
+				reason:
+					'Built on the KTM 250 EXC platform after the Pierer takeover: new frame, engine and bodywork; the Spanish-built EC 250 before it is a different machine'
+			}
+		]
+	},
+
 	// --- KTM -----------------------------------------------------------------
 	{
 		brand: 'ktm',

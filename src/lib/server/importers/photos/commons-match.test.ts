@@ -282,4 +282,119 @@ describe('yearInTitle', () => {
 		expect(yearInTitle('File:BMW R 1250 GS 2019.jpg', gs, 2026)).toBe(2019);
 		expect(yearInTitle('File:2021 BMW R1250GS.jpg', gs, 2026)).toBe(2021);
 	});
+
+	it('reads a model year the file states in so many words', () => {
+		const sdr = { manufacturerName: 'KTM', model: '1290 Super Duke R' };
+		expect(yearInTitle('File:KTM_1290_Super_Duke_R_Special_Edition_MY_2016.jpg', sdr, 2026)).toBe(
+			2016
+		);
+		const vstrom = { manufacturerName: 'Suzuki', model: 'V-Strom 650' };
+		expect(yearInTitle('File:Suzuki_V-Strom_650_XT_MY2018.jpg', vstrom, 2026)).toBe(2018);
+		const zx10 = { manufacturerName: 'Kawasaki', model: 'Ninja ZX-10R' };
+		expect(yearInTitle('File:Kawasaki_Ninja_ZX-10_R_Modelljahr_2024.jpg', zx10, 2026)).toBe(2024);
+		const rt = { manufacturerName: 'BMW', model: 'R 1250 RT' };
+		expect(
+			yearInTitle('File:Stockach (BMW R1250 RT, Bj. 2020 oder 2021, Schriftzug) 2021.jpg', rt, 2026)
+		).toBeUndefined();
+	});
+
+	it('reads a year between the brand and the model, or after a colour', () => {
+		const rt = { manufacturerName: 'BMW', model: 'R 1200 RT' };
+		expect(yearInTitle('File:BMW_2010_R1200RT_Special.jpg', rt, 2026)).toBe(2010);
+		expect(yearInTitle('File:Alpine_white_2017_BMW_R1200RT.jpg', rt, 2026)).toBe(2017);
+		const vstrom = { manufacturerName: 'Suzuki', model: 'V-Strom 650' };
+		expect(yearInTitle('File:Red_2005_Suzuki_V-Strom_650.jpg', vstrom, 2026)).toBe(2005);
+		expect(
+			yearInTitle('File:Motorcycle show 2019 Suzuki V-Strom 650 stand.jpg', vstrom, 2026)
+		).toBeUndefined();
+		expect(
+			yearInTitle('File:Paris - Salon de la moto 2011 - Suzuki - V-Strom 650.jpg', vstrom, 2026)
+		).toBeUndefined();
+	});
+
+	it('steps over a code or capacity after the name, but not a word', () => {
+		const xadv = { manufacturerName: 'Honda', model: 'X-ADV' };
+		expect(yearInTitle('File:Honda_X-ADV_750_2025.jpg', xadv, 2026)).toBe(2025);
+		const mt07 = { manufacturerName: 'Yamaha', model: 'MT-07' };
+		expect(yearInTitle('File:Yamaha_MT-07_Moto_Cage,_2015.jpg', mt07, 2026)).toBeUndefined();
+		const cb = { manufacturerName: 'Honda', model: 'CB650R' };
+		expect(yearInTitle('File:Honda_CB650R_Motorcycle_2021.jpg', cb, 2026)).toBeUndefined();
+		expect(
+			yearInTitle(
+				'File:Honda_CBR600RR_(VX24_USM)_-_25_April_2026.jpg',
+				{ manufacturerName: 'Honda', model: 'CBR600RR' },
+				2026
+			)
+		).toBeUndefined();
+		// "at the" is not a code: the year after it is the show's, the one in
+		// front is the machine's.
+		const drz = { manufacturerName: 'Suzuki', model: 'DR-Z400' };
+		expect(
+			yearInTitle(
+				'File:2010_Suzuki_DRZ400_at_the_2009_Seattle_International_Motorcycle_Show_2.jpg',
+				drz,
+				2026
+			)
+		).toBe(2010);
+	});
+
+	it('refuses an event year after the name, a museum visit and a comma-dated caption', () => {
+		const scrambler = { manufacturerName: 'Ducati', model: 'Scrambler 800' };
+		expect(
+			yearInTitle('File:Ducati_Scrambler_800_-_EICMA_2024.jpg', scrambler, 2026)
+		).toBeUndefined();
+		const trk = { manufacturerName: 'Benelli', model: 'TRK 502' };
+		expect(yearInTitle('File:Benelli_TRK_502_EICMA_2024_noBG.jpg', trk, 2026)).toBeUndefined();
+		const lowRider = { manufacturerName: 'Harley-Davidson', model: 'Low Rider ST' };
+		expect(
+			yearInTitle(
+				'File:Harley-Davidson_Museum_May_2024_28_(2024_Low_Rider_ST).jpg',
+				lowRider,
+				2026,
+				{ brandImplied: true }
+			)
+		).toBeUndefined();
+		const niken = { manufacturerName: 'Yamaha', model: 'Niken' };
+		expect(yearInTitle('File:Paris-Nice_2021,_Yamaha_Niken_(1).jpg', niken, 2026)).toBeUndefined();
+		const roadmaster = { manufacturerName: 'Indian', model: 'Roadmaster' };
+		expect(yearInTitle('File:Indian_Roadmaster,_2015_(1).jpg', roadmaster, 2026)).toBeUndefined();
+		const nineT = { manufacturerName: 'BMW', model: 'R nineT' };
+		expect(yearInTitle('File:BMW_R_nineT_IAA_2019_JM_0256.jpg', nineT, 2026)).toBeUndefined();
+		const glide = { manufacturerName: 'Harley-Davidson', model: 'Road Glide Special' };
+		expect(
+			yearInTitle('File:Moscow,_2023_Harley-Davidson_Road_Glide_Special.jpg', glide, 2026)
+		).toBeUndefined();
+	});
+
+	it('reads a two-token brand and a code with a digit after the name', () => {
+		const glide = { manufacturerName: 'Harley-Davidson', model: 'Street Glide' };
+		expect(yearInTitle('File:Harley_Davidson_Street_Glide_2015_panel.jpg', glide, 2026)).toBe(2015);
+		const r3 = { manufacturerName: 'Yamaha', model: 'YZF-R3' };
+		expect(yearInTitle('File:Yamaha_YZF-R3_2022_v1.jpg', r3, 2026)).toBe(2022);
+		const veloce = { manufacturerName: 'MV Agusta', model: 'Turismo Veloce' };
+		expect(yearInTitle('File:MV_Agusta_Turismo_Veloce_800_HMT_2015.jpg', veloce, 2026)).toBe(2015);
+	});
+
+	it('stops at a month or a comma between the name and a year', () => {
+		const thruxton = { manufacturerName: 'Triumph', model: 'Thruxton' };
+		expect(
+			yearInTitle('File:Moscow,_Triumph_Thruxton,_May_2026_01.jpg', thruxton, 2026)
+		).toBeUndefined();
+		expect(yearInTitle('File:Triumph_Thruxton_May_2026.jpg', thruxton, 2026)).toBeUndefined();
+		expect(yearInTitle('File:Triumph_Thruxton_2019,_Moscow.jpg', thruxton, 2026)).toBe(2019);
+	});
+
+	it('accepts a title without the brand only where the brand is implied', () => {
+		const mt09 = { manufacturerName: 'Yamaha', model: 'MT-09' };
+		expect(yearInTitle('File:MT_09_RN43_2017.jpg', mt09, 2026)).toBeUndefined();
+		expect(yearInTitle('File:MT_09_RN43_2017.jpg', mt09, 2026, { brandImplied: true })).toBe(2017);
+		expect(
+			yearInTitle(
+				'File:Blue_2006_YZFR6.jpg',
+				{ manufacturerName: 'Yamaha', model: 'YZF-R6' },
+				2026,
+				{ brandImplied: true }
+			)
+		).toBe(2006);
+	});
 });
