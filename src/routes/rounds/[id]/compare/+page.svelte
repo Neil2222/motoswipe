@@ -4,6 +4,7 @@
 	import { CATEGORY_LABELS, type MotorcycleCategory } from '$lib/domain/enums';
 	import { money, unit, progressWidth } from '$lib/utils/format';
 	import { toasts } from '$lib/stores/toast.svelte';
+	import { fitToViewport } from '$lib/utils/viewport';
 	import BikePhoto from '$lib/components/BikePhoto.svelte';
 	import GalleryControls from '$lib/components/GalleryControls.svelte';
 	import type { PageProps } from './$types';
@@ -129,7 +130,7 @@
 
 <!-- Mobile stacks the two cards and may scroll; from `sm` up the arena is
      pinned to the viewport so both cards are visible without scrolling. -->
-<div class="pb-safe-nav flex min-h-dvh flex-col sm:h-dvh sm:min-h-0 sm:overflow-hidden">
+<div class="pb-safe-nav flex h-dvh flex-col overflow-hidden" use:fitToViewport>
 	<!-- Header -->
 	<header class="pt-safe shrink-0 px-4 pt-4">
 		<div class="mx-auto max-w-5xl">
@@ -167,12 +168,12 @@
 			</div>
 		</div>
 	{:else}
-		<div class="flex min-h-0 flex-1 flex-col px-4 py-4">
+		<div class="flex min-h-0 flex-1 flex-col px-3 py-2 sm:px-4 sm:py-4">
 			<div class="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col">
-				<h1 class="display text-bone text-center text-2xl sm:text-3xl">
+				<h1 class="display text-bone text-center text-lg sm:text-3xl">
 					Which would you rather own?
 				</h1>
-				<p class="text-dim mt-2 text-center text-xs">
+				<p class="text-dim mt-1 text-center text-[11px] sm:mt-2 sm:text-xs">
 					No wrong answers. Trust the first reaction.
 					{#if data.isDemo && suggested > votes}
 						{suggested - votes} to go, then your result.
@@ -181,10 +182,11 @@
 
 				{#key round}
 					<!-- The arena has to fit the viewport: two cards side by side on
-					     desktop, stacked on mobile. `min-h-0` on every flex ancestor is
-					     what stops the images forcing the page taller than the screen. -->
+					     desktop, stacked and sharing the height on a phone, so both
+					     bikes are on screen without scrolling. `min-h-0` on every flex
+					     ancestor is what stops the images forcing the page taller. -->
 					<div
-						class="mt-5 grid min-h-0 flex-1 grid-cols-1 items-stretch gap-3 sm:grid-cols-[1fr_auto_1fr] sm:gap-4"
+						class="mt-2 grid min-h-0 flex-1 grid-cols-1 grid-rows-[1fr_auto_1fr] items-stretch gap-2 sm:mt-5 sm:grid-cols-[1fr_auto_1fr] sm:grid-rows-1 sm:gap-4"
 						in:fade={{ duration: 220 }}
 					>
 						{#each [comparison.a, comparison.b] as bike, index (bike.id)}
@@ -194,7 +196,7 @@
 								<div class="flex items-center justify-center sm:flex-col">
 									<div class="hairline flex-1 sm:hidden"></div>
 									<span
-										class="display text-chrome border-graphite bg-charcoal mx-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm sm:mx-0"
+										class="display text-chrome border-graphite bg-charcoal mx-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs sm:mx-0 sm:h-11 sm:w-11 sm:text-sm"
 									>
 										VS
 									</span>
@@ -211,9 +213,7 @@
 									{chosen && chosen !== bike.id ? 'scale-97 opacity-40' : ''}"
 								in:fly={{ y: 16, duration: 260, delay: index * 60 }}
 							>
-								<div
-									class="bg-ink relative h-[38dvh] w-full shrink-0 overflow-hidden sm:h-auto sm:min-h-40 sm:flex-1 sm:shrink"
-								>
+								<div class="bg-ink relative min-h-0 w-full flex-1 overflow-hidden">
 									<BikePhoto
 										url={bike.images[gallery[bike.id] ?? 0]?.url}
 										alt="{bike.manufacturer.name} {bike.model}"
@@ -248,9 +248,9 @@
 										{CATEGORY_LABELS[bike.category as MotorcycleCategory]}
 									</span>
 
-									<div class="pointer-events-none absolute inset-x-0 bottom-0 p-4">
+									<div class="pointer-events-none absolute inset-x-0 bottom-0 p-3 sm:p-4">
 										<p class="stencil text-sodium/90">{bike.manufacturer.name}</p>
-										<h2 class="display text-bone mt-1 text-2xl leading-tight sm:text-3xl">
+										<h2 class="display text-bone mt-0.5 text-xl leading-tight sm:mt-1 sm:text-3xl">
 											{bike.model}
 										</h2>
 										{#if bike.variant}
@@ -267,22 +267,26 @@
 								>
 									<!-- A minimal spec strip. Enough to break a tie, not enough to
 									     turn this back into a spec-sheet comparison. -->
-									<dl class="text-ash grid w-full grid-cols-3 gap-2 px-4 py-3 text-xs">
-										<div>
+									<dl
+										class="text-ash flex w-full items-center justify-between gap-3 px-3 py-1.5 text-[11px] sm:grid sm:grid-cols-3 sm:gap-2 sm:px-4 sm:py-3 sm:text-xs"
+									>
+										<div class="flex gap-1 sm:block">
 											<dt class="text-dim">Engine</dt>
 											<dd class="numeral">{unit(bike.displacementCc, 'cc')}</dd>
 										</div>
-										<div>
+										<div class="flex gap-1 sm:block">
 											<dt class="text-dim">Power</dt>
 											<dd class="numeral">{unit(bike.powerHp, 'hp')}</dd>
 										</div>
-										<div>
+										<div class="flex gap-1 sm:block">
 											<dt class="text-dim">Price</dt>
 											<dd class="numeral">{money(bike.msrpAmount, bike.msrpCurrency)}</dd>
 										</div>
 									</dl>
 
-									<span class="stencil border-graphite w-full border-t px-4 py-2 text-center">
+									<span
+										class="stencil border-graphite hidden w-full border-t px-4 py-2 text-center sm:block"
+									>
 										{index === 0 ? 'Pick this  ·  ←' : 'Pick this  ·  →'}
 									</span>
 								</button>
@@ -291,7 +295,9 @@
 					</div>
 				{/key}
 
-				<div class="mt-5 flex flex-wrap items-center justify-center gap-3 pb-6">
+				<div
+					class="mt-2 flex shrink-0 flex-wrap items-center justify-center gap-2 pb-1 sm:mt-5 sm:gap-3 sm:pb-6"
+				>
 					<button class="btn btn-ghost btn-sm" onclick={skipPair} disabled={submitting}>
 						Skip this pairing
 					</button>
@@ -301,7 +307,7 @@
 				</div>
 
 				{#if enough}
-					<p class="text-cyan mb-6 text-center text-xs">
+					<p class="text-cyan hidden text-center text-xs sm:mb-6 sm:block">
 						You have done enough comparisons for a stable top few. Keep going if you want to sharpen
 						the middle of the table.
 					</p>
