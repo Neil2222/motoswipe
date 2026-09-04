@@ -100,6 +100,31 @@ describe('isFamilyPhoto', () => {
 	});
 });
 
+describe('isFamilyPhoto with a shortened brand', () => {
+	it("accepts the maker's first word inside the family category, and folds accents", () => {
+		const glide = {
+			manufacturerName: 'Harley-Davidson',
+			model: 'Sport Glide',
+			siblingModels: ['Street Glide', 'Road Glide']
+		};
+		expect(isFamilyPhoto(file({ title: 'File:Harley Sport Glide 2022.jpg' }), glide)).toBe(true);
+		expect(isFamilyPhoto(file({ title: 'File:Sport Glide 2022.jpg' }), glide)).toBe(false);
+		const tenere = { manufacturerName: 'Yamaha', model: 'Ténéré 700', siblingModels: [] };
+		expect(isFamilyPhoto(file({ title: 'File:2022 Yamaha Tenere700.jpg' }), tenere)).toBe(true);
+	});
+
+	it('dates a category file whose title leaves the brand out', () => {
+		const glide = { manufacturerName: 'Harley-Davidson', model: 'Sport Glide' };
+		const placed = placeFile(
+			file({ title: 'File:Harley Sport Glide 2022.jpg' }),
+			glide,
+			[{ id: 'g', from: 2018, to: 2025 }],
+			2026
+		);
+		expect(placed).toMatchObject({ scope: 'MODEL_YEAR', generationId: 'g', year: 2022 });
+	});
+});
+
 describe('placeFile', () => {
 	it('places a stated year on its generation at model-year scope', () => {
 		const placed = placeFile(

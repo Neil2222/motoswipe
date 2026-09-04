@@ -27,7 +27,7 @@ import { normalizeBrand, normalizeModel, stripBrandPrefix } from '../match';
  * real bike, and it is a close-up of an orange plastic lens.
  */
 const DETAIL_SHOT =
-	/\b(engine|motor detail|dashboard|dash|cockpit|instrument|instrumentation|speedo|speedometer|tachometer|emblem|badge|logo|decal|lens|lense|mirror|handlebar|grip|lever|tank|fuel cap|wheel|tyre|tire|brake|caliper|disc|rotor|exhaust|muffler|silencer|swingarm|fork|shock|chain|sprocket|seat detail|headlight|headlamp|tail ?light|indicator|blinker|licen[cs]e plate|number plate|odometer|switch|key|manual|brochure|advert|poster|patent|diagram|drawing|blueprint|schematic|assembly|frame only|parts?|spares?|close ?-?up|interior|toolkit|r[ée]servoir|compteur|tableau de bord|armaturen|tacho|cockpit|auspuff|motorblok|dashboard|uitlaat|kilometerteller)\b/i;
+	/\b(engine|motor detail|dashboard|dash|cockpit|instrument|instrumentation|speedo|speedometer|tachometer|emblem|badge|logo|decal|lens|lense|mirror|handlebar|grip|lever|tank|fuel cap|wheel|tyre|tire|brake|caliper|disc|rotor|exhaust|muffler|silencer|swingarm|fork|shock|chain|sprocket|seat detail|headlight|headlamp|tail ?light|indicator|blinker|licen[cs]e plate|number plate|odometer|switch|key|manual|brochure|advert|poster|patent|diagram|drawing|blueprint|schematic|assembly|frame only|parts?|spares?|close ?-?up|interior|toolkit|r[ée]servoir|compteur|tableau de bord|armaturen|tacho|cockpit|auspuff|motorblok|dashboard|uitlaat|kilometerteller|schriftzug|scheinwerfer|r[üu]cklicht|lights?|rear[- ]lights?|petrol[- ]cap|gas cap|keyless|cruscotto|quadro|gearshift|panel)\b/i;
 
 /** Whether a title names a part of the machine rather than the machine. */
 export function looksLikeDetailShot(title: string): boolean {
@@ -46,11 +46,20 @@ const CROWD_SHOT =
 const PHOTO_EXTENSION = /\.(jpe?g|png|webp)$/i;
 
 /**
+ * Accents dropped: "Ténéré" and "Tenere" are the same word, and Commons
+ * spells it both ways. `normalizeModel` strips non-ASCII letters instead of
+ * folding them, so both sides of every comparison are folded first.
+ */
+export function foldAccents(text: string): string {
+	return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+/**
  * Reduces a Commons file title to the same alphabet `normalizeModel` uses, so
  * "File:BMW R 1250 GS (1).jpg" and a model named "R1250GS" meet in the middle.
  */
 export function normalizeTitle(title: string): string {
-	return title
+	return foldAccents(title)
 		.replace(/^File:/i, '')
 		.replace(/\.[a-z0-9]+$/i, '')
 		.toLowerCase()
@@ -100,7 +109,7 @@ export function isPhotoOf(candidate: PhotoCandidate, context: MatchContext): boo
 	}
 
 	const brand = normalizeBrand(context.manufacturerName);
-	const model = normalizeModel(context.model);
+	const model = normalizeModel(foldAccents(context.model));
 	if (!brand || !model) return false;
 
 	const normalized = normalizeTitle(title);
@@ -287,6 +296,17 @@ export interface YearInTitleOptions {
 	brandImplied?: boolean;
 }
 
+/** A colour, which may stand between a leading year and the name. */
+const COLOUR_WORD =
+	/^(black|white|red|blue|green|yellow|orange|grey|gray|silver|gold|purple|brown|matt|matte|dark|light|metallic|schwarz|weiss|weiß|rot|blau|grün|gelb|grau|silber|zwart|wit|rood|blauw|groen|geel|grijs|noir|blanc|rouge|bleu|vert|jaune|gris)$/i;
+
+/**
+ * A camera's frame counter: "IMG 2019", "DSC 2015". Four digits after one of
+ * these are not a year.
+ */
+const COUNTER_PREFIX =
+	/^(img|dsc|dscf|dscn|dsci|cimg|p|pict|sam|gopr|gp|mvi|dji|pano|sdc|hpim|pic|photo|file|foto|sany|dcp|imag|mov|vid|no|nr|n°|#)$/i;
+
 /** Words that make a year the year of an event, not of the machine. */
 const EVENT_WORD =
 	/^(show|salon|eicma|intermot|iaa|expo|fair|exhibition|messe|mondial|festival|rally|ride|meet|meeting|motodays|museum|tms|tokyo|paris|milan|cologne|köln|birmingham|nec|ims|auto|motorshow|motorcycleshow)$/i;
@@ -303,13 +323,48 @@ const MONTH_WORD =
  */
 const CODE_TOKEN = /^(?:[A-Z]{1,3}|[A-Za-z0-9-]*\d[A-Za-z0-9-]*)$/;
 
+/**
+ * The spellings of the model a title may use: the catalogue's name, the
+ * curated aliases ("Scrambler Desert Sled" for the Scrambler 800), and for a
+ * two-word name of a number and a word, the two the other way round — "Duke
+ * 790" is how half of Commons spells the 790 Duke.
+ */
+function modelSpellings(context: { model: string; aliases?: readonly string[] }): string[] {
+	const spellings = [normalizeModel(foldAccents(context.model))];
+	const words = context.model.trim().split(/\s+/);
+	if (words.length === 2 && words.filter((w) => /^\d+$/.test(w)).length === 1) {
+		spellings.push(normalizeModel(`${words[1]} ${words[0]}`));
+	}
+	for (const alias of context.aliases ?? []) {
+		const spelling = normalizeModel(foldAccents(alias));
+		if (spelling.length >= 3 && !spellings.includes(spelling)) spellings.push(spelling);
+	}
+	return spellings.filter(Boolean);
+}
+
 export function yearInTitle(
 	title: string,
-	context: Pick<MatchContext, 'manufacturerName' | 'model'>,
+	context: { manufacturerName: string; model: string; aliases?: readonly string[] },
 	now = new Date().getFullYear(),
 	options: YearInTitleOptions = {}
 ): number | undefined {
-	const readable = title
+	const brand = normalizeBrand(context.manufacturerName);
+	if (!brand) return undefined;
+	for (const model of modelSpellings(context)) {
+		const year = yearInTitleFor(title, brand, model, now, options);
+		if (year !== undefined) return year;
+	}
+	return undefined;
+}
+
+function yearInTitleFor(
+	title: string,
+	brand: string,
+	model: string,
+	now: number,
+	options: YearInTitleOptions
+): number | undefined {
+	const readable = foldAccents(title)
 		.replace(/^File:/i, '')
 		.replace(/\.[a-z0-9]+$/i, '')
 		.replace(/[_]/g, ' ');
@@ -338,10 +393,6 @@ export function yearInTitle(
 			segmentOf.push(index);
 		}
 	});
-	const model = normalizeModel(context.model);
-	const brand = normalizeBrand(context.manufacturerName);
-	if (!model || !brand) return undefined;
-
 	// The name must be contiguous: the brand (one or more tokens), at most
 	// one year, then the model's tokens in order. Plain lower-casing here,
 	// not `normalizeModel`, which strips a trailing year — the very thing
@@ -447,10 +498,62 @@ export function yearInTitle(
 	// preceded by the name of an event or written beside a comma.
 	const before = tokens.slice(0, nameStart);
 	if (before.length === 0 || before.length > 3) return undefined;
-	if (segmentOf[nameStart - 1] !== segmentOf[nameStart]) return undefined;
-	const lead = before[before.length - 1];
+	// "2021 Black Yamaha MT-07": the colour is part of the name.
+	const leadIndex = before.length - (COLOUR_WORD.test(before[before.length - 1]) ? 2 : 1);
+	if (leadIndex < 0 || segmentOf[leadIndex] !== segmentOf[nameStart]) return undefined;
+	const lead = before[leadIndex];
 	const leading = isYear(lead);
 	if (leading === undefined || datedByComma.has(lead)) return undefined;
-	if (before.slice(0, -1).some((t) => EVENT_WORD.test(t))) return undefined;
+	if (before.slice(0, leadIndex).some((t) => EVENT_WORD.test(t))) return undefined;
 	return leading;
+}
+
+/**
+ * The earliest year a file name places the photograph in, or undefined.
+ *
+ * Weaker than `yearInTitle` and used for a weaker claim. Whether a year in a
+ * title is the model year, the date of the photograph or the year of the
+ * show, the machine in the picture existed by then: a 2019 photograph cannot
+ * show the 2021 restyle. The rebuild uses this to tell the generations of a
+ * divided family apart. A caption's year is never later than the photograph,
+ * so the earliest one is the safe bound; a camera's frame counter ("IMG
+ * 2019") is not a year at all.
+ */
+export function photoYearInTitle(
+	title: string,
+	now = new Date().getFullYear()
+): number | undefined {
+	const readable = foldAccents(title)
+		.replace(/^File:/i, '')
+		.replace(/\.[a-z0-9]+$/i, '')
+		.replace(/[_]/g, ' ');
+	const years: number[] = [];
+	const consider = (text: string) => {
+		const year = Number(text);
+		if (year >= 1980 && year <= now + 1) years.push(year);
+	};
+
+	// Dates: 2024-05-04, 2022-09, 06-2024, 11-1-2023, 22.04.2023, 20160704.
+	for (const m of readable.matchAll(
+		/\b((?:19|20)\d{2})[-./](?:0?[1-9]|1[0-2])(?:[-./](?:0?[1-9]|[12]\d|3[01]))?\b/g
+	)) {
+		consider(m[1]);
+	}
+	for (const m of readable.matchAll(/\b\d{1,2}(?:[-./]\d{1,2})?[-./]((?:19|20)\d{2})\b/g))
+		consider(m[1]);
+	for (const m of readable.matchAll(
+		/\b((?:19|20)\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\b/g
+	)) {
+		consider(m[1]);
+	}
+
+	// A year on its own, unless a frame counter's prefix stands before it.
+	const tokens = readable.split(/[\s()[\],;–-]+/).filter(Boolean);
+	tokens.forEach((token, index) => {
+		if (!/^(?:19|20)\d{2}$/.test(token)) return;
+		if (index > 0 && COUNTER_PREFIX.test(tokens[index - 1])) return;
+		consider(token);
+	});
+
+	return years.length ? Math.min(...years) : undefined;
 }

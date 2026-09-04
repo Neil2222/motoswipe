@@ -56,11 +56,23 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   later or ended earlier, the photograph is dropped (a 2003 GasGas EC 250
   is not the 2021 KTM-based one). One model year past the last generation is
   still that generation; more is not.
+- A file name that dates the photograph (`photoYearInTitle`: a date, a
+  show year, any plain year that is not a frame counter) is an upper bound:
+  the machine existed by then, allowing one year for autumn launches. On a
+  divided family, where exactly one generation had started by that year, the
+  photograph gets GENERATION scope on it ("Hamburg Marathon 2019" → R 1250
+  RT 2018–2020). Same rule as the category job's photograph date.
+- `yearInTitle` folds accents (Ténéré/Tenere), tries the curated aliases
+  (Scrambler Icon → Scrambler 800) and a two-word name the other way round
+  (Duke 790). The category job accepts a maker's first word inside the
+  family's own category ("Harley Sport Glide"), walks the letter-prefix
+  parent for one-word models ("Honda SH" for the SH150i) and takes
+  `--only "<text>"` to rewalk named families.
 - The rebuild is deterministic: records are ordered by source rank
   (wikipedia, manufacturer, wikipedia-de, then the rest) and a family is
   named by the spelling most records use, then the longest-filed one. After
   a rebuild, `npm run db:audit -- --since 2020 --top 100` must still give
-  990 / 357 / Top 100 = 76 (`docs/audits/audit-final5.txt`, 2026-09-04;
+  990 / 367 / Top 100 = 82 (`docs/audits/audit-final6.txt`, 2026-09-04;
   the restored dump gave 990 / 338 / 69); compare before touching anything
   else.
 - Audits: `npm run db:audit -- --since 2020 --top 100 --json <file>` and
@@ -109,6 +121,12 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   (photos as blob: URLs), CFMOTO (no model images) and Piaggio/Vespa
   (bot-blocked) still could not be read. Re-import one maker with
   `npx tsx scripts/import.ts --source manufacturer --allow-network --skip-rebuild --only kawasaki`.
+- Commons has no usable R 1250 GS Adventure (only a 168 px thumbnail), no
+  SV650 from 2016 on with a year in the name, no KTM 1290 Super Adventure S
+  and no CFMOTO 450MT/800MT. The Top-100 gaps left after audit VI are
+  previous generations whose Commons photographs carry no date (MT-07
+  2018–2020, Tracer 7/9, Versys 650/1000, S 1000 XR, MT-10, FJR1300, X-ADV
+  2017–2020, 1290 Super Duke R 2020+) and the Vespa GTS.
 - German Wikipedia refresh:
   `WIKIPEDIA_DE_REFRESH=1 npx tsx scripts/import.ts --source wikipedia-de --allow-network --skip-rebuild`,
   optionally with `WIKIPEDIA_DE_TITLES="Kawasaki Z 400"` for named articles only.

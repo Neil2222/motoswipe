@@ -8,6 +8,7 @@ import { groupByIdentity, identify, type Identity } from './identity';
 import {
 	looksLikeDetailShot,
 	namesADifferentMotorcycle,
+	photoYearInTitle,
 	yearInTitle
 } from '../importers/photos/commons-match';
 import { commonsFileName } from '../images/identity';
@@ -116,6 +117,8 @@ interface PooledImage {
 	license: string | null;
 	/** Where the provider put it, for stable ordering. */
 	order: number;
+	/** For a GENERATION-scope photograph of a divided family: which one. */
+	span?: GenerationSpan;
 }
 
 export async function rebuildCatalogue(
@@ -528,15 +531,21 @@ function familyIdentity(records: readonly LoadedRecord[]): Identity {
 		)[0].identity;
 }
 
-/** The evidence the file-name pass writes; its presence marks its own work. */
+/** The evidence the file-name passes write; its presence marks their own work. */
 const FILE_NAME_YEAR_PHRASE = 'file name states model year';
+const FILE_NAME_DATE_PHRASE = 'file name dates the photograph';
+const FILE_NAME_PHRASES = [FILE_NAME_YEAR_PHRASE, FILE_NAME_DATE_PHRASE];
+
+function stampedByFileName(evidence: string | null | undefined): boolean {
+	return FILE_NAME_PHRASES.some((phrase) => evidence?.includes(phrase) ?? false);
+}
 
 function stripFileNameYear(evidence: string | null | undefined): string | null {
 	if (!evidence) return null;
 	const rest = evidence
 		.split(';')
 		.map((part) => part.trim())
-		.filter((part) => part && !part.startsWith(FILE_NAME_YEAR_PHRASE))
+		.filter((part) => part && !FILE_NAME_PHRASES.some((phrase) => part.startsWith(phrase)))
 		.join('; ');
 	return rest || null;
 }
@@ -1106,7 +1115,7 @@ async function syncFamilyImages(
 		// kept; one that the file-name pass below stamped on an earlier rebuild
 		// is dropped here and derived afresh, so a rule that has since been
 		// tightened cannot leave an old, looser verdict standing.
-		const stamped = image.evidence?.includes(FILE_NAME_YEAR_PHRASE) ?? false;
+		const stamped = stampedByFileName(image.evidence);
 		const evidence = stamped ? stripFileNameYear(image.evidence) : image.evidence;
 		const dated = !stamped && image.scope === 'MODEL_YEAR' && image.modelYear;
 		const scope: ImageScope = dated ? 'MODEL_YEAR' : divided ? 'FAMILY' : 'GENERATION';
@@ -1146,11 +1155,46 @@ async function syncFamilyImages(
 			.join('; ');
 	}
 
+	// --- What the file name dates --------------------------------------------------
+	// A photograph the file name places in a year — a date, a show, a caption's
+	// year — shows a machine that existed by then, allowing a year for the
+	// autumn launch of the next model year. Where exactly one generation of a
+	// divided family had started, that is the generation in the picture; the
+	// same reasoning the Commons category job applies to a photograph date.
+	const spans = generations.filter((g): g is GenerationSpan => g !== null);
+	if (spans.length > 1) {
+		for (const image of pool.values()) {
+			if (image.scope !== 'FAMILY' || image.license === 'manufacturer') continue;
+			const file = commonsFileName(image.url);
+			if (!file) continue;
+			const by = photoYearInTitle(file, now);
+			if (by === undefined) continue;
+			const possible = spans.filter((g) => g.from <= by + 1);
+			const later = spans.filter((g) => g.from > by + 1);
+			if (possible.length !== 1 || !later.length) continue;
+			image.scope = 'GENERATION';
+			image.span = possible[0];
+			image.evidence = [
+				stripFileNameYear(image.evidence),
+				`${FILE_NAME_DATE_PHRASE} to ${by}, before the ${later[0].from} redesign`
+			]
+				.filter(Boolean)
+				.join('; ');
+		}
+	}
+
 	// --- Which generation each image belongs on --------------------------------
 	const wantedByRow = new Map<string, PooledImage[]>();
 	for (const id of rowBySpan.values()) wantedByRow.set(id, []);
 
 	for (const image of pool.values()) {
+		if (image.scope === 'GENERATION' && image.span) {
+			const id = rowBySpan.get(image.span);
+			if (id) {
+				wantedByRow.get(id)!.push(image);
+				continue;
+			}
+		}
 		if (image.scope === 'MODEL_YEAR' && image.modelYear !== null) {
 			// The model year after the last generation's — a 2027 in the maker's
 			// catalogue this autumn — belongs to that generation, unless a
@@ -1169,10 +1213,12 @@ async function syncFamilyImages(
 			}
 			// A year no generation covers, and a curated boundary at the edge
 			// says why: the photograph shows an earlier or later machine the
-			// catalogue does not carry. Not this family's, then.
+			// catalogue does not carry. Not this family's, then. The year
+			// before a launch is the launch itself — a 2015 model is
+			// photographed at the autumn 2014 shows — and stays.
 			const first = generations.find((g) => g !== null);
 			if (
-				(first?.source === 'CURATED' && image.modelYear < first.from) ||
+				(first?.source === 'CURATED' && image.modelYear < first.from - 1) ||
 				(last?.source === 'CURATED' && image.modelYear > last.to)
 			) {
 				continue;

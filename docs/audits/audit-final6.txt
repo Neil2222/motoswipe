@@ -1,18 +1,18 @@
 
 > motoswipe@0.1.0 db:audit
-> tsx scripts/audit-modern.ts --since 2020 --top 100 --json audit-final5.json
+> tsx scripts/audit-modern.ts --since 2020 --top 100 --json audit-final6.json
 
 MODERN CATALOGUE AUDIT — generations on sale 2020 or later
 ==============================================================================
 generations           990   (207,542 registrations)
 
 IMAGES
-  MODEL_YEAR   217    21.9%   of cards   50.3% of registrations
+  MODEL_YEAR   227    22.9%   of cards   53.3% of registrations
   GENERATION   179    18.1%   of cards   17.0% of registrations
-  FAMILY_ONLY  60     6.1%    of cards   16.2% of registrations
+  FAMILY_ONLY  51     5.2%    of cards   13.5% of registrations
   SUSPICIOUS   0      0.0%    of cards   0.0% of registrations
-  NONE         534    53.9%   of cards   16.5% of registrations
-  trustworthy primary image: 396 (40.0% of cards, 67.3% of registrations)
+  NONE         533    53.8%   of cards   16.2% of registrations
+  trustworthy primary image: 406 (41.0% of cards, 70.3% of registrations)
 
 FIELD COVERAGE   (non-null / by evidence status)
   field              present        verified  high   inferred  unknown  conflict
@@ -33,30 +33,30 @@ FIELD COVERAGE   (non-null / by evidence status)
   availability: NEW 570, USED 267, UNKNOWN 153
 
 DISCOVERY ELIGIBILITY
-  eligible for baseline discovery: 357 (36.1% of cards, 67.3% of registrations)
-    no-image                             534
+  eligible for baseline discovery: 367 (37.1% of cards, 70.3% of registrations)
+    no-image                             533
     identity-thin                        212
-    family-image-on-divided-family       60
+    family-image-on-divided-family       51
     not-on-dutch-market                  24
 
 DECK SIZES FOR TYPICAL ROUNDS
-  unfiltered visual round                    652
-  from 2020                                  357
-  from 2020, under €20,000                   276
-  from 2020, NEW                             253
-  from 2020, ≥100 hp, passenger, NEW         88
-  from 2020, NAKED                           56
+  unfiltered visual round                    674
+  from 2020                                  367
+  from 2020, under €20,000                   283
+  from 2020, NEW                             257
+  from 2020, ≥100 hp, passenger, NEW         89
+  from 2020, NAKED                           58
 
 BY MANUFACTURER   (modern generations: eligible / total, image-trusted)
-  Yamaha             28/53     52.8%   image 58.5%   regs 32,969
-  BMW                32/55     58.2%   image 61.8%   regs 29,959
-  Honda              45/74     60.8%   image 66.2%   regs 28,972
+  Yamaha             29/53     54.7%   image 60.4%   regs 32,969
+  BMW                33/55     60.0%   image 63.6%   regs 29,959
+  Honda              48/74     64.9%   image 70.3%   regs 28,972
   Kawasaki           33/41     80.5%   image 85.4%   regs 25,923
   Suzuki             27/33     81.8%   image 87.9%   regs 16,133
-  KTM                29/63     46.0%   image 50.8%   regs 15,318
-  Harley-Davidson    17/94     18.1%   image 19.1%   regs 13,282
-  Triumph            22/77     28.6%   image 28.6%   regs 9,381
-  Ducati             16/82     19.5%   image 22.0%   regs 7,680
+  KTM                30/63     47.6%   image 52.4%   regs 15,318
+  Harley-Davidson    18/94     19.1%   image 20.2%   regs 13,282
+  Triumph            23/77     29.9%   image 29.9%   regs 9,381
+  Ducati             18/82     22.0%   image 24.4%   regs 7,680
   Piaggio            4/18      22.2%   image 27.8%   regs 5,439
   Cfmoto             3/20      15.0%   image 15.0%   regs 3,284
   Royal Enfield      9/23      39.1%   image 52.2%   regs 2,822
@@ -70,10 +70,10 @@ BY MANUFACTURER   (modern generations: eligible / total, image-trusted)
   MV Agusta          7/25      28.0%   image 32.0%   regs 808
 
 BY POPULARITY   (registrations per generation)
-  ≥ 1000     48     eligible 36    75.0%
-  300–999    129    eligible 93    72.1%
-  100–299    187    eligible 107   57.2%
-  30–99      203    eligible 76    37.4%
+  ≥ 1000     48     eligible 37    77.1%
+  300–999    129    eligible 98    76.0%
+  100–299    187    eligible 109   58.3%
+  30–99      203    eligible 78    38.4%
   < 30       423    eligible 45    10.6%
 
 TOP 100 MODERN GENERATIONS BY REGISTRATIONS
@@ -89,7 +89,7 @@ TOP 100 MODERN GENERATIONS BY REGISTRATIONS
   9   Suzuki V-Strom 650                       2017–      CURATED  2541   NEW     ADVENTURE     645   66     213   820   yes  9999     2026  MODEL_YEAR   YES  [power conflict]
   10  Yamaha MT-07                             2018–2020  CURATED  2498   USED    NAKED         689   73.8   183   805   yes  7599     2020  FAMILY_ONLY  no: family-image-on-divided-family 
   11  Piaggio Vespa GTS                        2019–2024  DETECTED 2415   USED    SCOOTER       278   23.5   160   —     yes  7599     2024  FAMILY_ONLY  no: family-image-on-divided-family 
-  12  Yamaha Ténéré 700                        2019–2024  CURATED  2403   USED    ADVENTURE     689   72.1   204   875   yes  12499    2024  FAMILY_ONLY  no: family-image-on-divided-family 
+  12  Yamaha Ténéré 700                        2019–2024  CURATED  2403   USED    ADVENTURE     689   72.1   204   875   yes  12499    2024  MODEL_YEAR   YES 
   13  Kawasaki Vulcan S                        2015–      CURATED  2220   NEW     CRUISER       649   61     229   705   yes  9399     2026  MODEL_YEAR   YES 
   14  Honda NC750X                             2021–      CURATED  2101   NEW     ADVENTURE     745   57.7   224   802   yes  10269    2026  MODEL_YEAR   YES 
   15  Honda NC750X                             2016–2020  CURATED  2097   USED    ADVENTURE     745   58     220   800   yes  9199     2020  MODEL_YEAR   YES 
@@ -103,8 +103,8 @@ TOP 100 MODERN GENERATIONS BY REGISTRATIONS
   23  BMW K 1600 GT                            2011–      UNKNOWN  1533   NEW     TOURING       1649  160    332   810   yes  35295    2026  GENERATION   YES 
   24  Suzuki V-Strom 1000                      2014–2022  CURATED  1491   USED    ADVENTURE     1037  100    228   850   yes  13799    2022  MODEL_YEAR   YES 
   25  Yamaha X-MAX 300                         2017–      UNKNOWN  1472   NEW     SCOOTER       292   27.6   180   —     yes  8399     2026  MODEL_YEAR   YES 
-  26  BMW F 900 R                              2020–      UNKNOWN  1448   NEW     NAKED         895   105    211   770   yes  12219    2026  MODEL_YEAR   YES 
-  27  BMW S 1000 XR                            2020–      CURATED  1448   NEW     SPORT_TOURING 999   167.6  226   —     yes  27071    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  26  BMW S 1000 XR                            2020–      CURATED  1448   NEW     SPORT_TOURING 999   167.6  226   —     yes  27071    2026  FAMILY_ONLY  no: family-image-on-divided-family 
+  27  BMW F 900 R                              2020–      UNKNOWN  1448   NEW     NAKED         895   105    211   770   yes  12219    2026  MODEL_YEAR   YES 
   28  Harley-Davidson Iron 883                 2009–2022  UNKNOWN  1435   USED    CRUISER       883   52.3   256   —     no   12410    2021  GENERATION   YES 
   29  Yamaha MT-09                             2021–2023  CURATED  1429   USED    NAKED         890   117.3  189   820   yes  11799    2023  MODEL_YEAR   YES 
   30  Suzuki SV650                             2016–      CURATED  1416   NEW     NAKED         645   75.1   200   —     yes  7799     2026  FAMILY_ONLY  no: family-image-on-divided-family 
@@ -134,7 +134,7 @@ TOP 100 MODERN GENERATIONS BY REGISTRATIONS
   54  Yamaha MT-07                             2025–      CURATED  919    NEW     NAKED         689   73.8   183   805   yes  8898     2026  MODEL_YEAR   YES 
   55  Honda VFR1200X Crosstourer               2012–2021  UNKNOWN  907    USED    ADVENTURE     1237  127.4  275   850   yes  18198    2021  GENERATION   YES 
   56  Honda NC750S                             2014–2021  UNKNOWN  891    USED    NAKED         745   54     217   —     yes  8399     2020  GENERATION   YES 
-  57  Ducati Scrambler 800                     2015–2022  CURATED  874    USED    SCRAMBLER     803   86     192   790   yes  11745    2022  FAMILY_ONLY  no: family-image-on-divided-family 
+  57  Ducati Scrambler 800                     2015–2022  CURATED  874    USED    SCRAMBLER     803   86     192   790   yes  11745    2022  MODEL_YEAR   YES 
   58  Yamaha Ténéré 700                        2025–      CURATED  845    NEW     ADVENTURE     689   72.1   208   875   yes  12698    2026  MODEL_YEAR   YES 
   59  KTM 1290 Super Duke R                    2020–      CURATED  844    NEW     HYPER_NAKED   1301  177    210   835   yes  15482    2026  FAMILY_ONLY  no: family-image-on-divided-family 
   60  Cfmoto 450MT                             2024–      UNKNOWN  844    NEW     ADVENTURE     449   41.6   185   —     yes  7399     2026  NONE         no: no-image 
@@ -142,7 +142,7 @@ TOP 100 MODERN GENERATIONS BY REGISTRATIONS
   62  Honda CB500X                             2019–      CURATED  810    NEW     ADVENTURE     471   48     197   810   yes  8300     2026  MODEL_YEAR   YES 
   63  Honda NT1100                             2022–      UNKNOWN  805    NEW     SPORT_TOURING 1084  100.6  248   820   yes  19669    2026  MODEL_YEAR   YES 
   64  Yamaha XSR700                            2015–      UNKNOWN  800    NEW     CLASSIC       689   73.8   186   815   yes  8599     2026  MODEL_YEAR   YES 
-  65  KTM 790 Duke                             2018–2022  DETECTED 795    USED    NAKED         799   105    187   825   yes  11900    2022  FAMILY_ONLY  no: family-image-on-divided-family 
+  65  KTM 790 Duke                             2018–2022  DETECTED 795    USED    NAKED         799   105    187   825   yes  11900    2022  MODEL_YEAR   YES 
   66  Honda XL750 Transalp                     2023–      UNKNOWN  792    NEW     ADVENTURE     755   89.8   208   850   yes  12769    2026  MODEL_YEAR   YES 
   67  Kawasaki Z900RS                          2018–      CURATED  780    NEW     CLASSIC       948   116    215   835   yes  15749    2026  MODEL_YEAR   YES 
   68  Piaggio Beverly 400                      2021–      UNKNOWN  771    NEW     SCOOTER       399   35.4   195   —     yes  7450     2026  GENERATION   YES 
@@ -160,14 +160,14 @@ TOP 100 MODERN GENERATIONS BY REGISTRATIONS
   80  Suzuki GSX-S1000                         2015–2020  CURATED  651    USED    NAKED         999   150.8  209   815   yes  14299    2020  MODEL_YEAR   YES 
   81  Honda VFR800X Crossrunner                2011–2020  UNKNOWN  640    USED    SPORT_TOURING 782   100.4  242   815   yes  13498    2020  MODEL_YEAR   YES 
   82  Yamaha YZF-R7                            2021–      UNKNOWN  633    NEW     SPORT         689   72.4   188   840   yes  11399    2026  MODEL_YEAR   YES  [power conflict]
-  83  Harley-Davidson Sport Glide              2018–      UNKNOWN  624    NEW     CRUISER       1745  83.1   317   —     yes  24295    2025  NONE         no: no-image 
+  83  Harley-Davidson Sport Glide              2018–      UNKNOWN  624    NEW     CRUISER       1745  83.1   317   —     yes  24295    2025  MODEL_YEAR   YES 
   84  Triumph Tiger 1200                       2022–      CURATED  614    NEW     ADVENTURE     1160  148    249   850   yes  26195    2026  MODEL_YEAR   YES 
   85  Triumph Bonneville T120                  2016–      UNKNOWN  606    NEW     CLASSIC       1200  80     243   785   yes  16495    2026  GENERATION   YES 
   86  Yamaha FJR1300                           2016–2021  CURATED  604    USED    SPORT_TOURING 1298  141.5  292   805   yes  22198    2021  FAMILY_ONLY  no: family-image-on-divided-family 
   87  Honda Monkey 125                         2018–      UNKNOWN  597    NEW     CLASSIC       124   9.3    104   —     no   4889     2026  MODEL_YEAR   YES 
   88  Kawasaki Versys 1100                     2025–      UNKNOWN  596    NEW     SPORT_TOURING 1099  135    259   840   yes  18349    2026  MODEL_YEAR   YES 
   89  Harley-Davidson Street Glide Special     2019–2022  DETECTED 591    USED    TOURING       1868  92.5   375   —     yes  36140    2022  NONE         no: no-image 
-  90  Honda SH150i                             2005–2022  DETECTED 576    USED    SCOOTER       153   14.8   135   —     yes  4300     2022  FAMILY_ONLY  no: family-image-on-divided-family 
+  90  Honda SH150i                             2005–2022  DETECTED 576    USED    SCOOTER       153   14.8   135   —     yes  4300     2022  MODEL_YEAR   YES 
   91  KTM 890 Duke                             2020–      UNKNOWN  567    NEW     NAKED         889   119.4  187   —     yes  12590    2025  GENERATION   YES 
   92  Ducati Multistrada V4                    2020–      UNKNOWN  566    NEW     ADVENTURE     1158  167.6  244   —     yes  29440    2026  MODEL_YEAR   YES 
   93  Yamaha Tracer 7                          2025–      CURATED  560    NEW     SPORT_TOURING 689   72.4   212   840   yes  12698    2026  MODEL_YEAR   YES 
@@ -176,5 +176,5 @@ TOP 100 MODERN GENERATIONS BY REGISTRATIONS
   96  Honda X-ADV                              2017–2020  CURATED  556    USED    SCOOTER       745   54     238   —     yes  13698    2020  FAMILY_ONLY  no: family-image-on-divided-family 
   97  Honda MSX125 Grom                        2013–      UNKNOWN  555    NEW     NAKED         125   9.9    103   754   yes  4300     2026  MODEL_YEAR   YES 
   98  BMW K 1600 GTL                           2010–      UNKNOWN  554    NEW     TOURING       1649  158.2  348   —     yes  40512    2026  GENERATION   YES 
-  99  BMW R 1250 RT                            2018–2020  CURATED  552    USED    TOURING       1254  136    279   760   yes  26223    2020  FAMILY_ONLY  no: family-image-on-divided-family 
+  99  BMW R 1250 RT                            2018–2020  CURATED  552    USED    TOURING       1254  136    279   760   yes  26223    2020  GENERATION   YES 
   100 Triumph Trident 660                      2021–      DETECTED 547    NEW     NAKED         660   81     189   805   yes  9295     2025  MODEL_YEAR   YES 

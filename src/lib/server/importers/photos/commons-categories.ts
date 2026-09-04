@@ -1,5 +1,10 @@
 import { normalizeBrand, normalizeModel, stripBrandPrefix } from '../match';
-import { namesADifferentMotorcycle, normalizeTitle, yearInTitle } from './commons-match';
+import {
+	foldAccents,
+	namesADifferentMotorcycle,
+	normalizeTitle,
+	yearInTitle
+} from './commons-match';
 
 /**
  * Photographs from Wikimedia Commons category trees.
@@ -143,12 +148,21 @@ export function isFamilyPhoto(
 	const readable = `${file.title.replace(/^File:/i, '')} ${caption}`;
 	if (NOT_THE_BIKE.test(readable)) return false;
 
-	// The file itself has to say what it shows.
+	// The file itself has to say what it shows. The brand may be shortened
+	// to its first word — "Harley Sport Glide" — inside the family's own
+	// category, where no other maker's Sport Glide can be filed.
 	const brand = normalizeBrand(context.manufacturerName);
-	const model = normalizeModel(context.model);
-	const named = normalizeTitle(file.title) + ' ' + caption.toLowerCase().replace(/[^a-z0-9]/g, '');
+	const brandWord = normalizeBrand(context.manufacturerName.split(/[\s-]+/)[0] ?? '');
+	const model = normalizeModel(foldAccents(context.model));
+	const named =
+		normalizeTitle(file.title) +
+		' ' +
+		foldAccents(caption)
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, '');
 	if (!named.includes(model)) return false;
-	if (!named.includes(brand) && !file.subcategory) return false;
+	const brandNamed = named.includes(brand) || (brandWord.length >= 5 && named.includes(brandWord));
+	if (!brandNamed && !file.subcategory) return false;
 
 	if (namesADifferentMotorcycle(file.title, context)) return false;
 	if (caption && namesADifferentMotorcycle(`File:${caption}.jpg`, context)) return false;
@@ -165,9 +179,12 @@ export function placeFile(
 	generations: readonly GenerationSpanLike[],
 	now = new Date().getFullYear()
 ): Placement {
+	// Every file here sits in the family's own category, so a title that
+	// leaves the brand out still names this family's machine.
+	const implied = { brandImplied: true };
 	const stated =
-		yearInTitle(file.title, context, now) ??
-		yearInTitle(`File:${plain(file.description).slice(0, 200)}.jpg`, context, now) ??
+		yearInTitle(file.title, context, now, implied) ??
+		yearInTitle(`File:${plain(file.description).slice(0, 200)}.jpg`, context, now, implied) ??
 		(file.subcategory ? subcategoryYear(file.subcategory, now) : undefined);
 
 	const divided = generations.length > 1;
@@ -192,11 +209,12 @@ export function placeFile(
 		}
 	}
 
-	// A photograph date rules out every generation that did not yet exist.
+	// A photograph date rules out every generation that did not yet exist —
+	// allowing a year, since next year's model stands at the autumn shows.
 	const taken = file.takenOn ? Number(file.takenOn.slice(0, 4)) : undefined;
 	if (divided && taken && taken >= 1990) {
-		const possible = generations.filter((g) => g.from !== null && g.from <= taken);
-		const later = generations.filter((g) => g.from !== null && g.from > taken);
+		const possible = generations.filter((g) => g.from !== null && g.from <= taken + 1);
+		const later = generations.filter((g) => g.from !== null && g.from > taken + 1);
 		if (possible.length === 1 && later.length) {
 			return {
 				scope: 'GENERATION',

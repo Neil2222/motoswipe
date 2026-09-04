@@ -16,6 +16,10 @@ import {
  * not find, and places each one at the narrowest scope its evidence supports.
  *
  *   npm run db:fetch-photos:categories -- [--since 2020] [--limit 200] [--dry-run] [--retry]
+ *                                        [--only "Sport Glide"]
+ *
+ * `--only` walks just the families whose maker and name contain the text,
+ * whether or not they were walked before.
  *
  * Works through the modern families whose cards are not yet eligible — no
  * photograph, or only a family-level one — most registered first, one
@@ -163,6 +167,7 @@ async function main() {
 	const limit = Number(arg('limit')) || undefined;
 	const since = Number(arg('since')) || 2020;
 	const minRegs = Number(arg('min-regs')) || 0;
+	const only = arg('only')?.toLowerCase();
 
 	// Families with a modern generation that is not yet eligible for want of a
 	// photograph, most registered first.
@@ -180,7 +185,14 @@ async function main() {
 		select: {
 			familyId: true,
 			registrationCount: true,
-			family: { select: { id: true, name: true, categorySearchedAt: true } }
+			family: {
+				select: {
+					id: true,
+					name: true,
+					categorySearchedAt: true,
+					manufacturer: { select: { name: true } }
+				}
+			}
 		},
 		orderBy: { registrationCount: { sort: 'desc', nulls: 'last' } }
 	});
@@ -188,7 +200,10 @@ async function main() {
 	const familyIds: string[] = [];
 	for (const c of candidates) {
 		if (!c.familyId || familyIds.includes(c.familyId)) continue;
-		if (!retry && c.family?.categorySearchedAt) continue;
+		if (only) {
+			const label = `${c.family?.manufacturer.name ?? ''} ${c.family?.name ?? ''}`.toLowerCase();
+			if (!label.includes(only)) continue;
+		} else if (!retry && c.family?.categorySearchedAt) continue;
 		familyIds.push(c.familyId);
 		if (limit && familyIds.length >= limit) break;
 	}
@@ -272,8 +287,13 @@ async function main() {
 		// model itself, so nothing of the parent's own is taken.
 		if (!category) {
 			const words = context.model.split(/\s+/);
-			for (let cut = words.length - 1; cut >= 1 && !category; cut--) {
-				const parent = words.slice(0, cut).join(' ');
+			const parents: string[] = [];
+			for (let cut = words.length - 1; cut >= 1; cut--) parents.push(words.slice(0, cut).join(' '));
+			// A one-word model is filed under its letters: "SH150i" under "Honda SH".
+			const letters = /^([A-Za-z]{2,})\d/.exec(context.model);
+			if (words.length === 1 && letters) parents.push(letters[1]);
+			for (const parent of parents) {
+				if (category) break;
 				const parentFound = await existingCategories(
 					categoryGuesses(context.manufacturerName, parent)
 				);

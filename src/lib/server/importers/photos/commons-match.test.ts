@@ -4,6 +4,7 @@ import {
 	isPhotoOf,
 	modelVariants,
 	namesADifferentMotorcycle,
+	photoYearInTitle,
 	rankCandidates,
 	yearInTitle
 } from './commons-match';
@@ -384,6 +385,26 @@ describe('yearInTitle', () => {
 		expect(yearInTitle('File:Triumph_Thruxton_2019,_Moscow.jpg', thruxton, 2026)).toBe(2019);
 	});
 
+	it('folds accents, tries the curated aliases and a number-and-word name the other way round', () => {
+		const tenere = { manufacturerName: 'Yamaha', model: 'Ténéré 700' };
+		expect(yearInTitle('File:2022_Yamaha_Tenere700.jpg', tenere, 2026)).toBe(2022);
+		expect(yearInTitle('File:Yamaha_Ténéré_700_2025.jpg', tenere, 2026)).toBe(2025);
+		const scrambler = {
+			manufacturerName: 'Ducati',
+			model: 'Scrambler 800',
+			aliases: ['Scrambler Desert Sled', 'Scrambler Icon']
+		};
+		expect(yearInTitle('File:Ducati_Scrambler_Desert_Sled_2019.jpg', scrambler, 2026)).toBe(2019);
+		expect(
+			yearInTitle('File:Ducati_Scrambler_Desert_Sled_2019.jpg', { ...scrambler, aliases: [] }, 2026)
+		).toBeUndefined();
+		const duke = { manufacturerName: 'KTM', model: '790 Duke' };
+		expect(yearInTitle('File:KTM_Duke_790_2018.jpg', duke, 2026)).toBe(2018);
+		const mt07 = { manufacturerName: 'Yamaha', model: 'MT-07' };
+		expect(yearInTitle('File:2021_Black_Yamaha_MT-07.jpg', mt07, 2026)).toBe(2021);
+		expect(yearInTitle('File:Yellow_Yamaha_MT-07_(side-view).jpg', mt07, 2026)).toBeUndefined();
+	});
+
 	it('accepts a title without the brand only where the brand is implied', () => {
 		const mt09 = { manufacturerName: 'Yamaha', model: 'MT-09' };
 		expect(yearInTitle('File:MT_09_RN43_2017.jpg', mt09, 2026)).toBeUndefined();
@@ -396,5 +417,39 @@ describe('yearInTitle', () => {
 				{ brandImplied: true }
 			)
 		).toBe(2006);
+	});
+});
+
+describe('photoYearInTitle', () => {
+	it('reads the earliest year a title places the photograph in', () => {
+		expect(
+			photoYearInTitle('File:Hamburg_Police_BMW_R_1250_RT_at_Hamburg_Marathon_2019_02.jpg', 2026)
+		).toBe(2019);
+		expect(photoYearInTitle('File:2015_Ducati_Scrambler_Icon_right.JPG', 2026)).toBe(2015);
+		expect(photoYearInTitle('File:Yamaha_MT-07_2014-06-03_15.27.43.jpg', 2026)).toBe(2014);
+		expect(photoYearInTitle('File:06-2024_Yamaha_Rally_Tenere_700.jpg', 2026)).toBe(2024);
+		expect(photoYearInTitle('File:Yamaha_Ténéré_700_in_Athens_on_11-1-2023.jpg', 2026)).toBe(2023);
+		expect(photoYearInTitle('File:W7946_Yamaha_Tracer_20160704-175251L930.jpg', 2026)).toBe(2016);
+		expect(
+			photoYearInTitle(
+				'File:Suliszewo_-_Harley-Davidson_Street_Glide_-_22.04.2023_13-34-40.jpg',
+				2026
+			)
+		).toBe(2023);
+		expect(
+			photoYearInTitle(
+				'File:2010_Suzuki_DRZ400_at_the_2009_Seattle_International_Motorcycle_Show_2.jpg',
+				2026
+			)
+		).toBe(2009);
+	});
+
+	it('does not mistake a frame counter, a capacity or a Flickr id for a year', () => {
+		expect(photoYearInTitle('File:IMG_2019.jpg', 2026)).toBeUndefined();
+		expect(photoYearInTitle('File:Honda_CB650R_DSC_2015.jpg', 2026)).toBeUndefined();
+		expect(photoYearInTitle('File:Kawasaki_Z_1000_(48065435272).jpg', 2026)).toBeUndefined();
+		expect(photoYearInTitle('File:Airbike_8300.JPG', 2026)).toBeUndefined();
+		expect(photoYearInTitle('File:BMW_S_1000_XR.jpg', 2026)).toBeUndefined();
+		expect(photoYearInTitle('File:Yamaha_MT-07_2031.jpg', 2026)).toBeUndefined();
 	});
 });
