@@ -58,6 +58,24 @@
 	const visible = $derived(cards.slice(0, 3));
 	const top = $derived(visible[0] ?? null);
 
+	/**
+	 * Which photograph each card shows, by bike id. Kept here rather than in
+	 * the card so the choice survives the card being re-rendered as it moves
+	 * up the stack. A tap on the left or right half of the live card steps;
+	 * so do the chevrons and the keyboard.
+	 */
+	let imageIndex = $state<Record<string, number>>({});
+
+	export function stepImage(delta: 1 | -1) {
+		if (!top || top.images.length < 2) return;
+		const n = top.images.length;
+		imageIndex[top.id] = ((((imageIndex[top.id] ?? 0) + delta) % n) + n) % n;
+	}
+
+	/** A press that never became a drag: short, and barely moved. */
+	const TAP_DISTANCE = 8;
+	const TAP_TIME = 350;
+
 	// Stamp opacities. Clamped, and zeroed on the locked-out axis so only one
 	// stamp is ever visible.
 	const commitDistance = $derived(Math.max(width * COMMIT_RATIO, 60));
@@ -152,7 +170,16 @@
 
 		if (axis === 'x' && horizontal) commit(dx > 0 ? 'LIKE' : 'DISLIKE');
 		else if (axis === 'y' && vertical) commit(dy < 0 ? 'SUPERLIKE' : 'SKIP');
-		else reset();
+		else {
+			const travelled = Math.hypot(event.clientX - startX, event.clientY - startY);
+			if (travelled < TAP_DISTANCE && event.timeStamp - startTime < TAP_TIME) {
+				// Tinder convention: tap the right half for the next photograph,
+				// the left half for the previous one.
+				const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+				stepImage(event.clientX - rect.left > rect.width / 2 ? 1 : -1);
+			}
+			reset();
+		}
 	}
 
 	function reset() {
@@ -245,6 +272,8 @@
 				depth={index}
 				priority={index < 2}
 				oninfo={isTop && oninfo ? () => oninfo(bike) : undefined}
+				activeImage={imageIndex[bike.id] ?? 0}
+				onstep={isTop ? stepImage : undefined}
 			/>
 
 			{#if isTop}

@@ -40,6 +40,29 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   `docs/audits/`; a new audit must rerun the exact same metrics so a
   before/after table is possible.
 
+## Accounts, demo, email, PWA
+
+- The sign-up-free demo is a **guest account** (`User.isGuest`) with one
+  hand-picked round (`filters.motorcycleIds`) chosen by
+  `services/demo.service.ts` from eligible modern generations only. Claim,
+  adopt-on-login and discard live there too; never loosen the deck to
+  ineligible cards.
+- Email is Resend over plain `fetch` (`server/mail/`). Password reset and
+  address verification hide themselves without `RESEND_API_KEY`. Tests never
+  pick a real provider; on the host use `MAIL_PROVIDER=console npm run dev`.
+- PWA icons are rendered from `static/favicon.svg` with
+  `npx tsx scripts/render-icons.ts` (Playwright Chromium). Edit the SVG, not
+  the PNGs.
+
+## Deployment on this PC
+
+- Production runs as the Portainer stack `motoswipe` (Portainer on
+  localhost:9000) from `docker-compose.portainer.yml` with the pre-built
+  `motoswipe:local` image, published on 192.168.178.39:3100 for the NAS
+  reverse proxy. After a code change: `docker compose build`, then
+  `PORTAINER_API_KEY=... npx tsx scripts/portainer-deploy.ts`. Never run
+  `docker compose up` next to the stack; they share the database volume.
+
 ## Operational facts learned the hard way
 
 - Wikimedia rate-limits one IP across Commons and every Wikipedia (429,

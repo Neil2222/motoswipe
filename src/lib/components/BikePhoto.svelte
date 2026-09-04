@@ -16,6 +16,12 @@
 	 *
 	 * Both layers use the same `src`, so the browser fetches it once.
 	 *
+	 * The backdrop is promoted to its own compositor layer (`will-change`) so
+	 * the blur is rasterised once and then merely moved while a card is dragged
+	 * or rotated. Nothing on a card uses `backdrop-filter`: that has to resample
+	 * whatever is underneath on every frame, which on a phone is the difference
+	 * between a swipe that follows the thumb and one that stutters.
+	 *
 	 * The caller supplies the positioning — `absolute inset-0` to fill a card, or
 	 * `relative aspect-4/5` to sit in normal flow. This component deliberately
 	 * sets no `position` of its own: doing so put `relative` and the caller's
@@ -57,7 +63,7 @@
 				src={url}
 				alt=""
 				aria-hidden="true"
-				class="absolute inset-0 h-full w-full scale-150 object-cover opacity-80 blur-3xl saturate-150 transition-opacity duration-500"
+				class="absolute inset-0 h-full w-full scale-150 object-cover opacity-80 blur-2xl saturate-150 transition-opacity duration-500 will-change-transform"
 				class:opacity-0={!loaded}
 				draggable="false"
 				loading={priority ? 'eager' : 'lazy'}

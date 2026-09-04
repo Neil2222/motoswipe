@@ -58,6 +58,23 @@ your own taste: which manufacturers you actually like, which categories you keep
 rejecting, and what the average bike you liked looks like next to the average
 bike you rejected.
 
+**The demo.** A visitor without an account can press _Try the demo_ and get one
+round over the twenty motorcycles most often registered new in the Netherlands
+since 2020 (plus the Kawasaki Z900), a handful of head-to-head comparisons, and
+a result. Behind the scenes that is an ordinary round owned by a silently
+created **guest account**, so nothing is reimplemented client-side and the demo
+resumes for as long as the session cookie lives. At the end the visitor can
+_create an account and save_ (the guest becomes the account, round intact),
+sign in to an existing account (the round moves across), or _discard_ (the guest
+and everything in it is deleted). Guests nobody comes back for are purged by the
+hourly housekeeping after `GUEST_RETENTION_DAYS`.
+
+**Installable.** A web app manifest and a small service worker make MotoSwipe
+installable on a phone's home screen (Android: _Install app_; iOS: _Share → Add
+to Home Screen_). The service worker caches only the app shell — pages, API
+calls and photographs always come from the network, so a swipe is never
+recorded to a cache.
+
 **One motorcycle, one card.** Sources name the same machine differently — a
 registry files the Yamaha MT-07 as `MTN690` and the Suzuki GSX-8S as `GSX800`,
 and writes `Z900 ABS` where an encyclopedia writes `Z900`. Underneath the
@@ -327,19 +344,25 @@ login.
 
 Copy `.env.example`; it documents every variable inline. The ones that matter:
 
-| Variable                    | Required              | Default       | Notes                                                                                                                                   |
-| --------------------------- | --------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`              | **yes**               | —             | Postgres connection string                                                                                                              |
-| `SESSION_SECRET`            | **yes in production** | dev fallback  | ≥32 chars. Keys the session-token HMAC. Rotating it logs everyone out. `openssl rand -base64 48`                                        |
-| `ORIGIN`                    | **yes in production** | —             | Public https URL. SvelteKit checks the `Origin` header of every form POST against it. Get this wrong and **every form silently fails.** |
-| `TRUST_PROXY_HOPS`          | behind a proxy        | `0`           | `1` when exactly one reverse proxy is in front. Also set `XFF_DEPTH` to the same value.                                                 |
-| `PORT`                      | no                    | `3000`        |                                                                                                                                         |
-| `NODE_ENV`                  | no                    | `development` | `production` enables Secure cookies, HSTS and hides stack traces                                                                        |
-| `SESSION_TTL_DAYS`          | no                    | `30`          | Sliding: activity past halfway extends it                                                                                               |
-| `ALLOW_REGISTRATION`        | no                    | `true`        | Set `false` to close sign-up                                                                                                            |
-| `REGISTRATIONS_PER_HOUR`    | no                    | `10`          | Per client address. Everyone behind one home router shares one address, so a family creating accounts needs headroom.                   |
-| `POSTGRES_USER/PASSWORD/DB` | for compose           | —             | Used to create the database container                                                                                                   |
-| `SEED_*`                    | dev only              | —             | Never set in production                                                                                                                 |
+| Variable                    | Required              | Default       | Notes                                                                                                                                         |
+| --------------------------- | --------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`              | **yes**               | —             | Postgres connection string                                                                                                                    |
+| `SESSION_SECRET`            | **yes in production** | dev fallback  | ≥32 chars. Keys the session-token HMAC. Rotating it logs everyone out. `openssl rand -base64 48`                                              |
+| `ORIGIN`                    | **yes in production** | —             | Public https URL. SvelteKit checks the `Origin` header of every form POST against it. Get this wrong and **every form silently fails.**       |
+| `TRUST_PROXY_HOPS`          | behind a proxy        | `0`           | `1` when exactly one reverse proxy is in front. Also set `XFF_DEPTH` to the same value.                                                       |
+| `PORT`                      | no                    | `3000`        |                                                                                                                                               |
+| `NODE_ENV`                  | no                    | `development` | `production` enables Secure cookies, HSTS and hides stack traces                                                                              |
+| `SESSION_TTL_DAYS`          | no                    | `30`          | Sliding: activity past halfway extends it                                                                                                     |
+| `ALLOW_REGISTRATION`        | no                    | `true`        | Set `false` to close sign-up                                                                                                                  |
+| `REGISTRATIONS_PER_HOUR`    | no                    | `10`          | Per client address. Everyone behind one home router shares one address, so a family creating accounts needs headroom.                         |
+| `MAIL_PROVIDER`             | no                    | `auto`        | `auto` picks Resend when `RESEND_API_KEY` is set, the console logger in development, nothing in production. Or `resend` / `console` / `none`. |
+| `RESEND_API_KEY`            | for email             | —             | API key from [Resend](https://resend.com). Enables password reset and address confirmation. Never commit it.                                  |
+| `MAIL_FROM`                 | with Resend           | —             | Sender, e.g. `MotoSwipe <noreply@example.com>`, on a domain verified at Resend.                                                               |
+| `DEMOS_PER_HOUR`            | no                    | `30`          | Demo starts (guest accounts) per client address per hour.                                                                                     |
+| `GUEST_RETENTION_DAYS`      | no                    | `7`           | Days an abandoned guest (no live session) is kept before housekeeping deletes it.                                                             |
+| `APP_BIND`                  | for compose           | `127.0.0.1`   | Address the app port is published on. Set the machine's LAN address (or `0.0.0.0`) when the reverse proxy runs on another host.               |
+| `POSTGRES_USER/PASSWORD/DB` | for compose           | —             | Used to create the database container                                                                                                         |
+| `SEED_*`                    | dev only              | —             | Never set in production                                                                                                                       |
 
 Misconfiguration **fails at startup with an explanatory message**, and settings
 that work but will bite (no `ORIGIN`, `http://` origin in production,
@@ -563,6 +586,42 @@ Both matter:
 
 Caddy obtains and renews TLS certificates automatically; nothing else is needed.
 
+### As a Portainer stack
+
+Portainer cannot build an image from a local directory, so
+`docker-compose.portainer.yml` runs the pre-built `motoswipe:local` image.
+Build, then create or update the stack through Portainer's API with the
+variables from `.env`:
+
+```bash
+docker compose build
+PORTAINER_API_KEY=ptr_... npx tsx scripts/portainer-deploy.ts
+```
+
+The stack is named `motoswipe`, the same project name `docker compose` uses,
+so both share the `motoswipe_motoswipe-db` volume. Run `docker compose down`
+before deploying the stack (the volume survives) and never run both at once.
+After a code change: `docker compose build`, then run the deploy script again
+or press _Update the stack_ in Portainer with _Re-pull image and redeploy_.
+
+### Proxy on another host
+
+When the reverse proxy runs elsewhere — a NAS forwarding
+`motoswipe.example.com` to the PC that runs the containers — publish the app
+port on the PC's LAN address instead of loopback and tell adapter-node which
+header carries the client address:
+
+```env
+APP_BIND=192.168.1.20        # this machine's LAN address, or 0.0.0.0
+APP_PORT=3100
+ORIGIN=https://motoswipe.example.com
+TRUST_PROXY_HOPS=1
+ADDRESS_HEADER=X-Forwarded-For
+```
+
+The proxy on the NAS then points at `http://192.168.1.20:3100`. Only the app
+port is published; the database stays on the compose network.
+
 ---
 
 ## Docker Hub
@@ -702,8 +761,9 @@ Implemented:
 - **HttpOnly cookies**, `SameSite=Lax`, `Secure` in production, sliding expiry.
 - **No IP addresses stored.** Not needed by any implemented feature, so not
   collected. Rate limiting uses in-memory buckets.
-- **Rate limiting** on login (per address _and_ per account), registration and
-  password changes.
+- **Rate limiting** on login (per address _and_ per account), registration,
+  password changes, password-reset requests (per address _and_ per target
+  email), verification resends and demo starts.
 - **Login timing equalisation** — an unknown account burns the same CPU as a
   wrong password, so response time does not enumerate your users.
 - **Ownership checks on every round route**, answering 404 rather than 403.
@@ -719,12 +779,33 @@ Implemented:
 - **Parameterised queries** throughout (Prisma).
 - **Admin routes gated in one place** (`/admin/+layout.server.ts`), answering
   404 to non-admins.
-- **Password change revokes every other session.**
+- **Password change revokes every other session.** A password reset revokes
+  all of them.
+- **Email tokens** (password reset, address confirmation) are single-use,
+  expiring, and stored only as an HMAC — the same discipline as sessions. The
+  reset page never reveals whether an address exists.
+- **Guest accounts** carry a random, unknown password and are refused by the
+  login path outright, so a guessed guest handle cannot even be attempted.
 - **Container**: non-root user, `no-new-privileges`, `tini` as PID 1, no
   published database port in production, database off the edge network.
 
-Deliberately not implemented: email verification and password reset (both need
-an SMTP dependency the target deployment does not have), and 2FA.
+Deliberately not implemented: 2FA.
+
+### Email
+
+MotoSwipe sends two kinds of message and nothing else: a password-reset link
+and an address-confirmation link. Delivery goes through
+[Resend](https://resend.com)'s HTTP API — one `fetch`, no SDK — when
+`RESEND_API_KEY` and `MAIL_FROM` are set. Without them both features hide
+themselves (no _Forgot your password?_ link, no confirmation nudge) and
+everything else works as before. In development with no key, messages are
+printed to the server log so the link can be clicked from the terminal; force
+that with `MAIL_PROVIDER=console` when a real key is in your `.env`. A test run
+never selects a real provider.
+
+Confirming an address is not required for anything. Until it is confirmed the
+profile says so, because a forgotten password could otherwise not be reset by
+email. Following a reset link counts as confirmation.
 
 ---
 
@@ -808,8 +889,9 @@ deck feel slow. To use a condensed display face instead, add it to
   approximate, hand-entered specifications and generated illustrations. It
   exists so the app works offline and so the import path is exercised on a fresh
   install; it is not a source of truth.
-- **No email.** No verification, no password reset. A forgotten password needs
-  an admin and a database update.
+- **Email needs Resend.** Password reset and address confirmation only work
+  with a Resend API key; there is no SMTP path. Without a key a forgotten
+  password needs an admin and a database update.
 - **Rate limiting is in-memory**, so it resets on restart and is per-process.
   Fine for one container; swap for a shared store before running replicas.
 - **The deck is built in the application**, not in SQL. At MVP catalogue sizes

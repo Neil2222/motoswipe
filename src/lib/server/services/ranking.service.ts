@@ -9,6 +9,7 @@ import {
 	type PairCandidate
 } from '../ranking/elo';
 import type { ComparisonVoteInput } from '$lib/domain/validation';
+import { DISCOVERY_IMAGES } from './motorcycle.service';
 
 /**
  * The comparison phase: head-to-head votes and the Elo table they produce.
@@ -83,7 +84,7 @@ const COMPARISON_SELECT = {
 	msrpAmount: true,
 	msrpCurrency: true,
 	manufacturer: { select: { name: true } },
-	images: { where: { isPrimary: true }, take: 1, select: { url: true } }
+	images: DISCOVERY_IMAGES
 } as const;
 
 export type ComparisonCard = Awaited<
@@ -297,7 +298,7 @@ export async function getRanking(roundId: string) {
 					seatHeightMm: true,
 					wetWeightKg: true,
 					manufacturer: { select: { name: true } },
-					images: { where: { isPrimary: true }, take: 1, select: { url: true } }
+					images: DISCOVERY_IMAGES
 				}
 			}
 		}

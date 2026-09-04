@@ -10,6 +10,20 @@ import type { Prisma } from '../db/generated/client';
  * round's stored filters into a Prisma `where` clause.
  */
 
+/**
+ * The photographs a discovery card may show: the primary, then every other
+ * photograph whose evidence places it in this generation (MODEL_YEAR or
+ * GENERATION scope). Family-scope photographs are left out here on purpose —
+ * for a divided family they may show another generation, and a swipe is a
+ * judgement of *this* one. The detail page shows them, with a warning.
+ */
+export const DISCOVERY_IMAGES = {
+	where: { OR: [{ isPrimary: true }, { scope: { in: ['MODEL_YEAR', 'GENERATION'] } }] },
+	orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }],
+	take: 8,
+	select: { url: true, width: true, height: true, scope: true, modelYear: true }
+} satisfies Prisma.Motorcycle$imagesArgs;
+
 /** The fields every card, tile and row needs. Keeps payloads small. */
 export const MOTORCYCLE_CARD_SELECT = {
 	id: true,
@@ -30,11 +44,7 @@ export const MOTORCYCLE_CARD_SELECT = {
 	msrpCurrency: true,
 	passengerAllowed: true,
 	manufacturer: { select: { id: true, name: true, slug: true } },
-	images: {
-		where: { isPrimary: true },
-		take: 1,
-		select: { url: true, width: true, height: true }
-	}
+	images: DISCOVERY_IMAGES
 } satisfies Prisma.MotorcycleSelect;
 
 export type MotorcycleCard = Prisma.MotorcycleGetPayload<{

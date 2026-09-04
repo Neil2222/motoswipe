@@ -2,6 +2,7 @@
 	import { CATEGORY_LABELS, type MotorcycleCategory } from '$lib/domain/enums';
 	import { describeYears, type CardBike } from '$lib/domain/view-types';
 	import BikePhoto from './BikePhoto.svelte';
+	import GalleryControls from './GalleryControls.svelte';
 
 	/**
 	 * One card in the swipe deck.
@@ -18,11 +19,20 @@
 		/** Eager-load the top two so a swipe never reveals a blank. */
 		priority?: boolean;
 		oninfo?: () => void;
+		/** Which of the bike's photographs is showing. Owned by the deck. */
+		activeImage?: number;
+		/** Step to another photograph; only wired on the live card. */
+		onstep?: (delta: 1 | -1) => void;
 	}
 
-	let { bike, depth = 0, priority = false, oninfo }: Props = $props();
+	let { bike, depth = 0, priority = false, oninfo, activeImage = 0, onstep }: Props = $props();
 
-	const imageUrl = $derived(bike.images[0]?.url);
+	const imageIndex = $derived(
+		bike.images.length
+			? ((activeImage % bike.images.length) + bike.images.length) % bike.images.length
+			: 0
+	);
+	const imageUrl = $derived(bike.images[imageIndex]?.url);
 	/** Our own generated artwork is portrait and designed to bleed to the edges. */
 	const isPlaceholder = $derived(Boolean(imageUrl?.startsWith('/img/placeholder/')));
 	const years = $derived(describeYears(bike));
@@ -51,12 +61,21 @@
 		aria-hidden="true"
 	></div>
 
-	<div class="relative flex items-start justify-between p-4">
-		<span class="chip bg-black/50 backdrop-blur-sm">{categoryLabel}</span>
+	{#if depth === 0 && onstep}
+		<GalleryControls
+			count={bike.images.length}
+			active={imageIndex}
+			{onstep}
+			label="{bike.manufacturer.name} {bike.model}"
+		/>
+	{/if}
+
+	<div class="relative flex items-start justify-between p-4 {bike.images.length > 1 ? 'pt-6' : ''}">
+		<span class="chip bg-black/60">{categoryLabel}</span>
 		{#if depth === 0 && oninfo}
 			<button
 				type="button"
-				class="border-graphite text-ash hover:text-bone hover:border-chrome flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-black/50 font-serif text-base font-bold italic backdrop-blur-sm transition-colors"
+				class="border-graphite text-ash hover:text-bone hover:border-chrome flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-black/50 font-serif text-base font-bold italic transition-colors"
 				onclick={oninfo}
 				aria-label="Show specifications"
 			>

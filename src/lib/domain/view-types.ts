@@ -24,7 +24,18 @@ export interface CardBike {
 	generationLabel?: string | null;
 	category: MotorcycleCategory | string;
 	manufacturer: { name: string };
-	images: { url: string }[];
+	/**
+	 * Primary first, then the other photographs known to be of this
+	 * generation. A card with several lets the user step through them.
+	 */
+	images: CardImage[];
+}
+
+export interface CardImage {
+	url: string;
+	/** MODEL_YEAR / GENERATION / FAMILY — see the schema. */
+	scope?: string;
+	modelYear?: number | null;
 }
 
 /** A card plus the specs shown behind the info button. */
