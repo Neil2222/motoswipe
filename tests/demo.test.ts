@@ -12,6 +12,8 @@ import {
 	startDemo
 } from '../src/lib/server/services/demo.service';
 import { login, register } from '../src/lib/server/services/auth.service';
+import { nextDemoComparison, demoBracket } from '../src/lib/server/services/demo.service';
+import { recordVote, getRanking } from '../src/lib/server/services/ranking.service';
 import { createSession } from '../src/lib/server/auth/session';
 import { getDeck } from '../src/lib/server/services/swipe.service';
 import { ConflictError, ForbiddenError, ValidationError } from '../src/lib/server/errors';
@@ -265,5 +267,47 @@ describe('purgeStaleGuests', () => {
 		expect(remaining.has(active.id)).toBe(true);
 		expect(remaining.has(fresh.id)).toBe(true);
 		expect(remaining.has(realOld.id)).toBe(true);
+	});
+});
+
+describe('demo knockout', () => {
+	it('asks n-1 questions and leaves the winner with the highest Elo', async () => {
+		await makeSampleCataloguePopular();
+		const { roundId } = await startDemo('10.0.5.1');
+		const round = await prisma.discoveryRound.findUniqueOrThrow({ where: { id: roundId } });
+		const ids = (round.filters as { motorcycleIds: string[] }).motorcycleIds.slice(0, 5);
+		for (const [i, motorcycleId] of ids.entries()) {
+			await prisma.swipe.create({
+				data: { roundId, motorcycleId, decision: i === 2 ? 'SUPERLIKE' : 'LIKE' }
+			});
+		}
+
+		let asked = 0;
+		let lastWinner: string | null = null;
+		for (;;) {
+			const next = await nextDemoComparison(roundId);
+			if (!next) break;
+			expect(next.suggested).toBe(4);
+			expect(next.votes).toBe(asked);
+			// The superliked bike is seeded first and always wins its matches.
+			const winner = next.a.id === ids[2] || next.b.id === ids[2] ? ids[2] : next.a.id;
+			await recordVote(roundId, {
+				motorcycleAId: next.a.id,
+				motorcycleBId: next.b.id,
+				winnerMotorcycleId: winner
+			});
+			lastWinner = winner;
+			asked++;
+		}
+		expect(asked).toBe(4);
+
+		const bracket = await demoBracket(roundId);
+		expect(bracket.next).toBeNull();
+		expect(bracket.champion).toBe(ids[2]);
+		expect(lastWinner).toBe(ids[2]);
+
+		const ranking = await getRanking(roundId);
+		expect(ranking[0].motorcycle.id).toBe(ids[2]);
+		expect(ranking[0].eloScore).toBeGreaterThan(ranking[1].eloScore);
 	});
 });

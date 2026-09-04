@@ -5,6 +5,13 @@ import { hashPassword } from '../auth/password';
 import { consume, demoRule, registerRule } from '../auth/rate-limit';
 import { ConflictError, ForbiddenError, ValidationError } from '../errors';
 import type { RegisterInput } from '$lib/domain/validation';
+import { BRACKET_SIZE, bracketSeeds, bracketState, type BracketState } from '../ranking/bracket';
+import {
+	COMPARISON_SELECT,
+	ensureRankings,
+	type ComparisonCard,
+	type NextComparison
+} from './ranking.service';
 import type { SessionUser } from '../../../app.d.ts';
 
 /**
@@ -23,11 +30,10 @@ import type { SessionUser } from '../../../app.d.ts';
 export const DEMO_DECK_SIZE = 20;
 
 /**
- * Comparisons a demo asks for before showing the result. A full round
- * suggests n·log2(n), which for twenty liked bikes is close to ninety —
- * fine for a decision, far too many for a taste of the product.
+ * Comparisons a demo asks for: a knockout among up to seven liked bikes, so
+ * six matches at most and always one bike left standing. See `ranking/bracket`.
  */
-export const DEMO_COMPARISON_TARGET = 6;
+export const DEMO_COMPARISON_TARGET = BRACKET_SIZE - 1;
 
 export const DEMO_ROUND_NAME = 'Demo: the 20 most popular bikes';
 const DEMO_ROUND_GOAL =
@@ -88,17 +94,54 @@ export function pickDemoDeck(
 	return picked;
 }
 
+/** Where the demo's knockout stands, from the round's likes and votes. */
+export async function demoBracket(roundId: string): Promise<BracketState> {
+	const [shortlist, votes] = await Promise.all([
+		prisma.swipe.findMany({
+			where: { roundId, decision: { in: ['LIKE', 'SUPERLIKE'] } },
+			select: { motorcycleId: true, decision: true, updatedAt: true }
+		}),
+		prisma.comparisonVote.findMany({
+			where: { roundId },
+			orderBy: { createdAt: 'asc' },
+			select: { motorcycleAId: true, motorcycleBId: true, winnerMotorcycleId: true }
+		})
+	]);
+	const seeds = bracketSeeds(
+		shortlist.map((s) => ({
+			motorcycleId: s.motorcycleId,
+			decision: s.decision,
+			likedAt: s.updatedAt
+		}))
+	);
+	return bracketState(seeds, votes);
+}
+
 /**
- * Caps the suggested comparison count for a guest. The pair selection and
- * the Elo table are untouched; only the target the progress bar aims at
- * shrinks, so a claimed round simply continues with the full target.
+ * The demo's next head-to-head: the first undecided match of the knockout,
+ * in the same shape a real round's Elo selection produces, so the arena
+ * does not know the difference. Null once the final is decided.
  */
-export function demoComparison<T extends { suggested: number } | null>(
-	user: { isGuest: boolean },
-	comparison: T
-): T {
-	if (!user.isGuest || !comparison) return comparison;
-	return { ...comparison, suggested: Math.min(comparison.suggested, DEMO_COMPARISON_TARGET) };
+export async function nextDemoComparison(roundId: string): Promise<NextComparison | null> {
+	await ensureRankings(roundId);
+	const bracket = await demoBracket(roundId);
+	if (!bracket.next) return null;
+
+	const bikes = await prisma.motorcycle.findMany({
+		where: { id: { in: bracket.next } },
+		select: COMPARISON_SELECT
+	});
+	const a = bikes.find((x) => x.id === bracket.next![0]);
+	const b = bikes.find((x) => x.id === bracket.next![1]);
+	if (!a || !b) return null;
+
+	return {
+		a: a as ComparisonCard,
+		b: b as ComparisonCard,
+		votes: bracket.decided,
+		suggested: bracket.total,
+		shortlistSize: bracket.total + 1
+	};
 }
 
 /** The catalogue rows the deck is chosen from, in registration order. */

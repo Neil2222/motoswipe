@@ -2,7 +2,7 @@ import { error, json } from '@sveltejs/kit';
 import { requireOwnedRoundApi } from '$lib/server/guards';
 import { comparisonVoteSchema } from '$lib/domain/validation';
 import { nextComparison, recordVote } from '$lib/server/services/ranking.service';
-import { demoComparison } from '$lib/server/services/demo.service';
+import { nextDemoComparison } from '$lib/server/services/demo.service';
 import { isDomainError } from '$lib/server/errors';
 import type { RequestHandler } from './$types';
 
@@ -28,11 +28,13 @@ export const POST: RequestHandler = async (event) => {
 		throw err;
 	}
 
-	return json({ ok: true, next: demoComparison(user, await nextComparison(round.id)) });
+	const next = user.isGuest ? await nextDemoComparison(round.id) : await nextComparison(round.id);
+	return json({ ok: true, next });
 };
 
 /** Next pair without voting — used to skip a matchup. */
 export const GET: RequestHandler = async (event) => {
 	const { user, round } = await requireOwnedRoundApi(event, event.params.id);
-	return json({ next: demoComparison(user, await nextComparison(round.id)) });
+	const next = user.isGuest ? await nextDemoComparison(round.id) : await nextComparison(round.id);
+	return json({ next });
 };

@@ -73,14 +73,10 @@
 			// Hold the highlight briefly so the choice registers visually.
 			await new Promise((resolve) => setTimeout(resolve, 260));
 
-			// The demo stops at its (short) target and goes straight to the
-			// result; a real round keeps the arena open for as long as wanted.
-			if (
-				data.isDemo &&
-				result.next &&
-				result.next.suggested > 0 &&
-				result.next.votes >= result.next.suggested
-			) {
+			// The demo's knockout has a final; once it is decided there is
+			// nothing left to ask and the result is the next screen. A real
+			// round keeps the arena open for as long as wanted.
+			if (data.isDemo && result.next === null) {
 				await goto(`/rounds/${data.round.id}/results`);
 				return;
 			}
@@ -155,7 +151,19 @@
 		</div>
 	</header>
 
-	{#if !comparison}
+	{#if !comparison && data.isDemo && data.progress.shortlist >= 2}
+		<div class="flex flex-1 items-center justify-center px-4">
+			<div class="panel max-w-md p-8 text-center">
+				<p class="stencil text-cyan">Decided</p>
+				<h1 class="display text-bone mt-3 text-2xl">You have a winner</h1>
+				<p class="text-ash mt-3 text-sm leading-relaxed">
+					Every match in your knockout has been played. The last bike standing is on the results
+					page, with the rest ranked behind it.
+				</p>
+				<a href="/rounds/{data.round.id}/results" class="btn btn-primary mt-6">See your result</a>
+			</div>
+		</div>
+	{:else if !comparison}
 		<div class="flex flex-1 items-center justify-center px-4">
 			<div class="panel max-w-md p-8 text-center">
 				<p class="stencil text-sodium">Nothing left to compare</p>
@@ -176,7 +184,9 @@
 				<p class="text-dim mt-1 text-center text-[11px] sm:mt-2 sm:text-xs">
 					No wrong answers. Trust the first reaction.
 					{#if data.isDemo && suggested > votes}
-						{suggested - votes} to go, then your result.
+						{suggested - votes === 1
+							? 'The final.'
+							: `${suggested - votes} to go, then your result.`}
 					{/if}
 				</p>
 
@@ -298,9 +308,12 @@
 				<div
 					class="mt-2 flex shrink-0 flex-wrap items-center justify-center gap-2 pb-1 sm:mt-5 sm:gap-3 sm:pb-6"
 				>
-					<button class="btn btn-ghost btn-sm" onclick={skipPair} disabled={submitting}>
-						Skip this pairing
-					</button>
+					{#if !data.isDemo}
+						<!-- A knockout cannot skip a match; a real round can. -->
+						<button class="btn btn-ghost btn-sm" onclick={skipPair} disabled={submitting}>
+							Skip this pairing
+						</button>
+					{/if}
 					<a href="/rounds/{data.round.id}/results" class="btn btn-secondary btn-sm">
 						{enough ? 'See the ranking' : 'Ranking so far'}
 					</a>

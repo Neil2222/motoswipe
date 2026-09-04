@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import { requireOwnedRound } from '$lib/server/guards';
 import { nextComparison } from '$lib/server/services/ranking.service';
 import { getRoundProgress } from '$lib/server/services/round.service';
-import { demoComparison } from '$lib/server/services/demo.service';
+import { nextDemoComparison } from '$lib/server/services/demo.service';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -23,7 +23,11 @@ export const load: PageServerLoad = async (event) => {
 		redirect(303, `/rounds/${round.id}`);
 	}
 
-	const comparison = demoComparison(user, await nextComparison(round.id));
+	// A guest's demo is a knockout with a definite end; a real round keeps
+	// asking as long as the owner wants.
+	const comparison = user.isGuest
+		? await nextDemoComparison(round.id)
+		: await nextComparison(round.id);
 
 	return {
 		round: { id: round.id, name: round.name },

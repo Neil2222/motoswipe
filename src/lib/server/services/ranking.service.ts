@@ -69,7 +69,7 @@ export interface NextComparison {
 	shortlistSize: number;
 }
 
-const COMPARISON_SELECT = {
+export const COMPARISON_SELECT = {
 	id: true,
 	model: true,
 	variant: true,

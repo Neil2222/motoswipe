@@ -152,7 +152,13 @@
 							{/if}
 						</div>
 
-						{#if data.comparisons < data.suggestedComparisons}
+						{#if data.bracketComplete}
+							<p class="text-dim mt-4 text-xs leading-relaxed">
+								Won a knockout of {data.suggestedComparisons} match{data.suggestedComparisons === 1
+									? ''
+									: 'es'} between your likes.
+							</p>
+						{:else if data.comparisons < data.suggestedComparisons}
 							<p class="text-dim mt-4 text-xs leading-relaxed">
 								Based on {data.comparisons} comparison{data.comparisons === 1 ? '' : 's'}. Around
 								{data.suggestedComparisons} makes the top of the table settle down.
@@ -299,7 +305,7 @@
 								</div>
 								<div class="bg-graphite h-1.5 overflow-hidden rounded-full">
 									<div
-										class="h-full rounded-full {row.significant ? 'bg-sodium' : 'bg-steel'}"
+										class="h-full rounded-full {row.significant ? 'bg-sodium' : 'bg-sodium/35'}"
 										style:width="{Math.round(row.likeRate * 100)}%"
 									></div>
 								</div>
@@ -332,7 +338,7 @@
 								</div>
 								<div class="bg-graphite h-1.5 overflow-hidden rounded-full">
 									<div
-										class="h-full rounded-full {row.significant ? 'bg-cyan' : 'bg-steel'}"
+										class="h-full rounded-full {row.significant ? 'bg-cyan' : 'bg-cyan/35'}"
 										style:width="{Math.round(row.likeRate * 100)}%"
 									></div>
 								</div>

@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	DEMO_COMPARISON_TARGET,
-	demoComparison,
-	pickDemoDeck,
-	type DemoCandidate
-} from './demo.service';
+import { pickDemoDeck, type DemoCandidate } from './demo.service';
 
 function candidate(
 	id: string,
@@ -83,25 +78,5 @@ describe('pickDemoDeck', () => {
 			candidate('b', 100)
 		];
 		expect(pickDemoDeck(candidates, 20).map((c) => c.id)).toEqual(['z900', 'b']);
-	});
-});
-
-describe('demoComparison', () => {
-	const comparison = { suggested: 92, votes: 3 };
-
-	it('caps the target for a guest', () => {
-		expect(demoComparison({ isGuest: true }, comparison).suggested).toBe(DEMO_COMPARISON_TARGET);
-	});
-
-	it('leaves a full account alone', () => {
-		expect(demoComparison({ isGuest: false }, comparison).suggested).toBe(92);
-	});
-
-	it('never raises a target that is already below the cap', () => {
-		expect(demoComparison({ isGuest: true }, { suggested: 2, votes: 0 }).suggested).toBe(2);
-	});
-
-	it('passes null through', () => {
-		expect(demoComparison({ isGuest: true }, null)).toBeNull();
 	});
 });
