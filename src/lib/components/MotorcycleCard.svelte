@@ -70,6 +70,7 @@
 			alt="{bike.manufacturer.name} {bike.model}"
 			{priority}
 			fill={isPlaceholder}
+			pinch={false}
 			class="absolute inset-0"
 		/>
 	</div>

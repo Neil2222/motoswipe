@@ -501,18 +501,15 @@
 			<button class="btn btn-ghost btn-sm" onclick={() => (lightbox = false)}>Close</button>
 		</div>
 
-		<button
-			type="button"
-			class="min-h-0 flex-1 cursor-zoom-out"
-			onclick={() => (lightbox = false)}
-			aria-label="Close"
-		>
-			<img
-				src={bike.images[activeImage].url}
-				alt={title}
-				class="h-full w-full object-contain px-4"
-			/>
-		</button>
+		<div class="relative min-h-0 flex-1">
+			<BikePhoto url={bike.images[activeImage].url} alt={title} class="absolute inset-0" priority />
+			<button
+				type="button"
+				class="absolute top-0 right-0 left-0 h-12 cursor-zoom-out"
+				onclick={() => (lightbox = false)}
+				aria-label="Close"
+			></button>
+		</div>
 
 		{#if bike.images.length > 1}
 			<div class="flex items-center justify-center gap-3 px-4 py-4">
