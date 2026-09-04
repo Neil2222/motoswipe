@@ -8,6 +8,7 @@ import type {
 import { OFFICIAL_PAGES, type OfficialPage } from './official-pages';
 import {
 	pageNames,
+	parseBmwPages,
 	parseHondaPage,
 	parseSuzukiPage,
 	parseKawasakiPage,
@@ -85,8 +86,9 @@ export class ManufacturerProvider implements MotorcycleProvider {
 		const page = OFFICIAL_PAGES.find((p) => p.url === externalId);
 		if (!page) throw new Error(`No official page ${externalId}`);
 
-		const html = await this.download(page.url);
-		const specsHtml = page.specsUrl ? await this.download(page.specsUrl) : '';
+		const rendered = page.maker === 'bmw';
+		const html = await this.download(page.url, rendered);
+		const specsHtml = page.specsUrl ? await this.download(page.specsUrl, rendered) : '';
 
 		const confirmed = html.length > 0 && pageNames(html, page.expect);
 		const specs = !confirmed
@@ -101,7 +103,9 @@ export class ManufacturerProvider implements MotorcycleProvider {
 							? parseKtmPages(html, specsHtml)
 							: page.maker === 'kawasaki'
 								? parseKawasakiPage(html)
-								: parseYamahaPage(html);
+								: page.maker === 'bmw'
+									? parseBmwPages(html, specsHtml, page.assetFolder ?? '')
+									: parseYamahaPage(html);
 
 		const record: OfficialRecord = {
 			page,
@@ -113,10 +117,14 @@ export class ManufacturerProvider implements MotorcycleProvider {
 		return record;
 	}
 
-	private async download(url: string): Promise<string> {
+	private async download(url: string, rendered = false): Promise<string> {
 		let html = '';
 		for (let attempt = 1; attempt <= 3; attempt++) {
 			try {
+				if (rendered) {
+					html = await downloadWithBrowser(url);
+					break;
+				}
 				const response = await fetch(url, {
 					headers: { 'User-Agent': USER_AGENT, Accept: 'text/html' },
 					redirect: 'follow'
@@ -228,6 +236,34 @@ export class ManufacturerProvider implements MotorcycleProvider {
 	}
 }
 
+/**
+ * The document as a browser receives it. BMW's site refuses plain HTTP
+ * clients at the connection, whatever the headers, but serves a browser the
+ * ordinary page, whose HTML already carries the asset paths. Nothing is
+ * clicked or scripted: the page is requested, its HTML is read. A page that
+ * redirects (a discontinued model to its successor) is returned as an empty
+ * document, so a successor's page can never speak for the model asked for.
+ * Playwright is a development dependency and is loaded only here, only on
+ * demand; the built app never imports it.
+ */
+async function downloadWithBrowser(url: string): Promise<string> {
+	const specifier = '@playwright/test';
+	const { chromium } = (await import(
+		/* @vite-ignore */ specifier
+	)) as typeof import('@playwright/test');
+	const browser = await chromium.launch({ headless: true });
+	try {
+		const context = await browser.newContext({ locale: 'nl-NL' });
+		const page = await context.newPage();
+		const response = await page.goto(url, { waitUntil: 'commit', timeout: 60000 });
+		if (!response || response.status() !== 200) return '';
+		if (page.url().replace(/[#?].*$/, '') !== url) return '';
+		return await response.text();
+	} finally {
+		await browser.close();
+	}
+}
+
 function brandName(brand: string): string {
 	return (
 		{
@@ -236,7 +272,8 @@ function brandName(brand: string): string {
 			yamaha: 'Yamaha',
 			triumph: 'Triumph',
 			ktm: 'KTM',
-			kawasaki: 'Kawasaki'
+			kawasaki: 'Kawasaki',
+			bmw: 'BMW'
 		}[brand] ?? brand
 	);
 }

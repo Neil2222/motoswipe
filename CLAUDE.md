@@ -72,9 +72,14 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   (wikipedia, manufacturer, wikipedia-de, then the rest) and a family is
   named by the spelling most records use, then the longest-filed one. After
   a rebuild, `npm run db:audit -- --since 2020 --top 100` must still give
-  990 / 367 / Top 100 = 82 (`docs/audits/audit-final6.txt`, 2026-09-04;
+  990 / 370 / Top 100 = 83 (`docs/audits/audit-final7.txt`, 2026-09-05;
   the restored dump gave 990 / 338 / 69); compare before touching anything
-  else.
+  else. Determinism check: run the rebuild twice and compare an md5 over
+  every active row's identity, generation, eligibility and image list.
+- Held photographs are re-derived from today's source records on every
+  rebuild; only the Commons photo jobs' rows (`commons-search`,
+  `commons-category`) persist on their own. A provider's photograph
+  disappears with its record.
 - Audits: `npm run db:audit -- --since 2020 --top 100 --json <file>` and
   `npm run db:audit:focus -- --json <file>`. Earlier outputs live in
   `docs/audits/`; a new audit must rerun the exact same metrics so a
@@ -118,8 +123,17 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   `/nl_nl/Motorcycles/<Category>/<Model>_<Year>.html` pages are plain HTML
   with the model year in the title and in every asset code ("26KLE650H");
   the rows must be moved to the next model year's URL once a year. BMW
-  (photos as blob: URLs), CFMOTO (no model images) and Piaggio/Vespa
-  (bot-blocked) still could not be read. Re-import one maker with
+  Motorrad NL refuses plain HTTP clients at the connection but serves a
+  browser the ordinary page, whose raw HTML carries the configurator
+  studio shots under `/<model>[-<launch year>]/<model year>/softconfigurator/`
+  and a `technicaldata.html` table; the provider fetches those pages with
+  Playwright (`downloadWithBrowser`, development dependency, loaded on
+  demand) and reads them with `parseBmwPages`. The site shows the current
+  model year only and 404s or redirects discontinued models (R 1250 GS
+  Adventure → R 1300 GS Adventure), so a BMW row can only ever prove the
+  generation on sale now; rows exist for S 1000 XR, F 800 GS and
+  M 1000 XR. CFMOTO (no model images) and Piaggio/Vespa (bot-blocked)
+  still could not be read. Re-import one maker with
   `npx tsx scripts/import.ts --source manufacturer --allow-network --skip-rebuild --only kawasaki`.
 - Commons has no usable R 1250 GS Adventure (only a 168 px thumbnail), no
   SV650 from 2016 on with a year in the name, no KTM 1290 Super Adventure S

@@ -460,3 +460,97 @@ export function parseKawasakiPage(html: string): OfficialSpecs {
 		image
 	};
 }
+
+// ---------------------------------------------------------------------------
+// BMW Motorrad NL
+// ---------------------------------------------------------------------------
+
+/**
+ * BMW's model pages carry the configurator's studio shots as `data-src`
+ * attributes, filed under
+ * `/images/models/<segment>/<model>[-<launch year>]/<model year>/softconfigurator/nsc-<model>-<colour>-softconfigurator.jpg`;
+ * the model-year folder is the evidence. A page shows the model year on sale
+ * (a "2027" folder in September 2026 is next year's colours), never an
+ * earlier one. The specifications sit on the `technicaldata.html` page as
+ * label/value rows: "Zithoogte, onbeladen" → "850 mm (optie verlaging: 790 mm)".
+ *
+ * `slug` is the model as BMW spells it in asset names ("s1000xr"). Images of
+ * any other model on the page — the "you may also like" teasers — are ignored.
+ */
+export function parseBmwPages(html: string, specsHtml: string, slug: string): OfficialSpecs {
+	const specs: OfficialSpecs = {};
+	const site = 'https://www.bmw-motorrad.nl';
+	const model = slug.replace(/[^a-z0-9-]/gi, '').toLowerCase();
+	if (!model) return specs;
+
+	// Studio shots of this model, dated by their folder; the first one is the
+	// base colour. Thumbnails are the same picture small.
+	const studio = new RegExp(
+		String.raw`data-src="(/content/dam/[^"]*/images/models/[a-z-]+/${model}(?:-\d{4})?(?:/((?:19|20)\d{2})(?:-\d+)?)?/softconfigurator/nsc-${model}-([A-Z0-9]+)-softconfigurator\.jpg[^"]*)"`,
+		'g'
+	);
+	const shots = [...html.matchAll(studio)].map((m) => ({
+		url: site + m[1],
+		year: m[2] ? Number(m[2]) : undefined,
+		colour: m[3]
+	}));
+	const pick = shots.find((s) => s.year !== undefined) ?? shots[0];
+	if (pick) {
+		specs.image = {
+			url: pick.url,
+			modelYear: pick.year,
+			evidence: pick.year
+				? `official BMW Motorrad NL configurator image (colour ${pick.colour}); asset path states model year ${pick.year}`
+				: `official BMW Motorrad NL configurator image (colour ${pick.colour})`
+		};
+	} else {
+		// The product stage the page opens with, when it is this model's.
+		const stage = new RegExp(
+			String.raw`property="og:image" content="([^"]*/models/[a-z-]+/${model}(?:-\d{4})?/((?:19|20)\d{2})(?:-\d+)?/productstage/nsc-${model}-[^"]*)"`
+		).exec(html);
+		if (stage) {
+			specs.image = {
+				url: stage[1],
+				modelYear: Number(stage[2]),
+				evidence: `official BMW Motorrad NL product image; asset path states model year ${stage[2]}`
+			};
+		}
+	}
+	if (specs.image?.modelYear) specs.modelYear = specs.image.modelYear;
+
+	// The specification rows. BMW writes thousands both ways ("1.905 mm",
+	// "1,541 mm"); the first figure of a value is the standard setting.
+	const rows = new Map<string, string>();
+	for (const m of specsHtml.matchAll(
+		/class="table__label">\s*([^<]*?)\s*<\/div>\s*<div[^>]*class="table__value">\s*([^<]*)/g
+	)) {
+		rows.set(m[1].replace(/\s+/g, ' ').toLowerCase(), m[2].replace(/\s+/g, ' ').trim());
+	}
+	const row = (label: RegExp): string | undefined => {
+		for (const [key, value] of rows) if (label.test(key)) return value;
+		return undefined;
+	};
+	const figure = (text: string | undefined): number | undefined => {
+		const m = text ? /\d{1,3}(?:[.,]\d{3})+|\d+(?:,\d+)?/.exec(text) : null;
+		if (!m) return undefined;
+		const raw = /^\d{1,3}(?:[.,]\d{3})+$/.test(m[0])
+			? m[0].replace(/[.,]/g, '')
+			: m[0].replace(',', '.');
+		const value = Number(raw);
+		return Number.isFinite(value) ? value : undefined;
+	};
+
+	specs.displacementCc = bounded(figure(row(/^cilinderinhoud/)), 50, 2500);
+	const power = row(/^nominaal vermogen/);
+	specs.powerKw = bounded(figure(/(\d+(?:,\d+)?)\s*kW/i.exec(power ?? '')?.[1]), 1, 250);
+	specs.powerHp = bounded(figure(/(\d+(?:,\d+)?)\s*pk/i.exec(power ?? '')?.[1]), 1, 350);
+	specs.torqueNm = bounded(figure(row(/koppel/)), 5, 300);
+	specs.seatHeightMm = bounded(figure(row(/^zithoogte/)), 500, 1000);
+	specs.wetWeightKg = bounded(figure(row(/^rijklaar gewicht/)), 60, 500);
+	specs.wheelbaseMm = bounded(figure(row(/^wielbasis/)), 1000, 2000);
+	specs.fuelCapacityL = bounded(figure(row(/^tankinhoud/)), 3, 40);
+	for (const key of Object.keys(specs) as (keyof OfficialSpecs)[]) {
+		if (specs[key] === undefined) delete specs[key];
+	}
+	return specs;
+}

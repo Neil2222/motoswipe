@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	pageNames,
 	parseHondaPage,
+	parseBmwPages,
 	parseKawasakiPage,
 	parseKtmPages,
 	parseSuzukiPage,
@@ -231,5 +232,99 @@ describe('parseKawasakiPage', () => {
 	it('confirms the page names the model', () => {
 		expect(pageNames(KAWASAKI, 'Versys 650')).toBe(true);
 		expect(pageNames(KAWASAKI, 'Ninja 650')).toBe(false);
+	});
+});
+
+// Excerpts of https://www.bmw-motorrad.nl/nl/modellen/sport/s1000xr.html and its
+// technicaldata.html as a browser received them on 2026-09-05.
+const BMW_PAGE = `<title>BMW S 1000 XR | BMW Motorrad NL</title>
+<meta property="og:image" content="https://www.bmw-motorrad.nl/content/dam/bmwmotorradnsc/common/multiimages/images/models/sport/s1000xr-2023/2026/productstage/nsc-s1000xr-P0N4V-multiimage-2560x1440.jpg.asset.1761723916306.jpg"/>
+<div class="softconfiguratoritem_preview_image_loader">
+  <div class="image-loader" data-id="ecd2d350" data-src="/content/dam/bmwmotorradnsc/common/images/models/sport/s1000xr-2023/2026/softconfigurator/nsc-s1000xr-P0N2U-softconfigurator-thumbnail.jpg.asset.1760014922787.jpg" data-alt="Blackstorm metallic 2">
+</div></div>
+<div class="softconfiguratoritem_product_image_loader">
+  <div class="image-loader" data-src="/content/dam/bmwmotorradnsc/common/images/models/sport/s1000xr-2023/2026/softconfigurator/nsc-s1000xr-P0N2U-softconfigurator.jpg.asset.1760014923116.jpg" data-alt="De S 1000 XR in de basisuitvoering"></div>
+  <div class="image-loader" data-src="/content/dam/bmwmotorradnsc/common/images/models/sport/s1000xr-2023/2026/softconfigurator/nsc-s1000xr-P0N4V-softconfigurator.jpg.asset.1760014923660.jpg" data-alt="The S 1000 XR in the M version"></div>
+</div>
+<div class="image-loader" data-src="/content/dam/bmwmotorradnsc/common/images/models/sport/s1000xr-2023/columnteaser/nsc-s1000xr-P0N3N-f900xr-columnteaser-1.jpg.asset.1697713953674.jpg" data-alt="De BMW F 900 XR"></div>
+<div class="image-loader" data-src="/content/dam/bmwmotorradnsc/common/images/models/sport/f900xr/2026/softconfigurator/nsc-f900xr-P0N3N-softconfigurator.jpg.asset.1.jpg" data-alt="De BMW F 900 XR"></div>`;
+
+const BMW_SPECS = `<div class="table__row" role="row">
+  <div role="cell" id="a-row" class="table__label">
+    Nominaal vermogen
+  </div>
+  <div role="cell" aria-labelledby="a-row" class="table__value">
+    125 kW (170 pk) bij 11.000 tpm
+  </div>
+</div>
+<div class="table__row" role="row">
+  <div role="cell" id="b-row" class="table__label"> Cilinderinhoud </div>
+  <div role="cell" aria-labelledby="b-row" class="table__value"> 999 cc </div>
+</div>
+<div class="table__row" role="row">
+  <div role="cell" id="c-row" class="table__label"> Max. koppel </div>
+  <div role="cell" aria-labelledby="c-row" class="table__value"> 114 Nm bij 9.250 tpm </div>
+</div>
+<div class="table__row" role="row">
+  <div role="cell" id="d-row" class="table__label"> Wielbasis </div>
+  <div role="cell" aria-labelledby="d-row" class="table__value"> 1,541 mm </div>
+</div>
+<div class="table__row" role="row">
+  <div role="cell" id="e-row" class="table__label"> Zithoogte, onbeladen </div>
+  <div role="cell" aria-labelledby="e-row" class="table__value"> 850 mm (optie verlaging: 790 mm) </div>
+</div>
+<div class="table__row" role="row">
+  <div role="cell" id="f-row" class="table__label"> Tankinhoud </div>
+  <div role="cell" aria-labelledby="f-row" class="table__value"> 20 l </div>
+</div>
+<div class="table__row" role="row">
+  <div role="cell" id="g-row" class="table__label"> Rijklaar gewicht, volgetankt/volgeladen </div>
+  <div role="cell" aria-labelledby="g-row" class="table__value"> 227 kg <span class="table__footnotedata">1</span>
+  </div>
+</div>`;
+
+describe('parseBmwPages', () => {
+	it('takes the first configurator studio shot of this model, dated by its folder', () => {
+		const specs = parseBmwPages(BMW_PAGE, BMW_SPECS, 's1000xr');
+		expect(specs.image?.url).toBe(
+			'https://www.bmw-motorrad.nl/content/dam/bmwmotorradnsc/common/images/models/sport/s1000xr-2023/2026/softconfigurator/nsc-s1000xr-P0N2U-softconfigurator.jpg.asset.1760014923116.jpg'
+		);
+		expect(specs.image?.modelYear).toBe(2026);
+		expect(specs.image?.evidence).toContain('model year 2026');
+		expect(specs.modelYear).toBe(2026);
+	});
+
+	it("never takes another model's picture from the page", () => {
+		const specs = parseBmwPages(BMW_PAGE, '', 'f900xr');
+		expect(specs.image?.url).toContain('nsc-f900xr-P0N3N-softconfigurator');
+		expect(specs.image?.url).not.toContain('s1000xr');
+		const only = BMW_PAGE.replace(/nsc-s1000xr-P0N[24][UV]-softconfigurator[^"]*/g, '');
+		expect(parseBmwPages(only, '', 's1000xr').image?.url).toContain(
+			'productstage/nsc-s1000xr-P0N4V'
+		);
+	});
+
+	it('prefers a dated studio shot over an undated one, and reads a year folder with a suffix', () => {
+		const html = `<div data-src="/content/dam/x/images/models/adventure/f800gs-2023/softconfigurator/nsc-f800gs-P0NB5-softconfigurator.jpg.asset.1.jpg"></div>
+<div data-src="/content/dam/x/images/models/adventure/f800gs-2023/2026-2/softconfigurator/nsc-f800gs-P0N3N-softconfigurator.jpg.asset.2.jpg"></div>`;
+		const specs = parseBmwPages(html, '', 'f800gs');
+		expect(specs.image?.url).toContain('P0N3N');
+		expect(specs.image?.modelYear).toBe(2026);
+		const undated = parseBmwPages(html.split('\n')[0], '', 'f800gs');
+		expect(undated.image?.modelYear).toBeUndefined();
+		expect(undated.modelYear).toBeUndefined();
+	});
+
+	it('reads the specification rows, thousands either way, standard setting first', () => {
+		const specs = parseBmwPages(BMW_PAGE, BMW_SPECS, 's1000xr');
+		expect(specs.powerKw).toBe(125);
+		expect(specs.powerHp).toBe(170);
+		expect(specs.displacementCc).toBe(999);
+		expect(specs.torqueNm).toBe(114);
+		expect(specs.wheelbaseMm).toBe(1541);
+		expect(specs.seatHeightMm).toBe(850);
+		expect(specs.fuelCapacityL).toBe(20);
+		expect(specs.wetWeightKg).toBe(227);
+		expect(specs.priceEur).toBeUndefined();
 	});
 });

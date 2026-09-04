@@ -14,6 +14,11 @@
  *  - **Kawasaki NL** names the model year in the page title and URL, tabulates
  *    the specifications and price, and codes every product image with the
  *    model year and type ("26KLE650H").
+ *  - **BMW Motorrad NL** files its configurator studio shots under
+ *    `/images/models/<segment>/<model>[-<launch year>]/<model year>/softconfigurator/`
+ *    and keeps a specification table on a `technicaldata.html` sibling page.
+ *    The site refuses plain HTTP clients, so these pages are fetched with a
+ *    real browser (Playwright); the HTML itself carries the asset paths.
  *
  * Curated and not discovered: a wrong page is a wrong photograph on the wrong
  * card, and the makers' sites are not consistent enough to trust a guess.
@@ -21,7 +26,7 @@
  * a page that no longer names the model is skipped.
  */
 
-export type Maker = 'honda' | 'suzuki' | 'yamaha' | 'triumph' | 'ktm' | 'kawasaki';
+export type Maker = 'honda' | 'suzuki' | 'yamaha' | 'triumph' | 'ktm' | 'kawasaki' | 'bmw';
 
 export interface OfficialPage {
 	brand: string;
@@ -73,6 +78,21 @@ const ktm = (family: string, path: string, expect = family): OfficialPage => ({
 	url: `https://www.ktm.com/en-nl/models/${path}.html`,
 	specsUrl: `https://www.ktm.com/en-nl/models/${path}/technical-specifications.html`,
 	expect
+});
+/**
+ * BMW Motorrad NL. `slug` is the model as BMW spells it in asset names
+ * ("s1000xr"); every image taken must carry it. Only models whose card is
+ * not yet eligible for discovery are listed: the site shows the current
+ * model year only, so a page can prove nothing about an earlier generation.
+ */
+const bmw = (family: string, path: string, slug: string): OfficialPage => ({
+	brand: 'bmw',
+	family,
+	maker: 'bmw',
+	url: `https://www.bmw-motorrad.nl/nl/modellen/${path}.html`,
+	specsUrl: `https://www.bmw-motorrad.nl/nl/modellen/${path}/technicaldata.html`,
+	expect: family,
+	assetFolder: slug
 });
 /**
  * Kawasaki names the model year in the page URL. The rows point at the 2026
@@ -237,5 +257,12 @@ export const OFFICIAL_PAGES: OfficialPage[] = [
 	kawasaki('Vulcan S', 'Urban_Cruiser/vulcan_s_2026'),
 	kawasaki('Eliminator', 'Urban_Cruiser/eliminator_500_2026', 'Eliminator'),
 	kawasaki('KLE500', 'Adventure/KLE500_2026'),
-	kawasaki('W230', 'Classic/W230_2026')
+	kawasaki('W230', 'Classic/W230_2026'),
+
+	// --- BMW Motorrad NL (rendered browser; see the note above) ---------------
+	bmw('S 1000 XR', 'sport/s1000xr', 's1000xr'),
+	bmw('F 800 GS', 'adventure/f800gs', 'f800gs'),
+	// Not the K 1600 B: its page shows model year 2027 and the catalogue's only
+	// generation ends in 2025, so the picture would be a name match, not evidence.
+	bmw('M 1000 XR', 'm/m1000xr', 'm1000xr')
 ];

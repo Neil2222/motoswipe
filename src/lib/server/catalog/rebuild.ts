@@ -1044,7 +1044,10 @@ async function syncFamilyImages(
 		const file = commonsFileName(url);
 		return file !== null && looksLikeDetailShot(file);
 	};
-	const providerSources = new Set([...records.map((r) => r.source), 'legacy']);
+	// What the photo jobs found lives only in `motorcycle_images` and is kept;
+	// everything else is derived from today's source records, so a provider's
+	// photograph disappears with its record rather than lingering on.
+	const photoJobSources = new Set(['commons-search', 'commons-category']);
 	const divided = generations.length > 1;
 
 	// --- The pool: what the providers say now, plus what the photo job found --
@@ -1087,8 +1090,7 @@ async function syncFamilyImages(
 	});
 
 	for (const image of held) {
-		if (image.source !== null && providerSources.has(image.source)) continue;
-		if (image.source === null) continue;
+		if (image.source === null || !photoJobSources.has(image.source)) continue;
 		if (isWrongBike(image.attribution ?? image.url)) continue;
 		if (isRejected(image.url) || isDetail(image.url)) continue;
 
