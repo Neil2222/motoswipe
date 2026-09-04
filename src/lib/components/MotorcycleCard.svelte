@@ -87,6 +87,7 @@
 			active={imageIndex}
 			{onstep}
 			label="{bike.manufacturer.name} {bike.model}"
+			passive
 		/>
 	{/if}
 

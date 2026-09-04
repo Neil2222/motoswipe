@@ -61,9 +61,13 @@
 	/**
 	 * Which photograph each card shows, by bike id. Kept here rather than in
 	 * the card so the choice survives the card being re-rendered as it moves
-	 * up the stack. A tap on the left or right half of the live card steps;
-	 * so do the chevrons and the keyboard.
+	 * up the stack. A tap on the left or right edge zone of the live card
+	 * steps; a tap in the middle deliberately does nothing, so that a tap on
+	 * a photograph never means one thing here and another on the comparison
+	 * page. The keyboard steps too.
 	 */
+	/** Fraction of the card width that is an edge zone; mirrors GalleryControls. */
+	const EDGE_ZONE = 0.22;
 	let imageIndex = $state<Record<string, number>>({});
 
 	export function stepImage(delta: 1 | -1) {
@@ -246,10 +250,10 @@
 		else {
 			const travelled = Math.hypot(event.clientX - startX, event.clientY - startY);
 			if (travelled < TAP_DISTANCE && event.timeStamp - startTime < TAP_TIME) {
-				// Tinder convention: tap the right half for the next photograph,
-				// the left half for the previous one.
 				const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-				stepImage(event.clientX - rect.left > rect.width / 2 ? 1 : -1);
+				const fraction = (event.clientX - rect.left) / Math.max(rect.width, 1);
+				if (fraction < EDGE_ZONE) stepImage(-1);
+				else if (fraction > 1 - EDGE_ZONE) stepImage(1);
 			}
 			reset();
 		}
