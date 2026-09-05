@@ -39,3 +39,4 @@ vite.config.ts.timestamp-*
 
 # Playwright MCP session artefacts
 .playwright-mcp
+backups/
