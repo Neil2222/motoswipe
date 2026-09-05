@@ -107,6 +107,11 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
   reverse proxy. After a code change: `docker compose build`, then
   `PORTAINER_API_KEY=... npx tsx scripts/portainer-deploy.ts`. Never run
   `docker compose up` next to the stack; they share the database volume.
+- The image is built from the working tree, uncommitted files included.
+  When the tree carries changes that are not yours (another agent's
+  work in progress), build from the committed state instead:
+  `T=$(mktemp -d); git archive HEAD | tar -x -C "$T"; docker build -t motoswipe:local "$T"`,
+  then deploy. Check `git status` before every build.
 
 ## Operational facts learned the hard way
 
