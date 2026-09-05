@@ -321,9 +321,7 @@
 						</div>
 					</dl>
 					<p class="text-dim border-graphite mt-3 border-t pt-3 text-[11px] leading-relaxed italic">
-						These are facts about the machine, not a comfort rating. A bike can legally carry a
-						passenger and still be unpleasant to ride two-up for an hour — pillion comfort is not
-						something a specification sheet records.
+						Facts about the machine, not a comfort rating.
 					</p>
 				</div>
 			</section>
@@ -399,9 +397,7 @@
 	{#if data.decisions.length > 0}
 		<section class="mt-12">
 			<h2 class="display text-bone text-lg">Your decisions</h2>
-			<p class="text-ash mt-2 text-sm">
-				How you have judged this motorcycle across your own rounds. Only you can see this.
-			</p>
+			<p class="text-ash mt-2 text-sm">How you have judged this motorcycle across your rounds.</p>
 			<ul class="panel divide-graphite mt-4 divide-y overflow-hidden">
 				{#each data.decisions as decision (decision.round.id)}
 					<li class="flex items-center justify-between gap-4 px-4 py-3">
@@ -474,9 +470,8 @@
 				<p
 					class="border-skip/30 bg-skip/8 text-skip mt-4 rounded-lg border px-4 py-3 text-xs leading-relaxed"
 				>
-					This is demonstration data. The figures are approximate and hand-entered, and the image is
-					a generated illustration rather than a photograph. Verify anything that matters against
-					the manufacturer before you spend money.
+					Demonstration data: approximate, hand-entered figures and a generated illustration rather
+					than a photograph. Check with the manufacturer before you spend money.
 				</p>
 			{/if}
 		</div>

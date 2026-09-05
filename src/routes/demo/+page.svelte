@@ -40,8 +40,8 @@
 		Try it on the {data.deckSize} most popular bikes
 	</h1>
 	<p class="text-ash mt-6 max-w-xl text-lg leading-relaxed">
-		Two minutes, no sign-up. Everything you swipe is kept on this device for a while, so you can
-		come back and finish — and if you like the result, you can save it to an account afterwards.
+		Two minutes, no sign-up. Come back and finish whenever you like, and save the result to an
+		account if it deserves it.
 	</p>
 
 	<form
@@ -79,10 +79,4 @@
 			</li>
 		{/each}
 	</ol>
-
-	<p class="text-dim mt-8 text-xs leading-relaxed">
-		Behind the scenes the demo is a guest account with one round. It is deleted automatically when
-		you discard it, or a week after its session has expired. Nothing about you is stored beyond what
-		you swipe.
-	</p>
 </div>

@@ -51,8 +51,7 @@
 			<p class="stencil text-sodium mb-2">The catalogue</p>
 			<h1 class="display text-bone text-3xl sm:text-4xl">Browse motorcycles</h1>
 			<p class="text-ash mt-2 max-w-xl text-sm leading-relaxed">
-				Look one up, and keep the ones you like. Saved bikes go to your garage — they are yours, not
-				tied to any round.
+				Look one up and keep the ones you like. Saved bikes go to your garage.
 			</p>
 		</div>
 		{#if data.canSave}
@@ -211,10 +210,7 @@
 								})
 							)}
 					/>
-					<span class="text-ash text-sm">
-						Include motorcycles with no photograph — useful when you are looking for one specific
-						machine.
-					</span>
+					<span class="text-ash text-sm"> Include motorcycles without a photograph </span>
 				</label>
 			</div>
 		{/if}
@@ -235,8 +231,8 @@
 		<div class="panel mt-6 p-10 text-center">
 			<p class="display text-bone text-lg">Nothing matches that</p>
 			<p class="text-ash mx-auto mt-2 max-w-md text-sm leading-relaxed">
-				Try a shorter search — "z900" rather than "kawasaki z900 2019" — or turn on motorcycles with
-				no photograph, which hides a few thousand machines by default.
+				Try a shorter search — "z900" rather than "kawasaki z900 2019" — or include motorcycles
+				without a photograph.
 			</p>
 		</div>
 	{:else}

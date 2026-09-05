@@ -23,12 +23,12 @@
 
 	const body = $derived(
 		status === 404
-			? 'That page does not exist — or it belongs to someone else, which as far as this server is concerned is the same thing.'
+			? 'That page does not exist — or it belongs to someone else, which comes to the same thing.'
 			: status === 401
 				? 'You need to be signed in to see that.'
 				: status === 429
 					? 'Too many attempts in a short time. Wait a minute and try again.'
-					: 'The server hit a problem handling that request. It has been logged.'
+					: 'Something broke on our side. It has been logged.'
 	);
 </script>
 
@@ -51,7 +51,7 @@
 
 		{#if code}
 			<p class="text-dim numeral mt-4 text-xs">
-				Reference {code} — quote this if you are looking through the server log.
+				Reference {code} — quote it if you report this.
 			</p>
 		{/if}
 

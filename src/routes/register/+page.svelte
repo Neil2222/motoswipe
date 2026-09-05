@@ -33,8 +33,8 @@
 			<p class="stencil text-sodium mb-3">Keep what you swiped</p>
 			<h1 class="display text-bone text-4xl">Save your demo</h1>
 			<p class="text-ash mt-4 text-sm leading-relaxed">
-				Choose an email and a password and your demo round — every swipe, every comparison — becomes
-				the first round of your own account.
+				Choose an email and a password. Your demo round — every swipe and comparison — becomes the
+				first round of your account.
 			</p>
 		{:else}
 			<p class="stencil text-sodium mb-3">Get started</p>

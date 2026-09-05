@@ -105,7 +105,7 @@
 				<a href="/register" class="text-sodium hover:underline">Create one</a>
 			</p>
 		{:else}
-			<p class="text-dim mt-6 text-center text-sm">Registration is closed on this instance.</p>
+			<p class="text-dim mt-6 text-center text-sm">Registration is closed.</p>
 		{/if}
 	</div>
 </div>

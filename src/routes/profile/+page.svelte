@@ -30,9 +30,8 @@
 		<div class="border-sodium/35 bg-sodium/8 mt-6 rounded-lg border p-4">
 			<p class="display text-sodium text-sm">Account created</p>
 			<p class="text-ash mt-1.5 text-sm leading-relaxed">
-				Adding your height and inseam is optional, but it is what lets MotoSwipe put a seat height
-				in context later. You can skip straight to
-				<a href="/rounds/new" class="text-sodium hover:underline">creating a round</a> instead.
+				Height and inseam are optional; they let MotoSwipe put seat heights in context. Or skip
+				straight to <a href="/rounds/new" class="text-sodium hover:underline">creating a round</a>.
 			</p>
 		</div>
 	{/if}
@@ -51,8 +50,8 @@
 	<section class="mt-10">
 		<h2 class="display text-bone text-xl">Rider details</h2>
 		<p class="text-ash mt-2 text-sm leading-relaxed">
-			Used only to put seat heights in context for you. Nothing here is shared, and nothing is ever
-			hidden from your deck because of it unless you explicitly add a seat-height filter to a round.
+			Used to put seat heights in context. They never filter your deck unless you add a seat-height
+			filter to a round.
 		</p>
 
 		<form
@@ -117,8 +116,7 @@
 						aria-describedby="inseam-hint"
 					/>
 					<p id="inseam-hint" class="text-dim mt-1.5 text-xs leading-relaxed">
-						Inside leg, floor to crotch, without shoes. This is the measurement that actually
-						matters — without it we estimate from your height and say so.
+						Inside leg, floor to crotch, without shoes. Without it we estimate from your height.
 					</p>
 					{#if profileErrors.inseamCm}
 						<p class="text-nope mt-1.5 text-xs">{profileErrors.inseamCm}</p>
@@ -191,8 +189,7 @@
 				<p class="text-like mt-2 text-xs">Confirmed. A password reset can reach you here.</p>
 			{:else if data.mailEnabled}
 				<p class="text-ash mt-2 text-sm leading-relaxed">
-					Not confirmed yet. Nothing is locked, but until you confirm it a forgotten password cannot
-					be reset by email.
+					Not confirmed yet. Until you confirm it, a forgotten password cannot be reset by email.
 				</p>
 				{#if emailErrors._}
 					<p class="text-nope mt-3 text-xs" role="alert">{emailErrors._}</p>
@@ -218,8 +215,8 @@
 				</form>
 			{:else}
 				<p class="text-dim mt-2 text-xs leading-relaxed">
-					This instance has no email configured, so addresses are not confirmed and passwords cannot
-					be reset by link.
+					Email is not set up here, so addresses are not confirmed and passwords cannot be reset by
+					link.
 				</p>
 			{/if}
 		</div>
@@ -311,20 +308,5 @@
 				{savingPassword ? 'Changing…' : 'Change password'}
 			</button>
 		</form>
-	</section>
-
-	<!-- ================= Privacy ================= -->
-	<section class="mt-10 mb-4">
-		<div class="panel p-6">
-			<h2 class="display text-bone text-lg">Privacy</h2>
-			<p class="text-ash mt-2 text-sm leading-relaxed">
-				Everything is private. Your rounds, swipes and rankings are visible only to you — there is
-				no public profile, no sharing and no aggregate anyone else can see. The database has
-				visibility fields ready for a future social layer, and they all default to private.
-			</p>
-			<p class="text-dim mt-3 text-xs">
-				Current profile visibility: <span class="numeral">{data.profile.profileVisibility}</span>
-			</p>
-		</div>
 	</section>
 </div>

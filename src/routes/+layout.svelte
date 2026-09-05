@@ -144,8 +144,8 @@
 					class="text-ash mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 text-xs"
 				>
 					<p class="min-w-0 flex-1">
-						<span class="text-bone">You are trying MotoSwipe as a guest.</span>
-						Your round is kept on this device for a while. Create an account to keep it for good.
+						<span class="text-bone">You are swiping as a guest.</span>
+						Guest rounds expire. Create an account to keep this one.
 					</p>
 					<div class="flex items-center gap-2">
 						<a href="/register?claim=1" class="text-sodium hover:underline"
@@ -161,7 +161,7 @@
 		{:else if data.user && !data.user.emailVerified && data.mailEnabled && !page.url.pathname.startsWith('/profile')}
 			<div class="border-graphite/80 bg-charcoal/60 border-b">
 				<p class="text-dim mx-auto max-w-6xl px-4 py-2 text-xs">
-					Your email address is not confirmed yet, so a password reset could not reach you.
+					Your email address is not confirmed yet, so a password reset cannot reach you.
 					<a href="/profile#email" class="text-ash hover:text-bone underline"
 						>Confirm it from your profile</a
 					>.
@@ -180,8 +180,8 @@
 				class="text-dim mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between"
 			>
 				<p>
-					MotoSwipe — self-hosted. Specifications come from third-party sources and may be
-					incomplete or out of date. Verify anything that matters before you buy a motorcycle.
+					Specifications come from public sources and may be incomplete or out of date. Check
+					anything that matters before you buy.
 				</p>
 				<p class="stencil">Built for the garage, not the spec sheet</p>
 			</div>

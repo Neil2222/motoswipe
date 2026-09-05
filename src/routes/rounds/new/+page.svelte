@@ -147,8 +147,7 @@
 	<p class="stencil text-sodium mb-2">Step one</p>
 	<h1 class="display text-bone text-4xl">Create a discovery round</h1>
 	<p class="text-ash mt-3 max-w-xl text-sm leading-relaxed">
-		A round is one question. Name it after what you are actually trying to decide, and it will still
-		make sense when you come back to it next year.
+		A round is one question. Name it after what you are trying to decide.
 	</p>
 
 	<form
@@ -226,9 +225,7 @@
 					</button>
 				{/each}
 			</div>
-			<p class="text-dim mt-3 text-xs">
-				Sets the filters below — nothing is locked in until you create the round.
-			</p>
+			<p class="text-dim mt-3 text-xs">Sets the filters below.</p>
 		</div>
 
 		<!-- ============ Deck size ============ -->
@@ -275,8 +272,8 @@
 			{#if showFilters}
 				<div class="border-graphite space-y-6 border-t px-6 py-6">
 					<p class="text-ash text-xs leading-relaxed">
-						A filter only ever narrows. If a motorcycle has no published horsepower and you ask for
-						100 hp or more, it is left out — we will not assume a missing number qualifies.
+						Filters only narrow. Unknown values are excluded: a bike with no published power never
+						passes a power filter.
 					</p>
 
 					<!-- Condition -->
@@ -388,8 +385,7 @@
 								/>
 							</div>
 							<p class="text-dim mt-1.5 text-xs">
-								When the model was on sale, not when it was introduced — a Kawasaki Z650 dates from
-								1977 and is still sold today.
+								Years the model was on sale, not when it was introduced.
 							</p>
 						</div>
 
@@ -430,8 +426,7 @@
 								</select>
 							</div>
 							<p class="text-dim mt-1.5 text-xs">
-								List price when new. Euro prices come from the Dutch vehicle registry; prices are
-								only ever compared within one currency.
+								List price when new. Bikes priced in another currency are excluded.
 							</p>
 						</div>
 					</div>
@@ -532,9 +527,8 @@
 							<span>
 								<span class="text-bone text-sm">Include race and concept machines</span>
 								<span class="text-dim block text-xs leading-relaxed">
-									Grand Prix prototypes, streamliners, concept bikes and military machines are left
-									out by default, because they are not motorcycles you can go and buy. Turn this on
-									for a dream-garage round.
+									Prototypes, concept bikes and military machines are left out by default. Turn this
+									on for a dream-garage round.
 								</span>
 							</span>
 						</label>
@@ -550,8 +544,7 @@
 							<span>
 								<span class="text-bone text-sm">Must carry a passenger</span>
 								<span class="text-dim block text-xs leading-relaxed">
-									Only motorcycles where a pillion is explicitly supported. Bikes with no published
-									answer are excluded rather than assumed.
+									Only bikes with a confirmed pillion seat. Unknown is excluded.
 								</span>
 							</span>
 						</label>
@@ -570,9 +563,8 @@
 								oninput={schedulePreview}
 							/>
 							<p class="text-dim mt-1.5 text-xs leading-relaxed">
-								Off by default, and deliberately so. Seat height alone does not decide whether a
-								bike suits you — seat width, suspension sag and your boots all matter. Use this only
-								if you already know you want a hard cut-off.
+								Seat height alone does not decide fit — seat width, suspension sag and your boots
+								all matter. Use this only if you want a hard cut-off. Unknown is excluded.
 							</p>
 						</div>
 					</div>

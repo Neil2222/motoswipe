@@ -30,14 +30,14 @@
 		{:else if !data.enabled}
 			<div class="panel mt-8 p-6">
 				<p class="text-ash text-sm leading-relaxed">
-					This instance has no email configured, so passwords cannot be reset by link. Ask whoever
-					runs it to set a new one for you.
+					Password reset by email is not set up here. Ask whoever runs this MotoSwipe to set a new
+					one for you.
 				</p>
 				<a href="/login" class="btn btn-secondary mt-5">Back to sign in</a>
 			</div>
 		{:else}
 			<p class="text-ash mt-4 text-sm leading-relaxed">
-				Enter the email address of your account and we will send a link to choose a new password.
+				Enter your email address and we will send a link to choose a new password.
 			</p>
 
 			<form

@@ -53,9 +53,8 @@
 		<div class="border-like/40 bg-like/10 mt-6 rounded-lg border p-4" role="status">
 			<p class="display text-like text-sm">Saved to your account</p>
 			<p class="text-ash mt-1.5 text-sm leading-relaxed">
-				This round is yours now — every swipe and comparison from the demo came along. Add your
-				height and inseam on your <a href="/profile" class="text-sodium hover:underline">profile</a>
-				to see seat heights in context.
+				Every swipe and comparison from the demo came along. Add your height and inseam on your
+				<a href="/profile" class="text-sodium hover:underline">profile</a> to see seat heights in context.
 			</p>
 		</div>
 	{/if}
@@ -65,9 +64,8 @@
 			<p class="stencil text-sodium">End of the demo</p>
 			<h2 class="display text-bone mt-2 text-xl">Keep this, or throw it away?</h2>
 			<p class="text-ash mt-2 max-w-2xl text-sm leading-relaxed">
-				Create an account and this round — winner, ranking, every swipe — is saved for good. Or
-				discard it and nothing about your visit is kept. Undecided? It stays on this device for a
-				while either way.
+				Create an account and this round — winner, ranking, every swipe — is yours to keep. Or
+				discard it. Undecided? It stays around for a while.
 			</p>
 			<div class="mt-5 flex flex-wrap gap-2">
 				<a href="/register?claim=1" class="btn btn-primary">Create account and save</a>
@@ -207,7 +205,8 @@
 		<section class="mt-10">
 			<h2 class="display text-bone text-xl">Full ranking</h2>
 			<p class="text-ash mt-2 text-sm">
-				Elo starts at 1500. Superliked motorcycles start 40 points up, which a few losses erase.
+				Ranked by your head-to-head results. Superlikes get a small head start that a few losses
+				erase.
 			</p>
 
 			<ol class="panel divide-graphite mt-4 divide-y overflow-hidden">
@@ -276,8 +275,8 @@
 		<section class="mt-12">
 			<h2 class="display text-bone text-xl">What your taste looks like</h2>
 			<p class="text-ash mt-2 max-w-2xl text-sm leading-relaxed">
-				Plain counting, no inference. A row marked provisional is one where you have seen fewer than {data.minSample}
-				motorcycles — the percentage is real but it does not mean much yet.
+				Plain counting. A row marked provisional rests on fewer than {data.minSample} motorcycles — a
+				real percentage that does not mean much yet.
 			</p>
 
 			<div class="mt-5 grid gap-5 lg:grid-cols-2">
@@ -365,8 +364,8 @@
 					{/each}
 				</dl>
 				<p class="text-dim mt-3 text-xs leading-relaxed">
-					Averages ignore motorcycles with no published figure, so each is over a different number
-					of bikes. Price is averaged only within your most common currency.
+					Averages skip bikes with no published figure. Price is averaged within your most common
+					currency.
 				</p>
 			</div>
 		</section>

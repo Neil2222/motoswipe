@@ -20,8 +20,7 @@
 			<p class="stencil text-sodium mb-2">Kept</p>
 			<h1 class="display text-bone text-3xl sm:text-4xl">Your garage</h1>
 			<p class="text-ash mt-2 max-w-xl text-sm leading-relaxed">
-				Motorcycles you hearted while browsing. Nothing here expires and nothing here is tied to a
-				round — it is just the list of bikes you liked the look of.
+				Motorcycles you hearted while browsing. Not tied to any round.
 			</p>
 		</div>
 		<div class="flex items-center gap-2">
@@ -65,8 +64,7 @@
 		<div class="panel mt-8 p-10 text-center">
 			<p class="display text-bone text-lg">Nothing saved yet</p>
 			<p class="text-ash mx-auto mt-2 max-w-md text-sm leading-relaxed">
-				Search the catalogue and tap the heart on anything you like. It will be here when you come
-				back.
+				Search the catalogue and tap the heart on anything you like.
 			</p>
 			<a href="/motorcycles" class="btn btn-primary mt-5">Find a motorcycle</a>
 		</div>

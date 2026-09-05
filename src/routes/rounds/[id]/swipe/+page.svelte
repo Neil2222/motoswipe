@@ -523,8 +523,7 @@
 				{/each}
 			</dl>
 			<p class="text-dim mt-5 text-xs leading-relaxed">
-				You can also drag the card with a mouse or your thumb. Everything is saved as you go — close
-				the tab whenever you like.
+				You can also drag the card. Progress is saved as you go.
 			</p>
 			<button class="btn btn-primary mt-5 w-full" onclick={() => (showHelp = false)}>
 				Got it

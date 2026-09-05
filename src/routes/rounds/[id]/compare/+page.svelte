@@ -169,8 +169,7 @@
 				<p class="stencil text-sodium">Nothing left to compare</p>
 				<h1 class="display text-bone mt-3 text-2xl">Not enough shortlisted</h1>
 				<p class="text-ash mt-3 text-sm leading-relaxed">
-					You need at least two liked motorcycles in this round before head-to-head comparisons mean
-					anything.
+					Comparisons need at least two liked motorcycles in this round.
 				</p>
 				<a href="/rounds/{data.round.id}" class="btn btn-primary mt-6">Back to the round</a>
 			</div>

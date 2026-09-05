@@ -37,7 +37,7 @@
 	<title>MotoSwipe — find the bike you actually want</title>
 	<meta
 		name="description"
-		content="Swipe through motorcycles, build a shortlist, and rank your favourites head-to-head. Self-hosted."
+		content="Swipe through motorcycles, build a shortlist, and rank your favourites head-to-head."
 	/>
 </svelte:head>
 
@@ -90,8 +90,7 @@
 
 		{#if !data.user}
 			<p class="text-dim mt-4 text-xs">
-				The demo puts the 20 most popular bikes in front of you, no sign-up. Save the result later
-				if you want to.
+				The 20 most popular bikes, no sign-up. Save the result afterwards if you like it.
 			</p>
 		{/if}
 
@@ -107,8 +106,6 @@
 				<span class="text-steel" aria-hidden="true">·</span>
 				<span class="numeral">{data.withPhoto} with photographs</span>
 			{/if}
-			<span class="text-steel" aria-hidden="true">·</span>
-			<span>Self-hosted — your rounds stay on this server</span>
 		</div>
 	</div>
 
@@ -162,16 +159,14 @@
 				<h3 class="stencil text-ash">On the data</h3>
 				{#if data.demoOnly}
 					<p class="text-ash mt-2 text-sm leading-relaxed">
-						This instance is running demonstration data only: approximate specifications and
-						generated illustrations rather than photographs. Import a real catalogue to replace it.
-						Where a number is not known you will see a dash rather than a guess.
+						Demonstration data only: approximate specifications and generated illustrations rather
+						than photographs. An unknown number shows as a dash, never a guess.
 					</p>
 				{:else}
 					<p class="text-ash mt-2 text-sm leading-relaxed">
-						Specifications and photographs are imported from Wikipedia and Wikidata, and are as
-						complete as those sources are — which is to say, patchy in places. Where a number is not
-						known you will see a dash rather than a guess, and every motorcycle links back to where
-						its data came from.
+						Specifications and photographs come from public sources and are patchy in places. An
+						unknown number shows as a dash, never a guess, and every motorcycle links to where its
+						data came from.
 					</p>
 				{/if}
 			</div>

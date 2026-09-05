@@ -199,10 +199,9 @@
 		<div class="panel relative w-full max-w-md p-6" role="dialog" aria-modal="true">
 			<h2 class="display text-bone text-xl">Duplicate round</h2>
 			<p class="text-ash mt-3 text-sm leading-relaxed">
-				This copies the description, goal and filters of
-				<span class="text-bone">{duplicating.name}</span> into a brand new round. Your swipes,
-				comparisons and ranking are <em>not</em> copied — the point is a clean second run at the same
-				question.
+				Copies the description, goal and filters of
+				<span class="text-bone">{duplicating.name}</span> into a new round. Swipes, comparisons and
+				ranking are <em>not</em> copied.
 			</p>
 
 			<label class="label mt-5" for="duplicate-name">Name for the new round</label>
@@ -238,7 +237,7 @@
 <ConfirmDialog
 	open={archiving !== null}
 	title="Archive this round?"
-	body="It disappears from your dashboard but nothing is deleted — the swipes, ranking and results all stay, and you can restore it at any time."
+	body="It leaves your dashboard. Nothing is deleted, and you can restore it at any time."
 	confirmLabel="Archive"
 	onconfirm={() => archiveForm?.requestSubmit()}
 	oncancel={() => (archiving = null)}

@@ -113,8 +113,7 @@
 				{#if deckDone}
 					You have been through every motorcycle in this deck.
 				{:else}
-					{p.remaining} motorcycle{p.remaining === 1 ? '' : 's'} still to see. Everything is saved as
-					you go — stop whenever you like.
+					{p.remaining} motorcycle{p.remaining === 1 ? '' : 's'} still to see.
 				{/if}
 			</p>
 			{#if !deckDone && data.round.status !== 'ARCHIVED'}
@@ -128,8 +127,7 @@
 			<h3 class="display text-bone text-base">Compare your shortlist</h3>
 			<p class="text-ash mt-2 flex-1 text-sm leading-relaxed">
 				{#if p.shortlist < 2}
-					You need at least two liked motorcycles before head-to-head comparisons make sense. You
-					have {p.shortlist}.
+					Comparisons need at least two liked motorcycles. You have {p.shortlist}.
 				{:else}
 					{p.shortlist} motorcycles on the shortlist, {data.comparisons} comparison{data.comparisons ===
 					1
@@ -218,8 +216,8 @@
 	open={completing}
 	title={deckDone ? 'Mark this round complete?' : `Finish early with ${p.remaining} left?`}
 	body={deckDone
-		? 'The round moves to completed and stops appearing as active. You can reopen it at any time — nothing is lost.'
-		: `You still have ${p.remaining} motorcycles you have not seen. Completing now keeps everything you have decided so far, and you can reopen the round later to carry on.`}
+		? 'The round is marked complete. You can reopen it at any time.'
+		: `${p.remaining} motorcycles are still unseen. Everything decided so far is kept, and you can reopen the round later.`}
 	confirmLabel={deckDone ? 'Mark complete' : 'Finish early'}
 	onconfirm={() => {
 		completing = false;
