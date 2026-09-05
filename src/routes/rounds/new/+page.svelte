@@ -772,40 +772,54 @@
 			class="border-graphite/80 bg-void/90 pb-safe sticky bottom-0 z-30 -mx-4 border-t px-4 py-3 backdrop-blur-xl sm:mx-0 sm:rounded-xl sm:border"
 			aria-live="polite"
 		>
-			<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-				<p class="shrink-0 text-sm">
-					{#if previewing}
-						<span class="skeleton inline-block h-5 w-10 align-middle"></span>
-					{:else if shownCount === null}
-						<span class="numeral text-bone text-lg">—</span>
-					{:else}
-						<span class="numeral text-bone text-lg">{shownCount}</span>
-					{/if}
-					<span class="text-ash">motorcycle{shownCount === 1 ? '' : 's'}</span>
-				</p>
-				{#if activeChips.length}
-					<div class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-						{#each activeChips as chip (chip.key)}
+			<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+				<div class="flex min-w-0 flex-1 items-center gap-2">
+					<p class="shrink-0 text-sm">
+						{#if previewing}
+							<span class="skeleton inline-block h-5 w-10 align-middle"></span>
+						{:else if shownCount === null}
+							<span class="numeral text-bone text-lg">—</span>
+						{:else}
+							<span class="numeral text-bone text-lg">{shownCount}</span>
+						{/if}
+						<span class="text-ash">motorcycle{shownCount === 1 ? '' : 's'}</span>
+					</p>
+					{#if activeChips.length}
+						<!-- One line that scrolls sideways: a phone's width is for the
+						     count and the button, not for a wrapping cloud of chips. -->
+						<div
+							class="flex min-w-0 flex-1 [scrollbar-width:none] items-center gap-1.5 overflow-x-auto [&::-webkit-scrollbar]:hidden"
+						>
+							{#each activeChips as chip (chip.key)}
+								<button
+									type="button"
+									class="chip chip-active shrink-0 text-[11px] whitespace-nowrap"
+									onclick={chip.remove}
+									title="Remove this filter"
+								>
+									{chip.label}
+									<span aria-hidden="true">×</span>
+								</button>
+							{/each}
 							<button
 								type="button"
-								class="chip chip-active text-[11px]"
-								onclick={chip.remove}
-								title="Remove this filter"
+								class="text-dim shrink-0 text-xs whitespace-nowrap underline"
+								onclick={clearFilters}
 							>
-								{chip.label}
-								<span aria-hidden="true">×</span>
+								clear all
 							</button>
-						{/each}
-						<button type="button" class="text-dim text-xs underline" onclick={clearFilters}>
-							clear all
-						</button>
-					</div>
-				{:else}
-					<span class="text-dim flex-1 text-xs">Everything in the catalogue</span>
-				{/if}
-				<div class="ml-auto flex items-center gap-2">
+						</div>
+					{:else}
+						<span class="text-dim min-w-0 text-xs">Everything in the catalogue</span>
+					{/if}
+				</div>
+				<div class="flex items-center gap-2 sm:shrink-0">
 					<a href="/dashboard" class="btn btn-ghost btn-sm">Cancel</a>
-					<button class="btn btn-primary" type="submit" disabled={submitting || shownCount === 0}>
+					<button
+						class="btn btn-primary flex-1 sm:flex-none"
+						type="submit"
+						disabled={submitting || shownCount === 0}
+					>
 						{submitting ? 'Creating…' : 'Start swiping'}
 					</button>
 				</div>
