@@ -23,6 +23,132 @@
 	const MAKERS_SHOWN = 24;
 	let showAllMakers = $state(false);
 	let checkedMakers = $state<string[]>([]);
+
+	/**
+	 * What is narrowing the deck right now, as removable chips. Read off the
+	 * form itself, because presets and "clear" write to the inputs directly.
+	 * This is what the bar at the bottom of the screen shows, so a tap deep
+	 * in the manufacturer list is never a mystery three screens up.
+	 */
+	type ActiveChip = { key: string; label: string; remove: () => void };
+	let activeChips = $state<ActiveChip[]>([]);
+
+	function refreshSummary() {
+		if (!formEl) {
+			activeChips = [];
+			return;
+		}
+		const form = formEl;
+		const fd = new FormData(form);
+		const get = (name: string): string | undefined => {
+			const value = fd.get(name);
+			return value === null || String(value).trim() === '' ? undefined : String(value);
+		};
+		const all = (name: string) => fd.getAll(name).map(String).filter(Boolean);
+		const clear = (names: string[], value?: string) => () => {
+			for (const el of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+				names.map((n) => `[name="${n}"]`).join(',')
+			)) {
+				if (el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio')) {
+					if (value === undefined || el.value === value) el.checked = false;
+				} else {
+					el.value = '';
+				}
+			}
+			if (names.includes('manufacturerIds')) {
+				checkedMakers = value === undefined ? [] : checkedMakers.filter((id) => id !== value);
+			}
+			schedulePreview();
+		};
+		const range = (
+			key: string,
+			minName: string,
+			maxName: string,
+			unit: (v: string) => string,
+			joiner = '–'
+		) => {
+			const min = get(minName);
+			const max = get(maxName);
+			if (min === undefined && max === undefined) return;
+			const label =
+				min !== undefined && max !== undefined
+					? `${min}${joiner}${unit(max)}`
+					: min !== undefined
+						? `${unit(min)} and up`
+						: `up to ${unit(max!)}`;
+			chips.push({ key, label, remove: clear([minName, maxName]) });
+		};
+
+		const chips: ActiveChip[] = [];
+		const condition = get('condition');
+		if (condition === 'NEW' || condition === 'USED') {
+			chips.push({
+				key: 'condition',
+				label: condition === 'NEW' ? 'New only' : 'Used only',
+				remove: clear(['condition'])
+			});
+		}
+		const currency = get('priceCurrency') ?? '';
+		range('price', 'priceMin', 'priceMax', (v) =>
+			`${currency} ${Number(v).toLocaleString('en-US')}`.trim()
+		);
+		range('cc', 'displacementMin', 'displacementMax', (v) => `${v} cc`);
+		range('hp', 'powerHpMin', 'powerHpMax', (v) => `${v} hp`);
+		range('years', 'yearMin', 'yearMax', (v) => v);
+		for (const c of all('categories')) {
+			chips.push({
+				key: `cat:${c}`,
+				label: CATEGORY_LABELS[c as MotorcycleCategory] ?? c,
+				remove: clear(['categories'], c)
+			});
+		}
+		for (const id of all('manufacturerIds')) {
+			chips.push({
+				key: `mk:${id}`,
+				label: data.manufacturers.find((m) => m.id === id)?.name ?? 'Manufacturer',
+				remove: clear(['manufacturerIds'], id)
+			});
+		}
+		for (const p of all('ridingPositions')) {
+			chips.push({
+				key: `pos:${p}`,
+				label: RIDING_POSITION_LABELS[p as keyof typeof RIDING_POSITION_LABELS] ?? p,
+				remove: clear(['ridingPositions'], p)
+			});
+		}
+		for (const l of all('licenseCategories')) {
+			chips.push({
+				key: `lic:${l}`,
+				label: LICENSE_LABELS[l as keyof typeof LICENSE_LABELS] ?? l,
+				remove: clear(['licenseCategories'], l)
+			});
+		}
+		if (fd.get('passengerRequired') === 'on') {
+			chips.push({
+				key: 'passenger',
+				label: 'Passenger capable',
+				remove: clear(['passengerRequired'])
+			});
+		}
+		const seat = get('seatHeightMaxMm');
+		if (seat)
+			chips.push({ key: 'seat', label: `seat ≤ ${seat} mm`, remove: clear(['seatHeightMaxMm']) });
+		if (fd.get('includeNonRoad') === 'on') {
+			chips.push({
+				key: 'nonroad',
+				label: 'Race and concept bikes',
+				remove: clear(['includeNonRoad'])
+			});
+		}
+		if (fd.get('includeWithoutPhotos') === 'on') {
+			chips.push({
+				key: 'nophoto',
+				label: 'Bikes without a photo',
+				remove: clear(['includeWithoutPhotos'])
+			});
+		}
+		activeChips = chips;
+	}
 	const visibleManufacturers = $derived(
 		showAllMakers || data.manufacturers.length <= MAKERS_SHOWN
 			? data.manufacturers
@@ -42,6 +168,7 @@
 	function schedulePreview() {
 		// A filter changed by hand: the preset no longer describes the deck.
 		activePreset = null;
+		refreshSummary();
 		clearTimeout(previewTimer);
 		previewTimer = setTimeout(runPreview, 400);
 	}
@@ -91,6 +218,7 @@
 		previewCount = undefined;
 		activePreset = null;
 		checkedMakers = [];
+		refreshSummary();
 	}
 
 	let submitting = $state(false);
@@ -163,6 +291,7 @@
 			}
 		}
 
+		refreshSummary();
 		runPreview();
 	}
 </script>
@@ -173,7 +302,8 @@
 	<p class="stencil text-sodium mb-2">Step one</p>
 	<h1 class="display text-bone text-4xl">Create a discovery round</h1>
 	<p class="text-ash mt-3 max-w-xl text-sm leading-relaxed">
-		A round is one question. Name it after what you are trying to decide.
+		A round is one question. Name it after what you are trying to decide. Your likes and dislikes
+		steer what comes next.
 	</p>
 
 	<form
@@ -293,7 +423,8 @@
 				</p>
 			{:else if !showFilters}
 				<p class="text-ash max-w-xs text-xs leading-relaxed">
-					Everything in the catalogue. That is usually the right answer for a first round.
+					Everything in the catalogue. Usually right for a first round; your swipes steer the order
+					from there.
 				</p>
 			{/if}
 		</div>
@@ -635,11 +766,50 @@
 			{/if}
 		</div>
 
-		<div class="flex flex-wrap items-center gap-3">
-			<button class="btn btn-primary btn-lg" type="submit" disabled={submitting}>
-				{submitting ? 'Creating…' : 'Create round and start swiping'}
-			</button>
-			<a href="/dashboard" class="btn btn-ghost">Cancel</a>
+		<!-- Sticks to the bottom of the screen: the count and every active filter
+		     stay in view however far down the form a tap happened. -->
+		<div
+			class="border-graphite/80 bg-void/90 pb-safe sticky bottom-0 z-30 -mx-4 border-t px-4 py-3 backdrop-blur-xl sm:mx-0 sm:rounded-xl sm:border"
+			aria-live="polite"
+		>
+			<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+				<p class="shrink-0 text-sm">
+					{#if previewing}
+						<span class="skeleton inline-block h-5 w-10 align-middle"></span>
+					{:else if shownCount === null}
+						<span class="numeral text-bone text-lg">—</span>
+					{:else}
+						<span class="numeral text-bone text-lg">{shownCount}</span>
+					{/if}
+					<span class="text-ash">motorcycle{shownCount === 1 ? '' : 's'}</span>
+				</p>
+				{#if activeChips.length}
+					<div class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+						{#each activeChips as chip (chip.key)}
+							<button
+								type="button"
+								class="chip chip-active text-[11px]"
+								onclick={chip.remove}
+								title="Remove this filter"
+							>
+								{chip.label}
+								<span aria-hidden="true">×</span>
+							</button>
+						{/each}
+						<button type="button" class="text-dim text-xs underline" onclick={clearFilters}>
+							clear all
+						</button>
+					</div>
+				{:else}
+					<span class="text-dim flex-1 text-xs">Everything in the catalogue</span>
+				{/if}
+				<div class="ml-auto flex items-center gap-2">
+					<a href="/dashboard" class="btn btn-ghost btn-sm">Cancel</a>
+					<button class="btn btn-primary" type="submit" disabled={submitting || shownCount === 0}>
+						{submitting ? 'Creating…' : 'Start swiping'}
+					</button>
+				</div>
+			</div>
 		</div>
 	</form>
 </div>
