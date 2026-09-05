@@ -89,11 +89,11 @@
 	aria-pressed={saved}
 	aria-label={saved ? `Remove ${label} from your garage` : `Save ${label} to your garage`}
 	title={saved ? 'Saved — tap to remove' : 'Save to your garage'}
-	class="grid place-items-center rounded-full border backdrop-blur-md transition-all
+	class="grid place-items-center rounded-full border transition-colors
 	       {size === 'sm' ? 'h-9 w-9' : 'h-11 w-11'}
 	       {saved
 		? 'border-like/60 bg-like/15 text-like'
-		: 'border-graphite/80 bg-void/60 text-ash hover:border-like/40 hover:text-like'}
+		: 'border-graphite/80 bg-void/85 text-ash hover:border-like/40 hover:text-like'}
 	       {busy ? 'opacity-70' : ''}
 	       {className}"
 >

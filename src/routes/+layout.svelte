@@ -32,9 +32,7 @@
 
 <div class="flex min-h-dvh flex-col">
 	{#if !isImmersive}
-		<header
-			class="border-graphite/80 bg-void/80 pt-safe sticky top-0 z-40 border-b backdrop-blur-xl"
-		>
+		<header class="border-graphite/80 bg-void/95 pt-safe sticky top-0 z-40 border-b">
 			<div class="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
 				<a
 					href={data.user?.isGuest

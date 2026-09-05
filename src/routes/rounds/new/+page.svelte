@@ -768,7 +768,7 @@
 		<!-- Sticks to the bottom of the screen: the count and every active filter
 		     stay in view however far down the form a tap happened. -->
 		<div
-			class="border-graphite/80 bg-void/90 pb-safe sticky bottom-0 z-30 -mx-4 border-t px-4 py-3 backdrop-blur-xl sm:mx-0 sm:rounded-xl sm:border"
+			class="border-graphite/80 bg-void/95 pb-safe sticky bottom-0 z-30 -mx-4 border-t px-4 py-3 sm:mx-0 sm:rounded-xl sm:border"
 			aria-live="polite"
 		>
 			<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">

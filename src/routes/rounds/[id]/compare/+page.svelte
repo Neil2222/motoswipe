@@ -250,8 +250,8 @@
 									/>
 
 									<span
-										class="chip pointer-events-none absolute left-3 bg-black/50 backdrop-blur-sm {bike
-											.images.length > 1
+										class="chip pointer-events-none absolute left-3 bg-black/65 {bike.images
+											.length > 1
 											? 'top-5'
 											: 'top-3'}"
 									>
