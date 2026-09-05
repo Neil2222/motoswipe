@@ -15,6 +15,8 @@
 		NONE: 'No photograph'
 	};
 	const FIELD_LABELS: Record<string, string> = {
+		identity: 'Identity (make and model)',
+		generation: 'Generation boundaries',
 		category: 'Category',
 		displacementCc: 'Displacement',
 		powerHp: 'Power',
