@@ -17,6 +17,17 @@
 	 */
 	let showFilters = $state(false);
 	let formEl = $state<HTMLFormElement | null>(null);
+	/** The quick start in force, until a filter is touched by hand. */
+	let activePreset = $state<string | null>(null);
+	/** Makers shown before "show all": the list runs to well over a hundred. */
+	const MAKERS_SHOWN = 24;
+	let showAllMakers = $state(false);
+	let checkedMakers = $state<string[]>([]);
+	const visibleManufacturers = $derived(
+		showAllMakers || data.manufacturers.length <= MAKERS_SHOWN
+			? data.manufacturers
+			: data.manufacturers.filter((m, i) => i < MAKERS_SHOWN || checkedMakers.includes(m.id))
+	);
 
 	/**
 	 * null means "not previewed yet", which renders as the full catalogue size —
@@ -29,8 +40,15 @@
 
 	/** Debounced count preview so typing in a number field is not one POST per keystroke. */
 	function schedulePreview() {
+		// A filter changed by hand: the preset no longer describes the deck.
+		activePreset = null;
 		clearTimeout(previewTimer);
 		previewTimer = setTimeout(runPreview, 400);
+	}
+
+	function toggleMaker(id: string, checked: boolean) {
+		checkedMakers = checked ? [...checkedMakers, id] : checkedMakers.filter((m) => m !== id);
+		schedulePreview();
 	}
 
 	async function runPreview() {
@@ -71,6 +89,8 @@
 			}
 		}
 		previewCount = undefined;
+		activePreset = null;
+		checkedMakers = [];
 	}
 
 	let submitting = $state(false);
@@ -118,12 +138,18 @@
 	 * asked for.
 	 */
 	async function applyPreset(preset: (typeof PRESETS)[number]) {
+		// The same chip again takes the preset off: back to everything.
+		if (activePreset === preset.label) {
+			clearFilters();
+			return;
+		}
 		showFilters = true;
 		// The filter panel is only in the DOM while it is open, so the inputs a
 		// preset writes to do not exist yet when it is applied from collapsed.
 		await tick();
 		if (!formEl) return;
 		clearFilters();
+		activePreset = preset.label;
 
 		for (const [name, value] of Object.entries(preset.values)) {
 			for (const el of formEl.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
@@ -217,7 +243,8 @@
 				{#each PRESETS as preset (preset.label)}
 					<button
 						type="button"
-						class="chip text-left"
+						class="chip text-left {activePreset === preset.label ? 'chip-active' : ''}"
+						aria-pressed={activePreset === preset.label}
 						onclick={() => applyPreset(preset)}
 						title={preset.hint}
 					>
@@ -225,7 +252,24 @@
 					</button>
 				{/each}
 			</div>
-			<p class="text-dim mt-3 text-xs">Sets the filters below.</p>
+			<p class="text-dim mt-3 text-xs" aria-live="polite">
+				{#if activePreset}
+					<span class="text-sodium">{activePreset}</span>
+					<span aria-hidden="true">·</span>
+					{#if previewing}
+						counting…
+					{:else if shownCount === null}
+						count unknown
+					{:else}
+						<span class="numeral text-bone">{shownCount}</span>
+						motorcycle{shownCount === 1 ? '' : 's'} in the deck
+					{/if}
+					<span aria-hidden="true">·</span>
+					tap again to clear
+				{:else}
+					Sets the filters below.
+				{/if}
+			</p>
 		</div>
 
 		<!-- ============ Deck size ============ -->
@@ -456,7 +500,7 @@
 					<div>
 						<span class="label">Manufacturers</span>
 						<div class="flex flex-wrap gap-2">
-							{#each data.manufacturers as manufacturer (manufacturer.id)}
+							{#each visibleManufacturers as manufacturer (manufacturer.id)}
 								<label class="chip has-checked:chip-active cursor-pointer">
 									<input
 										type="checkbox"
@@ -464,13 +508,25 @@
 										value={manufacturer.id}
 										data-filter
 										class="sr-only"
-										onchange={schedulePreview}
+										checked={checkedMakers.includes(manufacturer.id)}
+										onchange={(e) => toggleMaker(manufacturer.id, e.currentTarget.checked)}
 									/>
 									{manufacturer.name}
-									<span class="text-dim ml-1">{manufacturer._count.motorcycles}</span>
+									<span class="text-dim ml-1">{manufacturer.count}</span>
 								</label>
 							{/each}
 						</div>
+						{#if data.manufacturers.length > MAKERS_SHOWN}
+							<button
+								type="button"
+								class="text-sodium mt-3 text-xs hover:underline"
+								onclick={() => (showAllMakers = !showAllMakers)}
+							>
+								{showAllMakers
+									? 'Show fewer'
+									: `Show all ${data.manufacturers.length} manufacturers`}
+							</button>
+						{/if}
 					</div>
 
 					<!-- Riding position / licence -->

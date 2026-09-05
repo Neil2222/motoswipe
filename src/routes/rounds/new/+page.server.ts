@@ -8,7 +8,7 @@ import {
 	catalogueBounds,
 	categoryCounts,
 	countCandidates,
-	listManufacturers
+	deckManufacturers
 } from '$lib/server/services/motorcycle.service';
 import { isDomainError } from '$lib/server/errors';
 import type { Actions, PageServerLoad } from './$types';
@@ -17,7 +17,7 @@ export const load: PageServerLoad = async (event) => {
 	requireFullUser(event);
 
 	const [manufacturers, categories, bounds, catalogueSize] = await Promise.all([
-		listManufacturers(),
+		deckManufacturers(),
 		categoryCounts(),
 		catalogueBounds(),
 		countCandidates({})

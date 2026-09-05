@@ -269,16 +269,41 @@ export async function listManufacturers() {
 	});
 }
 
-/** Distinct categories actually present in the catalogue, with counts. */
+/**
+ * Categories with the number of motorcycles a default deck can hold: the
+ * discovery-eligible ones. Counting the whole catalogue put "Other 1967"
+ * on a form whose deck was 677 bikes. Unclassified last, whatever its size.
+ */
 export async function categoryCounts() {
 	const rows = await prisma.motorcycle.groupBy({
 		by: ['category'],
-		where: { isActive: true },
+		where: { isActive: true, discoveryEligible: true },
 		_count: { _all: true }
 	});
 	return rows
 		.map((r) => ({ category: r.category, count: r._count._all }))
-		.sort((a, b) => b.count - a.count);
+		.sort(
+			(a, b) => Number(a.category === 'OTHER') - Number(b.category === 'OTHER') || b.count - a.count
+		);
+}
+
+/**
+ * Manufacturers a default deck can contain, most represented first. A maker
+ * with nothing discovery-eligible is left off the form: it cannot appear in
+ * the deck, so a chip for it only lengthens the list.
+ */
+export async function deckManufacturers() {
+	const rows = await prisma.manufacturer.findMany({
+		where: { motorcycles: { some: { isActive: true, discoveryEligible: true } } },
+		select: {
+			id: true,
+			name: true,
+			_count: { select: { motorcycles: { where: { isActive: true, discoveryEligible: true } } } }
+		}
+	});
+	return rows
+		.map((row) => ({ id: row.id, name: row.name, count: row._count.motorcycles }))
+		.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
 /** Bounds used to set sensible slider ranges on the round form. */
