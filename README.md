@@ -845,8 +845,8 @@ claim it qualifies.
 
 Plain counting. A like rate is a like rate. Skips are excluded from the
 denominator, because "not now" is not "no". Groups with a small sample are
-labelled **provisional** rather than presented as a conclusion. No AI, no
-inference, no recommendations — yet.
+labelled **provisional** rather than presented as a conclusion. These statistics
+are separate from the preference weights used to choose the next swipe cards.
 
 ### On the Elo bonus
 
@@ -858,12 +858,20 @@ is the entire reason for running it. There is a test for exactly that.
 
 ### On the deck order
 
-The deck is shuffled but **stable**: the order is a pure function of
-`(roundId, motorcycleId)`. The same round always yields the same sequence, two
-rounds over the same catalogue yield different sequences, and a motorcycle
-imported next week slots into a fixed position without disturbing anything
-already swiped. That is what makes "close the tab, resume next week" work
-without storing a cursor.
+The deck starts shuffled and learns **within each round**. Likes raise the
+sampling weight of the same category and, more lightly, the same manufacturer;
+dislikes lower it, superlikes count twice, and skips are neutral. A few neutral
+observations soften early conclusions, and every eligible bike retains a
+positive sampling weight so other styles can still appear. Explicit filters
+and catalogue eligibility always apply before preferences.
+
+The client starts with four cards and tops up towards four when two remain,
+preloading their images. Already buffered cards stay in place. Each refill
+uses the saved choices so far, with a deterministic weighted shuffle: the same
+round, candidates and choices give the same order. Undo removes the preference
+signal too; it takes effect on subsequent refills. On reopening, saved swipes
+stay saved but unseen cards may reorder using the latest preferences. No new
+database tables or external recommendation services are required.
 
 ### Typography
 

@@ -8,8 +8,8 @@ import type { PageServerLoad } from './$types';
  * The deck.
  *
  * Resume works because "where we are" is derived entirely from Swipe rows —
- * there is no cursor and no session state, so a user can close the tab, switch
- * device and come back a week later to exactly the same position.
+ * there is no cursor or required session state. Saved choices are preserved
+ * across devices; unseen cards are selected using the latest preferences.
  */
 export const load: PageServerLoad = async (event) => {
 	const { round } = await requireOwnedRound(event, event.params.id);

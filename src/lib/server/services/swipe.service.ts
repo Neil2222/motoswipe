@@ -1,20 +1,24 @@
 import { prisma } from '../db/client';
 import { NotFoundError, ValidationError } from '../errors';
-import { candidateIds, getCardsByIds, type MotorcycleCard } from './motorcycle.service';
-import { nextFromDeck } from './deck-order';
+import {
+	buildMotorcycleWhere,
+	candidateIds,
+	getCardsByIds,
+	type MotorcycleCard
+} from './motorcycle.service';
+import { personalizedDeck } from './deck-preferences';
 import type { SwipeDecision } from '$lib/domain/enums';
 
 /**
  * Swiping: recording decisions and serving the next cards.
  *
  * Resume is the requirement that shapes this file. A round can be picked up
- * days later on a different device and must continue exactly where it stopped,
- * so "where we are" is derived entirely from the Swipe rows — there is no
- * cursor, no session state, nothing to lose.
+ * days later on a different device. Saved decisions determine both what is
+ * left and its preference weights; unseen cards can reorder when resuming.
  */
 
-/** How many cards the client holds ahead of the current one. */
-export const DECK_BATCH_SIZE = 8;
+/** Small buffer: preload smoothly, then learn again after a few decisions. */
+export const DECK_BATCH_SIZE = 4;
 
 /**
  * Records or changes a decision.
@@ -94,22 +98,38 @@ export async function swipedIdsFor(roundId: string): Promise<Set<string>> {
 /**
  * The next batch of cards for a round.
  *
- * Candidate ids are fetched, ordered deterministically, and everything already
- * swiped is dropped. At MVP catalogue sizes (thousands) this is a single
- * indexed id scan and is comfortably fast; if the catalogue ever reaches
- * hundreds of thousands, materialise the deck into a table keyed by roundId —
- * `deck-order.ts` is the only piece that would need to move.
+ * Learn only from this round: a holiday-bike search should not inherit the
+ * preferences from a first-bike search. Eligibility and explicit filters
+ * still determine the candidate pool; preferences only influence its order.
  */
 export async function getDeck(
 	roundId: string,
 	filters: unknown,
 	options: { limit?: number; exclude?: readonly string[] } = {}
 ): Promise<MotorcycleCard[]> {
-	const limit = Math.min(Math.max(options.limit ?? DECK_BATCH_SIZE, 1), 30);
-
-	const [candidates, swiped] = await Promise.all([candidateIds(filters), swipedIdsFor(roundId)]);
-
-	const ids = nextFromDeck(roundId, candidates, swiped, limit, new Set(options.exclude ?? []));
+	const requested = options.limit ?? DECK_BATCH_SIZE;
+	const limit = Number.isFinite(requested)
+		? Math.min(Math.max(Math.floor(requested), 1), 30)
+		: DECK_BATCH_SIZE;
+	const [candidates, swipes] = await Promise.all([
+		prisma.motorcycle.findMany({
+			where: buildMotorcycleWhere(filters),
+			select: { id: true, category: true, manufacturerId: true }
+		}),
+		prisma.swipe.findMany({
+			where: { roundId },
+			select: {
+				motorcycleId: true,
+				decision: true,
+				motorcycle: { select: { category: true, manufacturerId: true } }
+			}
+		})
+	]);
+	const excluded = new Set([
+		...(options.exclude ?? []),
+		...swipes.map((swipe) => swipe.motorcycleId)
+	]);
+	const ids = personalizedDeck(roundId, candidates, swipes, excluded, limit);
 
 	return getCardsByIds(ids);
 }

@@ -91,12 +91,14 @@
 		/>
 	{/if}
 
-	<div class="relative flex items-start justify-between p-4 {bike.images.length > 1 ? 'pt-6' : ''}">
+	<div
+		class="relative flex items-start justify-between p-4 {bike.images.length > 1 ? 'pt-10' : ''}"
+	>
 		<span class="chip bg-black/60">{categoryLabel}</span>
 		{#if depth === 0 && oninfo}
 			<button
 				type="button"
-				class="border-graphite text-ash hover:text-bone hover:border-chrome flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-black/50 font-serif text-base font-bold italic transition-colors"
+				class="border-graphite text-ash hover:text-bone hover:border-chrome flex h-11 w-11 shrink-0 items-center justify-center rounded-full border bg-black/50 font-serif text-base font-bold italic transition-colors"
 				onclick={oninfo}
 				aria-label="Show specifications"
 			>

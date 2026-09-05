@@ -177,7 +177,7 @@ describe('undoSwipe', () => {
 		await recordSwipe(round.id, first[0].id, 'LIKE');
 
 		const afterSwipe = await getDeck(round.id, {}, { limit: 3 });
-		expect(afterSwipe[0].id).toBe(first[1].id);
+		expect(afterSwipe.some((card) => card.id === first[0].id)).toBe(false);
 
 		await undoSwipe(round.id, first[0].id);
 		const afterUndo = await getDeck(round.id, {}, { limit: 3 });
@@ -208,7 +208,7 @@ describe('getDeck / resume', () => {
 		expect(next.some((c) => swipedIds.has(c.id))).toBe(false);
 	});
 
-	it('resumes at exactly the same place after a break', async () => {
+	it('resumes with saved preferences and excludes all previous decisions', async () => {
 		const { user } = await createUser();
 		const round = await createRoundFor(user.id);
 
@@ -217,7 +217,28 @@ describe('getDeck / resume', () => {
 
 		// A completely fresh call, as a new session would make.
 		const resumed = await getDeck(round.id, {}, { limit: 6 });
-		expect(resumed.map((c) => c.id)).toEqual(initial.slice(4, 10).map((c) => c.id));
+		const swiped = new Set(initial.slice(0, 4).map((c) => c.id));
+		expect(resumed).toHaveLength(6);
+		expect(resumed.some((c) => swiped.has(c.id))).toBe(false);
+		expect((await getDeck(round.id, {}, { limit: 6 })).map((c) => c.id)).toEqual(
+			resumed.map((c) => c.id)
+		);
+	});
+
+	it('does not learn from another round, including another user’s round', async () => {
+		const { user } = await createUser();
+		const { user: other } = await createUser();
+		const round = await createRoundFor(user.id);
+		const ownOtherRound = await createRoundFor(user.id);
+		const otherRound = await createRoundFor(other.id);
+		const before = await getDeck(round.id, {}, { limit: 12 });
+		for (const card of before.slice(0, 5)) {
+			await recordSwipe(ownOtherRound.id, card.id, 'SUPERLIKE');
+			await recordSwipe(otherRound.id, card.id, 'DISLIKE');
+		}
+		expect((await getDeck(round.id, {}, { limit: 12 })).map((c) => c.id)).toEqual(
+			before.map((c) => c.id)
+		);
 	});
 
 	it('gives the same order on repeated calls', async () => {

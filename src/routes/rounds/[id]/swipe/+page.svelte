@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { goto, onNavigate } from '$app/navigation';
 	import SwipeDeck from '$lib/components/SwipeDeck.svelte';
 	import { toasts } from '$lib/stores/toast.svelte';
 	import { CATEGORY_LABELS, type MotorcycleCategory, type SwipeDecision } from '$lib/domain/enums';
@@ -15,19 +16,54 @@
 	 *
 	 * The server load seeds it once; from then on the page owns it and never
 	 * re-runs the load, because a load would rebuild the deck under the user's
-	 * thumb. Every decision is fired at the API and the response carries fresh
-	 * progress plus a top-up when we are running low.
+	 * thumb. Decisions save in order; refills follow the saved choices when
+	 * the buffer is running low. A failed refill cannot undo a saved swipe.
 	 */
 	// svelte-ignore state_referenced_locally
 	let cards = $state<CardBikeDetail[]>([...data.cards]);
 	// svelte-ignore state_referenced_locally
-	let progress = $state<SwipeProgress>({ ...data.progress });
+	let savedProgress = $state<SwipeProgress>({ ...data.progress });
 	// svelte-ignore state_referenced_locally
 	let seededRound = $state(data.round.id);
 
-	/** Ids in flight: reported to the server but not yet reflected in a top-up. */
-	let inFlight = $state<string[]>([]);
+	/** Save in order, while gestures and image preloading remain immediate. */
+	let pending = $state<{ bike: CardBikeDetail; decision: SwipeDecision }[]>([]);
+	const inFlight = $derived(pending.map(({ bike }) => bike.id));
+	const progress = $derived(
+		pending.reduce<SwipeProgress>(
+			(counts, { decision }) => ({
+				...counts,
+				swiped: counts.swiped + 1,
+				remaining: Math.max(counts.remaining - 1, 0),
+				likes: counts.likes + Number(decision === 'LIKE'),
+				superlikes: counts.superlikes + Number(decision === 'SUPERLIKE'),
+				dislikes: counts.dislikes + Number(decision === 'DISLIKE'),
+				skips: counts.skips + Number(decision === 'SKIP'),
+				shortlist: counts.shortlist + Number(decision === 'LIKE' || decision === 'SUPERLIKE')
+			}),
+			savedProgress
+		)
+	);
+	let saving = $state(false);
+	let saveTask: Promise<void> | null = null;
+	// Finish queued choices before opening a shortlist or switching rounds.
+	onNavigate(() => saveTask ?? undefined);
+	async function openRoundPage(event: MouseEvent) {
+		if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+			return;
+		event.preventDefault();
+		const destination = (event.currentTarget as HTMLAnchorElement).href;
+		await saveTask;
+		// Load after saving; hover preloading may hold a stale shortlist.
+		await goto(destination, { invalidateAll: true });
+	}
+	let undoing = $state(false);
 	let refilling = $state(false);
+	let loadError = $state(false);
+	// svelte-ignore state_referenced_locally
+	let exhausted = $state(data.cards.length === 0);
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- request bookkeeping only
+	const seen = new Set<string>();
 	let deck = $state<ReturnType<typeof SwipeDeck> | null>(null);
 
 	/** Last decision, for undo. */
@@ -36,8 +72,10 @@
 	let showInfo = $state<CardBikeDetail | null>(null);
 	let showHelp = $state(false);
 
-	const REFILL_THRESHOLD = 4;
-	const finished = $derived(cards.length === 0 && !refilling);
+	const REFILL_THRESHOLD = 2;
+	const finished = $derived(
+		cards.length === 0 && exhausted && !refilling && !saving && !undoing && pending.length === 0
+	);
 
 	/**
 	 * Client-side navigation between two swipe pages reuses this component, so
@@ -48,10 +86,17 @@
 		if (data.round.id === seededRound) return;
 		seededRound = data.round.id;
 		cards = [...data.cards];
-		progress = { ...data.progress };
+		savedProgress = { ...data.progress };
 		lastDecision = null;
-		inFlight = [];
+		pending = [];
+		seen.clear();
+		saving = false;
+		undoing = false;
+		refilling = false;
+		loadError = false;
+		exhausted = data.cards.length === 0;
 		showInfo = null;
+		showHelp = false;
 	});
 
 	/**
@@ -74,109 +119,97 @@
 		}
 	});
 
-	async function onDecision(bike: CardBikeDetail, decision: SwipeDecision) {
-		// Optimistic: drop the card and update the counters immediately, then
-		// reconcile with whatever the server says.
+	function onDecision(bike: CardBikeDetail, decision: SwipeDecision) {
 		cards = cards.filter((c) => c.id !== bike.id);
-		inFlight = [...inFlight, bike.id];
+		pending = [...pending, { bike, decision }];
 		lastDecision = { bike, decision };
-
-		progress = {
-			...progress,
-			swiped: progress.swiped + 1,
-			remaining: Math.max(progress.remaining - 1, 0),
-			likes: progress.likes + (decision === 'LIKE' ? 1 : 0),
-			superlikes: progress.superlikes + (decision === 'SUPERLIKE' ? 1 : 0),
-			dislikes: progress.dislikes + (decision === 'DISLIKE' ? 1 : 0),
-			skips: progress.skips + (decision === 'SKIP' ? 1 : 0),
-			shortlist: progress.shortlist + (decision === 'LIKE' || decision === 'SUPERLIKE' ? 1 : 0)
-		};
-
 		if (decision === 'SUPERLIKE') {
 			toasts.push(`Superliked ${bike.manufacturer.name} ${bike.model}`, 'superlike');
 		}
+		saveTask ??= savePending().finally(() => {
+			saveTask = null;
+		});
+	}
 
-		const needed = cards.length <= REFILL_THRESHOLD ? data.batchSize : 0;
-		if (needed > 0) refilling = true;
-
-		try {
-			const exclude = [...cards.map((c) => c.id), ...inFlight, bike.id].join(',');
-			const response = await fetch(
-				`/api/rounds/${data.round.id}/swipes?more=${needed}&exclude=${encodeURIComponent(exclude)}`,
-				{
+	async function savePending() {
+		if (saving) return;
+		saving = true;
+		const roundId = seededRound;
+		while (pending.length && roundId === seededRound) {
+			const { bike, decision } = pending[0];
+			try {
+				const response = await fetch(`/api/rounds/${roundId}/swipes`, {
 					method: 'POST',
 					headers: { 'content-type': 'application/json' },
 					body: JSON.stringify({ motorcycleId: bike.id, decision })
-				}
-			);
-
-			if (!response.ok) throw new Error(await responseMessage(response));
-
-			const result = (await response.json()) as {
-				progress: SwipeProgress;
-				cards: CardBikeDetail[];
-			};
-
-			progress = result.progress;
-			if (result.cards.length) appendCards(result.cards);
-		} catch (error) {
-			// Put the card back rather than silently losing the decision.
-			cards = [bike, ...cards];
-			progress = { ...data.progress, ...progress, swiped: progress.swiped - 1 };
-			lastDecision = null;
-			toasts.error(
-				error instanceof Error ? error.message : 'Could not save that swipe. Try again.'
-			);
-			await refreshProgress();
-		} finally {
-			inFlight = inFlight.filter((id) => id !== bike.id);
-			refilling = false;
+				});
+				if (!response.ok) throw new Error(await responseMessage(response));
+				const result = (await response.json()) as {
+					progress: SwipeProgress;
+				};
+				if (roundId !== seededRound) return;
+				seen.add(bike.id);
+				savedProgress = result.progress;
+				pending = pending.slice(1);
+			} catch (error) {
+				if (roundId !== seededRound) return;
+				pending = pending.slice(1);
+				cards = [bike, ...cards.filter((c) => c.id !== bike.id)];
+				exhausted = false;
+				if (lastDecision?.bike.id === bike.id) lastDecision = null;
+				toasts.error(
+					error instanceof Error ? error.message : 'Could not save that swipe. Try again.'
+				);
+			}
 		}
-
-		// A refill may still be needed if the response carried nothing.
-		if (cards.length <= REFILL_THRESHOLD) void topUp();
+		if (roundId !== seededRound) return;
+		saving = false;
+		if (cards.length <= REFILL_THRESHOLD && !exhausted && !loadError) void topUp();
 	}
 
 	function appendCards(incoming: CardBikeDetail[]) {
-		const known = new Set(cards.map((c) => c.id));
-		cards = [...cards, ...incoming.filter((c) => !known.has(c.id))];
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local deduplication only
+		const known = new Set([...cards.map((c) => c.id), ...inFlight, ...seen]);
+		cards = [
+			...cards,
+			...incoming.filter((c) => {
+				if (known.has(c.id)) return false;
+				known.add(c.id);
+				return true;
+			})
+		];
 	}
 
 	async function topUp() {
-		if (refilling) return;
+		if (refilling || saving || undoing) return;
+		const roundId = seededRound;
 		refilling = true;
+		loadError = false;
 		try {
 			const exclude = [...cards.map((c) => c.id), ...inFlight].join(',');
 			const response = await fetch(
-				`/api/rounds/${data.round.id}/deck?limit=${data.batchSize}&exclude=${encodeURIComponent(exclude)}`
+				`/api/rounds/${roundId}/deck?limit=${Math.max(1, data.batchSize - cards.length)}&exclude=${encodeURIComponent(exclude)}`
 			);
-			if (!response.ok) return;
+			if (!response.ok) throw new Error('Could not load motorcycles');
 			const result = (await response.json()) as { cards: CardBikeDetail[] };
+			if (roundId !== seededRound) return;
 			appendCards(result.cards);
+			exhausted = result.cards.length === 0;
 		} catch {
-			// Non-fatal: the deck simply stays as it is and the user can retry.
+			if (roundId === seededRound) loadError = true;
 		} finally {
-			refilling = false;
-		}
-	}
-
-	async function refreshProgress() {
-		try {
-			const response = await fetch(`/api/rounds/${data.round.id}/progress`);
-			if (!response.ok) return;
-			progress = (await response.json()) as SwipeProgress;
-		} catch {
-			/* leave the optimistic counters in place */
+			if (roundId === seededRound) refilling = false;
 		}
 	}
 
 	async function undo() {
-		if (!lastDecision) return;
+		if (!lastDecision || saving || refilling || undoing || deck?.isBusy()) return;
 		const { bike } = lastDecision;
-		lastDecision = null;
+		const roundId = seededRound;
+		undoing = true;
 
 		try {
-			const response = await fetch(`/api/rounds/${data.round.id}/swipes`, {
+			const response = await fetch(`/api/rounds/${roundId}/swipes`, {
 				method: 'DELETE',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ motorcycleId: bike.id })
@@ -184,11 +217,17 @@
 			if (!response.ok) throw new Error('Undo failed');
 
 			const result = (await response.json()) as { progress: SwipeProgress };
-			progress = result.progress;
+			if (roundId !== seededRound) return;
+			savedProgress = result.progress;
+			seen.delete(bike.id);
+			lastDecision = null;
+			exhausted = false;
 			cards = [bike, ...cards.filter((c) => c.id !== bike.id)];
 			toasts.info('Put back on the deck');
 		} catch {
-			toasts.error('Could not undo that.');
+			if (roundId === seededRound) toasts.error('Could not undo that. Try again.');
+		} finally {
+			if (roundId === seededRound) undoing = false;
 		}
 	}
 
@@ -210,7 +249,9 @@
 			return;
 		}
 		if (event.metaKey || event.ctrlKey || event.altKey) return;
-		if ((event.target as HTMLElement)?.tagName === 'INPUT') return;
+		if ((event.target as HTMLElement)?.closest('input, textarea, select, [contenteditable="true"]'))
+			return;
+		if (event.key === ' ' && (event.target as HTMLElement)?.closest('button, a')) return;
 
 		switch (event.key) {
 			case 'ArrowLeft':
@@ -266,10 +307,11 @@
 
 <div class="flex h-dvh flex-col overflow-hidden" use:fitToViewport>
 	<!-- ============ Header: progress and counters ============ -->
-	<header class="pt-safe shrink-0 px-4 pt-3">
+	<header class="pt-safe shrink-0 px-4 pt-3" data-sveltekit-preload-data="off">
 		<div class="mx-auto flex max-w-lg items-center gap-3">
 			<a
 				href="/rounds/{data.round.id}"
+				onclick={openRoundPage}
 				class="text-ash hover:text-bone shrink-0 text-sm transition-colors"
 				aria-label="Back to round"
 			>
@@ -281,6 +323,13 @@
 			<span class="numeral text-bone shrink-0 text-sm">
 				{progress.swiped}<span class="text-dim">/{progress.total}</span>
 			</span>
+			<a
+				href="/rounds/{data.round.id}/likes"
+				onclick={openRoundPage}
+				class="text-like shrink-0 py-3 text-xs"
+			>
+				Shortlist {progress.shortlist}
+			</a>
 		</div>
 
 		<div class="mx-auto mt-2 max-w-lg">
@@ -350,17 +399,38 @@
 						<button class="btn btn-ghost btn-sm mt-6" onclick={undo}> Undo last swipe </button>
 					{/if}
 				</div>
+			{:else if cards.length === 0 && loadError}
+				<div
+					class="panel flex h-full flex-col items-center justify-center gap-4 p-6 text-center"
+					role="status"
+				>
+					<h2 class="display text-bone text-2xl">Let's get the next bikes</h2>
+					<p class="text-ash text-sm">
+						The next motorcycles could not load. Check your connection and try again.
+					</p>
+					<button class="btn btn-primary" onclick={topUp} disabled={saving || refilling}
+						>Try again</button
+					>
+				</div>
 			{:else if cards.length === 0}
 				<!-- Refilling: a skeleton card rather than an empty frame, so the
 				     layout never jumps. -->
-				<div class="skeleton h-full w-full rounded-[0.875rem]" aria-busy="true"></div>
+				<div
+					class="skeleton flex h-full w-full items-center justify-center rounded-[0.875rem]"
+					aria-busy="true"
+					role="status"
+				>
+					<span class="text-ash text-sm"
+						>{saving ? 'Saving your choices…' : 'Finding your next motorcycles…'}</span
+					>
+				</div>
 			{:else}
 				<SwipeDeck
 					bind:this={deck}
 					{cards}
 					{onDecision}
 					oninfo={(bike) => (showInfo = bike)}
-					busy={false}
+					busy={undoing || showInfo !== null || showHelp}
 				/>
 			{/if}
 		</div>
@@ -369,11 +439,13 @@
 	<!-- ============ Action bar ============ -->
 	{#if !finished}
 		<footer class="pb-safe-nav shrink-0 px-4 pt-1">
-			<div class="mx-auto flex max-w-lg items-center justify-center gap-3 sm:gap-4">
+			<div
+				class="mx-auto grid max-w-lg grid-cols-[44px_56px_44px_56px_44px] items-center justify-center gap-x-2 gap-y-1.5 sm:grid-cols-[44px_64px_48px_64px_44px] sm:gap-x-4"
+			>
 				<button
 					class="border-graphite hover:border-chrome text-ash hover:text-bone flex h-11 w-11 items-center justify-center rounded-full border bg-black/40 text-lg transition-colors disabled:opacity-30"
 					onclick={undo}
-					disabled={!lastDecision}
+					disabled={!lastDecision || saving || refilling || undoing}
 					aria-label="Undo last swipe"
 					title="Undo (Z)"
 				>
@@ -381,8 +453,9 @@
 				</button>
 
 				<button
-					class="border-nope/50 text-nope hover:bg-nope/12 hover:border-nope flex h-16 w-16 items-center justify-center rounded-full border-2 bg-black/40 text-2xl transition-all active:scale-95"
+					class="border-nope/50 text-nope hover:bg-nope/12 hover:border-nope flex h-14 w-14 items-center justify-center rounded-full border-2 bg-black/40 text-2xl transition-all active:scale-95 disabled:opacity-30 sm:h-16 sm:w-16"
 					onclick={() => deck?.decide('DISLIKE')}
+					disabled={cards.length === 0 || undoing}
 					aria-label="Dislike"
 					title="Nope (←)"
 				>
@@ -390,8 +463,9 @@
 				</button>
 
 				<button
-					class="border-superlike/50 text-superlike hover:bg-superlike/12 hover:border-superlike flex h-12 w-12 items-center justify-center rounded-full border-2 bg-black/40 text-xl transition-all active:scale-95"
+					class="border-superlike/50 text-superlike hover:bg-superlike/12 hover:border-superlike flex h-11 w-11 items-center justify-center rounded-full border-2 bg-black/40 text-xl transition-all active:scale-95 disabled:opacity-30 sm:h-12 sm:w-12"
 					onclick={() => deck?.decide('SUPERLIKE')}
+					disabled={cards.length === 0 || undoing}
 					aria-label="Superlike"
 					title="Superlike (↑)"
 				>
@@ -399,8 +473,9 @@
 				</button>
 
 				<button
-					class="border-like/50 text-like hover:bg-like/12 hover:border-like flex h-16 w-16 items-center justify-center rounded-full border-2 bg-black/40 text-2xl transition-all active:scale-95"
+					class="border-like/50 text-like hover:bg-like/12 hover:border-like flex h-14 w-14 items-center justify-center rounded-full border-2 bg-black/40 text-2xl transition-all active:scale-95 disabled:opacity-30 sm:h-16 sm:w-16"
 					onclick={() => deck?.decide('LIKE')}
+					disabled={cards.length === 0 || undoing}
 					aria-label="Like"
 					title="Like (→)"
 				>
@@ -408,14 +483,25 @@
 				</button>
 
 				<button
-					class="border-graphite hover:border-chrome text-ash hover:text-bone flex h-11 w-11 items-center justify-center rounded-full border bg-black/40 text-lg transition-colors"
+					class="border-graphite hover:border-chrome text-ash hover:text-bone flex h-11 w-11 items-center justify-center rounded-full border bg-black/40 text-lg transition-colors disabled:opacity-30"
 					onclick={() => deck?.decide('SKIP')}
+					disabled={cards.length === 0 || undoing}
 					aria-label="Skip"
 					title="Skip (↓)"
 				>
 					⤓
 				</button>
+				{#each ['Undo', 'Nope', 'Superlike', 'Like', 'Skip'] as label (label)}
+					<span class="text-ash text-center text-[10px]" aria-hidden="true">{label}</span>
+				{/each}
 			</div>
+			<p class="text-ash mx-auto mt-3 max-w-lg text-center text-[11px]">
+				{#if loadError}
+					Next bikes could not load. <button class="underline" onclick={topUp}>Try again</button>
+				{:else}
+					Your next picks learn from this round. Skip stays neutral.
+				{/if}
+			</p>
 
 			<p class="text-dim mt-3 hidden text-center text-[11px] sm:block">
 				Drag the card, or use ← → ↑ ↓ &middot;

@@ -159,31 +159,25 @@ test.describe('MotoSwipe journey', () => {
 		});
 
 		// ------------------------------------------------------- leave and resume
-		let nextBikeBeforeLeaving = '';
 		await test.step('leave the round entirely', async () => {
-			nextBikeBeforeLeaving = await page
-				.locator('[aria-roledescription="Draggable motorcycle card"]')
-				.first()
-				.getAttribute('aria-label')
-				.then((v) => v ?? '');
-
 			await page.goto('/dashboard');
 			await expect(page.getByRole('heading', { name: roundName })).toBeVisible();
 		});
 
-		await test.step('resume exactly where we stopped', async () => {
+		await test.step('resume with saved choices and a refreshed selection', async () => {
 			await page.goto(`/rounds/${roundId}/swipe`);
 			await expect(page.locator('[aria-roledescription="Swipe deck"]')).toBeVisible();
 			await ensureNoDialog(page);
 
-			// Same count, and the same motorcycle back on top.
+			// Saved choices survive. Previously buffered, unseen cards may reorder
+			// using the choices made since that buffer was first loaded.
 			expect(await swipeCount(page)).toBe(4);
-
-			const nextBikeAfterReturn = await page
-				.locator('[aria-roledescription="Draggable motorcycle card"]')
-				.first()
-				.getAttribute('aria-label');
-			expect(nextBikeAfterReturn).toBe(nextBikeBeforeLeaving);
+			expect(
+				await page
+					.locator('[aria-roledescription="Draggable motorcycle card"]')
+					.first()
+					.getAttribute('aria-label')
+			).toBeTruthy();
 		});
 
 		// ----------------------------------------------- build a bigger shortlist
@@ -192,7 +186,7 @@ test.describe('MotoSwipe journey', () => {
 			// comparison phase, rather than pressing a fixed number of times and
 			// hoping. Bounded so a bug cannot spin forever.
 			for (let i = 0; i < 20; i++) {
-				const shortlist = await page.locator('header .text-like').innerText();
+				const shortlist = await page.locator('header span.text-like').innerText();
 				const likes = Number(shortlist.replace(/\D/g, ''));
 				const supers = Number(
 					(await page.locator('header .text-superlike').innerText()).replace(/\D/g, '')
