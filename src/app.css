@@ -363,7 +363,11 @@
 		text-transform: uppercase;
 		color: var(--color-ash);
 	}
-	.chip-active {
+	/* A chip wrapping a ticked checkbox or radio is selected. `chip-active` is
+	   not a Tailwind utility, so a `has-checked:chip-active` class in markup
+	   generates nothing; the selector here is what actually lights it up. */
+	.chip-active,
+	.chip:has(input:checked) {
 		border-color: var(--color-sodium);
 		background: rgb(255 106 31 / 0.14);
 		color: #ffc9a8;
