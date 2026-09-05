@@ -31,6 +31,10 @@ vite.config.ts.timestamp-*
 /playwright-report
 /.playwright
 
+# Local logs and incremental compiler state
+*.log
+*.tsbuildinfo
+
 # Self-hosted motorcycle images (see README "Image strategy")
 /static/media
 
@@ -39,4 +43,14 @@ vite.config.ts.timestamp-*
 
 # Playwright MCP session artefacts
 .playwright-mcp
-backups/
+
+# Local backups and database dumps (keep Prisma migrations tracked)
+/backups/
+/motoswipe-db-*/
+
+# Generated design previews; production SVGs and PWA icons stay tracked
+/docs/design/apex-heart-preview.png
+/docs/design/logo-concepts/*.png
+
+# Accidental shell-redirection output from a catalogue audit
+/=2

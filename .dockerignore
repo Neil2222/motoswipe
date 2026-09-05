@@ -36,3 +36,9 @@ motoswipe-db-*/
 
 # Local working files
 scratch
+backups
+=2
+*.log
+*.tsbuildinfo
+docs/design/apex-heart-preview.png
+docs/design/logo-concepts/*.png

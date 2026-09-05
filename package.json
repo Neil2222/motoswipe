@@ -7,6 +7,7 @@
 		"dev": "vite dev",
 		"dev:lan": "vite dev --host 0.0.0.0",
 		"build": "vite build",
+		"icons:generate": "tsx scripts/render-icons.ts",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"db:generate": "prisma generate",

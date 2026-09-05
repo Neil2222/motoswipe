@@ -95,9 +95,10 @@ PostgreSQL, Prisma 7, Tailwind v4, Zod 4. Read `README.md`, `docs/` and
 - Email is Resend over plain `fetch` (`server/mail/`). Password reset and
   address verification hide themselves without `RESEND_API_KEY`. Tests never
   pick a real provider; on the host use `MAIL_PROVIDER=console npm run dev`.
-- PWA icons are rendered from `static/favicon.svg` with
-  `npx tsx scripts/render-icons.ts` (Playwright Chromium). Edit the SVG, not
-  the PNGs.
+- PWA icons and favicons are rendered from `static/brand/apex-heart.svg` with
+  `npm run icons:generate` (Playwright Chromium). Edit the master SVG, not
+  the generated SVGs or PNGs. Production icons stay tracked; design previews
+  in `docs/design/` are local only.
 
 ## Deployment on this PC
 

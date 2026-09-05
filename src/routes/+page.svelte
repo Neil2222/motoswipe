@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import type { PageProps } from './$types';
 
 	// PageProps merges the layout's data (which carries `user`) with this page's.
@@ -42,7 +43,7 @@
 </svelte:head>
 
 <!-- ===================== Hero ===================== -->
-<section class="relative overflow-hidden">
+<section class="relative isolate overflow-hidden">
 	<!-- Headlight sweep across the top of the hero -->
 	<div
 		class="pointer-events-none absolute inset-0 -z-10"
@@ -51,6 +52,16 @@
 			radial-gradient(46rem 30rem at 95% 5%, rgb(53 214 232 / 0.10), transparent 58%);"
 		aria-hidden="true"
 	></div>
+	<div class="hero-art" aria-hidden="true">
+		<img
+			src="{base}/brand/apex-heart.svg"
+			alt=""
+			width="512"
+			height="512"
+			class="hero-mark"
+			draggable="false"
+		/>
+	</div>
 
 	<div class="mx-auto max-w-6xl px-4 pt-20 pb-16 sm:pt-28 sm:pb-24">
 		<p class="stencil text-sodium mb-6">Tinder for motorcycles</p>
@@ -173,3 +184,43 @@
 		</div>
 	</div>
 </section>
+
+<style>
+	.hero-art {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		user-select: none;
+		mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+	}
+
+	.hero-mark {
+		position: absolute;
+		top: 2rem;
+		right: -4rem;
+		width: 32rem;
+		max-width: none;
+		height: auto;
+		opacity: 0.09;
+		mask-image: linear-gradient(to right, transparent, black 45%);
+	}
+
+	@media (min-width: 640px) {
+		.hero-mark {
+			top: 3rem;
+			right: -16rem;
+			width: 44rem;
+			opacity: 0.13;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.hero-mark {
+			top: 2rem;
+			right: max(-12rem, calc((100vw - 72rem) / 2 - 12rem));
+			width: 54rem;
+			opacity: 0.2;
+		}
+	}
+</style>

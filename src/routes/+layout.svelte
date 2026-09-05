@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 	import Toaster from '$lib/components/Toaster.svelte';
 	import type { LayoutProps } from './$types';
 
@@ -42,9 +43,17 @@
 						: data.user
 							? '/dashboard'
 							: '/'}
-					class="display text-bone hover:text-sodium shrink-0 text-lg tracking-tight transition-colors"
+					aria-label="MotoSwipe"
+					class="display text-bone hover:text-sodium flex shrink-0 items-center gap-2 text-lg tracking-tight italic transition-colors"
 				>
-					Moto<span class="text-sodium">Swipe</span>
+					<img
+						src="{base}/brand/apex-heart.svg"
+						alt=""
+						width="36"
+						height="36"
+						class="size-9 shrink-0"
+					/>
+					<span class="hidden min-[400px]:inline">Moto<span class="text-sodium">Swipe</span></span>
 				</a>
 
 				{#if data.user?.isGuest}
