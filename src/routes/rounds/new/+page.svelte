@@ -330,14 +330,13 @@
 		<!-- ============ The essentials ============ -->
 		<div class="panel space-y-5 p-6">
 			<div>
-				<label class="label" for="name">Round name</label>
+				<label class="label" for="name">Round name — optional</label>
 				<input
 					id="name"
 					name="name"
 					class="field"
-					required
 					maxlength="80"
-					placeholder="First motorcycle {currentYear + 1}"
+					placeholder="First motorcycle {currentYear + 1} — or leave it empty for today's date"
 					aria-invalid={errors.name ? 'true' : undefined}
 				/>
 				{#if errors.name}<p class="text-nope mt-1.5 text-xs">{errors.name}</p>{/if}

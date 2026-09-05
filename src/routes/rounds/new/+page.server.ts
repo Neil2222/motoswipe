@@ -1,7 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { requireFullUser } from '$lib/server/guards';
 import { createRound } from '$lib/server/services/round.service';
-import { fieldErrors, roundCreateSchema, type FormErrors } from '$lib/domain/validation';
+import {
+	defaultRoundName,
+	fieldErrors,
+	roundCreateSchema,
+	type FormErrors
+} from '$lib/domain/validation';
 import { RoundFiltersSchema, normalizeFilters } from '$lib/domain/filters';
 import { readFilterForm } from '$lib/server/services/filter-form';
 import {
@@ -38,7 +43,8 @@ export const actions: Actions = {
 		}
 
 		const parsed = roundCreateSchema.safeParse({
-			name: String(form.get('name') ?? ''),
+			// No name typed: the date is the name.
+			name: String(form.get('name') ?? '').trim() || defaultRoundName(),
 			description: String(form.get('description') ?? ''),
 			goal: String(form.get('goal') ?? ''),
 			visibility: 'PRIVATE',

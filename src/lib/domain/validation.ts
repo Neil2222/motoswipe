@@ -128,6 +128,15 @@ export const passwordChangeSchema = z
 // Rounds
 // ---------------------------------------------------------------------------
 
+/**
+ * The name a round gets when none is typed: the day it was started, which
+ * is what people remember a round by anyway ("the one from last spring").
+ */
+export function defaultRoundName(date = new Date()): string {
+	const day = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+	return `Round of ${day}`;
+}
+
 export const roundCreateSchema = z.object({
 	name: z.string().trim().min(1, 'Give the round a name').max(80),
 	description: z

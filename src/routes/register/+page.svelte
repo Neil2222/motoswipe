@@ -71,7 +71,7 @@
 					required
 					maxlength="60"
 					value={values.displayName}
-					placeholder="Neil"
+					placeholder="Your name"
 					aria-invalid={errors.displayName ? 'true' : undefined}
 				/>
 				{#if errors.displayName}<p class="text-nope mt-1.5 text-xs">{errors.displayName}</p>{/if}
@@ -89,7 +89,7 @@
 					required
 					maxlength="32"
 					value={values.username}
-					placeholder="neil"
+					placeholder="your-handle"
 					aria-invalid={errors.username ? 'true' : undefined}
 					aria-describedby="username-hint"
 				/>
