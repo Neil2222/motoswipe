@@ -93,6 +93,22 @@ describe('parseYamahaPage', () => {
 	});
 });
 
+describe('parseHondaPage galleries', () => {
+	it('keeps a file name with spaces whole, takes the model year of the first asset and no other model', () => {
+		const html = `<title>X-ADV | Honda</title>
+<meta property="og:image" content="https://www.honda.nl/content/dam/central/motorcycles/colour-picker/adventure/x-adv/x-adv_2026/nh-d05/26YM_X-ADV_NH-D05_RHS.png" />
+<img data-srcset="/content/dam/central/motorcycles/colour-picker/adventure/x-adv/x-adv_se_2026/nh-b54p/26YM_X-ADV_SE_NH-B54P_MAT PEARL GLARE WHITE_RHS.png/jcr:content/renditions/cq5dam.web.600.600.png 600w">
+<img src="/content/dam/central/motorcycles/colour-picker/adventure/x-adv/x-adv_2025/nh-a86m/25YM_X-ADV_NH-A86M_RHS.png">
+<img src="/content/dam/central/motorcycles/colour-picker/adventure/nc750x/nc750x_2026/nh-c99r/26YM_NC750X_EARTH-BLACK_RHS.png">`;
+		const specs = parseHondaPage(html, 'X-ADV');
+		expect(specs.images?.map((i) => i.url.split('/').pop())).toEqual([
+			'26YM_X-ADV_NH-D05_RHS.png',
+			'26YM_X-ADV_SE_NH-B54P_MAT%20PEARL%20GLARE%20WHITE_RHS.png'
+		]);
+		for (const i of specs.images!) expect(i.modelYear).toBe(2026);
+	});
+});
+
 describe('parseHondaPage asset folders', () => {
 	const HTML = `<img src="/content/dam/central/motorcycles/colour-picker/adventure/crf1100l_at/crf1100l_at_mt_2026/r-380/26YM_CRF1100L_L1_MT_R-380_GrandPrixRed_RHS.png/jcr:content/renditions/c1_r.png">
 <img src="/content/dam/central/motorcycles/colour-picker/adventure/crf1100l_atas/crf1100l_atas_dct_es_2026/nh-b53p/26YM_CRF1100L_L4_DCT_NH-B53P_PearlGlareWhite_RHS.png/jcr:content/renditions/c1_r.png">`;
@@ -157,6 +173,23 @@ describe('parseKtmPages', () => {
 		expect(specs.image?.modelYear).toBe(2024);
 	});
 
+	it('keeps one copy of a picture served in several sizes, and no thumbnail', () => {
+		const html = `<title>Tiger 1200 | Triumph</title>
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/my24_tiger1200rallyexplorer_hero_l.jpg">
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/my24_tiger1200rallyexplorer_hero_m.jpg">
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/my24_tiger1200rallyexplorer_hero_s.jpg">
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/thumbnails/my24_tiger1200gtpro_rhs.jpg">
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/web/537/my24_tiger1200gtpro_rhs_537px.jpg">
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/web/446/my24_tiger1200gtpro_rhs_446px.jpg">
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/my24_tiger1200gtpro_rhs-1080.jpg">
+<img src="https://media.triumphmotorcycles.co.uk/image/upload/q_auto:eco/x/my24/tiger%201200/my24_tiger1200gtpro_engine-detail.jpg">`;
+		const specs = parseTriumphPage('', 'Tiger 1200', html);
+		expect(specs.images?.map((i) => i.url.split('/').pop())).toEqual([
+			'my24_tiger1200rallyexplorer_hero_l.jpg',
+			'my24_tiger1200gtpro_rhs_537px.jpg'
+		]);
+	});
+
 	it('refuses the site logo as an image', () => {
 		const logo = MODEL.replace(
 			/og:image" content="[^"]+"/,
@@ -202,6 +235,20 @@ describe('parseKawasakiPage', () => {
 		);
 		expect(specs.image?.modelYear).toBe(2026);
 		expect(specs.image?.evidence).toContain('26KLE650H');
+	});
+
+	it('offers up to three whole-bike views, one of each side before a second colour', () => {
+		const specs = parseKawasakiPage(KAWASAKI);
+		expect(specs.images?.[0]).toEqual(specs.image);
+		expect(specs.images!.length).toBeGreaterThanOrEqual(2);
+		expect(specs.images!.length).toBeLessThanOrEqual(3);
+		const views = specs.images!.map((i) => /\d[A-Z]{2,4}\d[A-Z]{2}_[A-Z]\.jpg/.exec(i.url)?.[0]);
+		expect(new Set(specs.images!.map((i) => i.url)).size).toBe(specs.images!.length);
+		expect(views[0]).toMatch(/DRS/);
+		for (const i of specs.images!) expect(i.modelYear).toBe(2026);
+		expect(specs.images!.some((i) => /FMEB|FHA|DORS|DRF|ARF/.test(i.url))).toBe(
+			specs.images!.some((i) => /DRF|ARF/.test(i.url))
+		);
 	});
 
 	it('falls back to a gallery shot when there is no studio image', () => {
@@ -292,6 +339,8 @@ describe('parseBmwPages', () => {
 		expect(specs.image?.modelYear).toBe(2026);
 		expect(specs.image?.evidence).toContain('model year 2026');
 		expect(specs.modelYear).toBe(2026);
+		expect(specs.images?.map((i) => /P0N\w+/.exec(i.url)?.[0])).toEqual(['P0N2U', 'P0N4V']);
+		for (const i of specs.images!) expect(i.modelYear).toBe(2026);
 	});
 
 	it("never takes another model's picture from the page", () => {

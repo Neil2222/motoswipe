@@ -149,7 +149,7 @@ export class ManufacturerProvider implements MotorcycleProvider {
 		const { page, specs } = record;
 		const year = specs.modelYear ?? Number(record.fetchedAt.slice(0, 4));
 
-		const image = imagesEnabled() && specs.image ? specs.image : undefined;
+		const official = imagesEnabled() ? (specs.images ?? (specs.image ? [specs.image] : [])) : [];
 
 		return {
 			manufacturerName: brandName(page.brand),
@@ -215,23 +215,19 @@ export class ManufacturerProvider implements MotorcycleProvider {
 
 			externalId: page.url,
 			sourceUrl: page.url,
-			images: image
-				? [
-						{
-							url: image.url,
-							sourceUrl: page.url,
-							isPrimary: true,
-							sortOrder: 0,
-							imageType: 'STUDIO',
-							attribution: `© ${brandName(page.brand)} — official ${brandName(page.brand)} NL model page, shown from its source (fetched ${record.fetchedAt})`,
-							modelYear: image.modelYear ?? year,
-							evidence: image.modelYear
-								? image.evidence
-								: `${image.evidence}; current model page as of ${record.fetchedAt}`,
-							license: 'manufacturer'
-						}
-					]
-				: []
+			images: official.map((image, index) => ({
+				url: image.url,
+				sourceUrl: page.url,
+				isPrimary: index === 0,
+				sortOrder: index,
+				imageType: 'STUDIO',
+				attribution: `© ${brandName(page.brand)} — official ${brandName(page.brand)} NL model page, shown from its source (fetched ${record.fetchedAt})`,
+				modelYear: image.modelYear ?? year,
+				evidence: image.modelYear
+					? image.evidence
+					: `${image.evidence}; current model page as of ${record.fetchedAt}`,
+				license: 'manufacturer'
+			}))
 		};
 	}
 }

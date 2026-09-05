@@ -25,7 +25,69 @@ export interface OfficialSpecs {
 	/** Dutch list price in euros, the lowest variant when several are listed. */
 	priceEur?: number;
 	/** The official image, and the model year its asset name states. */
-	image?: { url: string; modelYear?: number; evidence: string };
+	image?: OfficialImage;
+	/**
+	 * Up to three official photographs of the same proven model year — other
+	 * colours, the other side, a three-quarter view — the first being `image`.
+	 * Whole-bike views only; a maker's detail shots stay out.
+	 */
+	images?: OfficialImage[];
+}
+
+export interface OfficialImage {
+	url: string;
+	modelYear?: number;
+	evidence: string;
+}
+
+/** How many official photographs a page may contribute to a card. */
+export const OFFICIAL_IMAGE_LIMIT = 3;
+
+/** A maker's close-up, filed by name: not a photograph of the motorcycle. */
+const OFFICIAL_DETAIL =
+	/(?:^|[^a-z])(?:(?:detail|engine|dash|display|tft|cockpit|instrument|wheel|exhaust|seat|tank|brake|light|logo|badge|switch|screen|close|zoom|gear)(?:[^a-z]|$)|accessor|helmet|cloth|apparel)/i;
+
+/**
+ * What identifies the picture behind a URL: the path without the query, a
+ * CDN's transformation segment, a rendition suffix or a size suffix
+ * ("hero_l" / "hero_m" / "hero_s", "-1080", "_1920x1080"). Two of those are
+ * the same photograph at different sizes, and a card must not show it twice.
+ */
+function sameOfficialPicture(url: string): string {
+	const key = decodeURIComponent(url)
+		.toLowerCase()
+		.replace(/[?#].*$/, '')
+		.replace(/\/image\/upload\/(?:[a-z_]+[^/]*\/)+/, '/image/upload/')
+		.replace(/\/jcr:content\/renditions\/.*$/, '')
+		.replace(/\/_?jcr_content\/renditions\/.*$/, '')
+		// A size folder in front of the file: ".../web/446/bobber_rhs_446px.jpg".
+		.replace(/\/\d{2,4}\/([^/]+)$/, '/$1');
+	const ext = /\.[a-z0-9]+$/.exec(key)?.[0] ?? '';
+	let stem = key.slice(0, key.length - ext.length);
+	// Cloudinary appends six random characters to an uploaded file's name.
+	if (key.includes('/image/upload/')) stem = stem.replace(/_[a-z0-9]{6}$/, '');
+	for (;;) {
+		const next = stem.replace(/[-_](?:xs|s|m|l|xl|\d{2,4}(?:x\d{2,4})?(?:px)?)$/, '');
+		if (next === stem) break;
+		stem = next;
+	}
+	// The file name alone: Honda files the same photograph under each variant
+	// folder it applies to ("cb750_hornet_ec_2026" and "…_ec_35kw_2026").
+	return stem.split('/').pop() ?? stem;
+}
+
+/** The first few distinct whole-bike images, in the order given. */
+function officialGallery(images: OfficialImage[]): OfficialImage[] {
+	const seen = new Set<string>();
+	const kept: OfficialImage[] = [];
+	for (const image of images) {
+		const key = sameOfficialPicture(image.url);
+		if (seen.has(key) || OFFICIAL_DETAIL.test(key.split('/').pop() ?? '')) continue;
+		seen.add(key);
+		kept.push(image);
+		if (kept.length === OFFICIAL_IMAGE_LIMIT) break;
+	}
+	return kept;
 }
 
 const num = (text: string | undefined): number | undefined => {
@@ -80,28 +142,44 @@ export function parseHondaPage(html: string, family = '', assetFolder?: string):
 
 	// The page also carries the site's navigation, with other models' images
 	// in it. Only an asset filed under this model's own folder counts.
-	let image: OfficialSpecs['image'];
+	const found: OfficialImage[] = [];
 	const key = family.toLowerCase().replace(/[^a-z0-9]/g, '');
 	for (const asset of html.matchAll(
 		/(?:src|data-src|data-srcset|content)="([^"]*?\/content\/dam\/[^"]*?((?:19|20)?\d{2})YM_[^"]*?\.(?:png|jpg|jpeg|webp))/gi
 	)) {
-		const path = asset[1].split(' ')[0].replace(/\/jcr:content\/renditions\/[^"]*$/, '');
+		// A `srcset` carries "url 320w, url 600w"; a file name with spaces in
+		// it ("MAT PEARL GLARE WHITE") must not be cut at the first one. The
+		// candidate is the run up to the extension, spaces encoded.
+		const raw = asset[1].replace(/\/jcr:content\/renditions\/[^"]*$/, '');
+		const upTo = /^(.*?\.(?:png|jpe?g|webp))(?:\s|$)/i.exec(raw)?.[1];
+		if (!upTo) continue;
+		let path = upTo;
+		try {
+			path = encodeURI(decodeURI(upTo));
+		} catch {
+			// a stray percent sign: keep the path as written
+		}
 		const folder = path.toLowerCase().replace(/[^a-z0-9/]/g, '');
 		if (assetFolder) {
 			// "crf1100l_at" must not pass for "crf1100l_atas": whole folder only.
 			if (!path.toLowerCase().includes(`/${assetFolder.toLowerCase()}/`)) continue;
-		} else if (key && !folder.includes(key) && !folder.includes(key.replace(/^cb\d+/, ''))) {
+		} else if (key && !folder.includes(key)) {
+			// Whole key only. A looser match once let "cb125r" pass for the
+			// CUVe scooter and "hornet" for the wrong Hornet.
 			continue;
 		}
 		const yy = Number(asset[2]);
 		const year = yy < 100 ? 2000 + yy : yy;
-		image = {
+		found.push({
 			url: path.startsWith('http') ? path : `https://www.honda.nl${path}`,
 			modelYear: year,
 			evidence: `official Honda NL image; asset name states model year ${year}`
-		};
-		break;
+		});
 	}
+	// The first asset's year is the page's; the other colours of that year
+	// follow it, and nothing of another year does.
+	const images = officialGallery(found.filter((i) => i.modelYear === found[0]?.modelYear));
+	const image = images[0];
 
 	return {
 		modelYear,
@@ -114,7 +192,8 @@ export function parseHondaPage(html: string, family = '', assetFolder?: string):
 		fuelCapacityL: bounded(num(item(/Tankinhoud[^<]*|Inhoud brandstoftank[^<]*/)), 2, 60),
 		wheelbaseMm: bounded(num(item(/Wielbasis[^<]*/)), 900, 2200),
 		priceEur: prices.length ? Math.min(...prices) : undefined,
-		image
+		image,
+		images: images.length ? images : undefined
 	};
 }
 
@@ -245,13 +324,14 @@ export function parseTriumphPage(html: string, family = '', modelHtml = ''): Off
 	// the file name — "street-triple-r-my26-phantom-black-rhs", "my24_tiger1200
 	// rallyexplorer_hero". A file that names another model is another model's.
 	const key = family.toLowerCase().replace(/[^a-z0-9]/g, '');
-	let image: OfficialSpecs['image'];
 	const candidates: { url: string; year: number; hero: boolean }[] = [];
 	for (const asset of (modelHtml || html).matchAll(
 		/https:\/\/media[.]triumphmotorcycles[.]co[.]uk[^"'\s]*?\/([^/"'\s]+\.(?:png|jpg|jpeg|webp))/gi
 	)) {
 		const file = decodeURIComponent(asset[1]).toLowerCase();
 		const flat = file.replace(/[^a-z0-9]/g, '');
+		// A thumbnail or a cropped hero is not the photograph.
+		if (/\/thumbnails?\/|\/c_fill|\/c_crop/i.test(asset[0])) continue;
 		const my = /my(\d{2})/.exec(flat);
 		// "street-triple-r-my26" is the current Street Triple 765: the family
 		// name without its displacement also names it, as long as the file does
@@ -274,13 +354,16 @@ export function parseTriumphPage(html: string, family = '', modelHtml = ''): Off
 		});
 	}
 	candidates.sort((a, b) => b.year - a.year || Number(b.hero) - Number(a.hero));
-	if (candidates[0]) {
-		image = {
-			url: candidates[0].url,
-			modelYear: candidates[0].year,
-			evidence: `official Triumph NL image; file name states model year MY${String(candidates[0].year).slice(2)}`
-		};
-	}
+	const images = officialGallery(
+		candidates
+			.filter((c) => c.year === candidates[0]?.year)
+			.map((c) => ({
+				url: c.url,
+				modelYear: c.year,
+				evidence: `official Triumph NL image; file name states model year MY${String(c.year).slice(2)}`
+			}))
+	);
+	const image = images[0];
 
 	const seats = values(/Zadelhoogte/)
 		.map((v) => bounded(num(v), 500, 1000))
@@ -297,7 +380,8 @@ export function parseTriumphPage(html: string, family = '', modelHtml = ''): Off
 		displacementCc: bounded(num(value(/Cilinderinhoud/)), 20, 3500),
 		wheelbaseMm: bounded(num(value(/Wielbasis/)), 900, 2200),
 		fuelCapacityL: bounded(num(value(/Tankinhoud|Inhoud brandstoftank/)), 2, 60),
-		image
+		image,
+		images: images.length ? images : undefined
 	};
 }
 
@@ -396,33 +480,46 @@ export function parseKawasakiPage(html: string): OfficialSpecs {
 		// the photograph keeps its own year as evidence. Anything older, or
 		// newer than the page, is some other model's.
 		if (modelYear !== undefined && (assetYear > modelYear || assetYear < modelYear - 1)) continue;
-		// Studio right-side view first (the profile every card in the catalogue
-		// leads with), then left side, then any studio view, then gallery side
-		// views, then the rest of the gallery.
+		// Whole-bike views only. Studio right side first (the profile every
+		// card in the catalogue leads with), then left side, then the studio
+		// three-quarter views, then riding shots from the gallery. Feature
+		// close-ups (F…), accessorised bikes (DO…) and the rest stay out.
 		const rank =
 			kind === 'studio'
-				? /^DRS/.test(view)
+				? /^DRS$/.test(view)
 					? 0
-					: /^DLS/.test(view)
+					: /^DLS$/.test(view)
 						? 1
-						: 2
-				: /^A[LR]S/.test(view)
+						: /^D[LR]F$/.test(view)
+							? 2
+							: undefined
+				: /^A[LR][SF]A?$|^AFA$/.test(view)
 					? 3
-					: 4;
+					: undefined;
+		if (rank === undefined) continue;
 		if (!candidates.has(path)) {
 			candidates.set(path, { path, year: assetYear, code: `${yy}${type}`, rank });
 		}
 	}
-	const best = [...candidates.values()].sort(
+	// One of each view before a second colour of the same view, so a gallery
+	// of three shows the bike from more than one side.
+	const byRank = [...candidates.values()].sort(
 		(a, b) => a.rank - b.rank || a.path.localeCompare(b.path)
-	)[0];
-	const image: OfficialSpecs['image'] | undefined = best
-		? {
-				url: `https://www.kawasaki.nl${best.path}/jcr:content/renditions/cq5dam.web.1280.1280.png`,
-				modelYear: best.year,
-				evidence: `official Kawasaki NL image; asset code ${best.code} states model year ${best.year}`
-			}
-		: undefined;
+	);
+	const ordered: Candidate[] = [];
+	for (const rank of [0, 1, 2, 3]) {
+		const first = byRank.find((c) => c.rank === rank);
+		if (first) ordered.push(first);
+	}
+	for (const c of byRank) if (!ordered.includes(c)) ordered.push(c);
+	const images = officialGallery(
+		ordered.map((c) => ({
+			url: `https://www.kawasaki.nl${c.path}/jcr:content/renditions/cq5dam.web.1280.1280.png`,
+			modelYear: c.year,
+			evidence: `official Kawasaki NL image; asset code ${c.code} states model year ${c.year}`
+		}))
+	);
+	const image: OfficialSpecs['image'] | undefined = images[0];
 
 	// --- Specifications ---------------------------------------------------------
 	const row = (label: RegExp): string | undefined => {
@@ -457,7 +554,8 @@ export function parseKawasakiPage(html: string): OfficialSpecs {
 		displacementCc: bounded(num(row(/Cilinderinhoud/)), 20, 3500),
 		wheelbaseMm: bounded(num(row(/Wielbasis/)), 900, 2200),
 		priceEur: bounded(num(price), 500, 100000),
-		image
+		image,
+		images: images.length ? images : undefined
 	};
 }
 
@@ -494,15 +592,20 @@ export function parseBmwPages(html: string, specsHtml: string, slug: string): Of
 		year: m[2] ? Number(m[2]) : undefined,
 		colour: m[3]
 	}));
-	const pick = shots.find((s) => s.year !== undefined) ?? shots[0];
-	if (pick) {
-		specs.image = {
-			url: pick.url,
-			modelYear: pick.year,
-			evidence: pick.year
-				? `official BMW Motorrad NL configurator image (colour ${pick.colour}); asset path states model year ${pick.year}`
-				: `official BMW Motorrad NL configurator image (colour ${pick.colour})`
-		};
+	const dated = shots.filter((s) => s.year !== undefined);
+	const chosen = dated.length ? dated : shots.slice(0, 1);
+	const images = officialGallery(
+		chosen.map((s) => ({
+			url: s.url,
+			modelYear: s.year,
+			evidence: s.year
+				? `official BMW Motorrad NL configurator image (colour ${s.colour}); asset path states model year ${s.year}`
+				: `official BMW Motorrad NL configurator image (colour ${s.colour})`
+		}))
+	);
+	if (images.length) {
+		specs.image = images[0];
+		specs.images = images;
 	} else {
 		// The product stage the page opens with, when it is this model's.
 		const stage = new RegExp(

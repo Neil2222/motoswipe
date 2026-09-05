@@ -20,7 +20,9 @@ import type { Prisma } from '../db/generated/client';
 export const DISCOVERY_IMAGES = {
 	where: { OR: [{ isPrimary: true }, { scope: { in: ['MODEL_YEAR', 'GENERATION'] } }] },
 	orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }],
-	take: 8,
+	// The primary and at most two more proven photographs: enough to see the
+	// bike from another side, not enough to turn a card into a gallery.
+	take: 3,
 	select: { url: true, width: true, height: true, scope: true, modelYear: true }
 } satisfies Prisma.Motorcycle$imagesArgs;
 
