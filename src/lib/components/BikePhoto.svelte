@@ -47,6 +47,13 @@
 		fill?: boolean;
 		/** Two-finger zoom. Off where a parent handles the gesture itself. */
 		pinch?: boolean;
+		/**
+		 * The blurred, scaled copy behind a letterboxed photograph. Right for
+		 * one card on screen; off in a grid, where forty of them — each a
+		 * full-size image blurred by 40 px on its own compositor layer — made
+		 * scrolling the browse page stall a fast desktop.
+		 */
+		backdrop?: boolean;
 		class?: string;
 	}
 
@@ -56,6 +63,7 @@
 		priority = false,
 		fill = false,
 		pinch = true,
+		backdrop = true,
 		class: className = ''
 	}: Props = $props();
 
@@ -151,7 +159,7 @@
 			style:transform-origin={zoom ? `${zoom.ox}px ${zoom.oy}px` : undefined}
 			style:transition={zoom ? 'none' : 'transform 0.28s var(--ease-mech)'}
 		>
-			{#if !fill}
+			{#if !fill && backdrop}
 				<!-- Backdrop.
 				     Scaled well past the edges so the blur never reveals a hard border,
 				     and saturated because most of these are dark photographs of dark

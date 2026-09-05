@@ -156,6 +156,8 @@
 								url={bike.images[0]?.url}
 								alt="{bike.manufacturer.name} {bike.model}"
 								class="absolute inset-0"
+								backdrop={false}
+								pinch={false}
 							/>
 							<div
 								class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"

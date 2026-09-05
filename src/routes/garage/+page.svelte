@@ -86,6 +86,8 @@
 							url={entry.bike.images[0]?.url}
 							alt="{entry.bike.manufacturer.name} {entry.bike.model}"
 							class="absolute inset-0"
+							backdrop={false}
+							pinch={false}
 						/>
 					</a>
 

@@ -238,13 +238,20 @@
 	{:else}
 		<ul class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
 			{#each data.bikes as bike (bike.id)}
-				<li class="panel group relative overflow-hidden">
+				<!-- Plain photographs, and tiles off screen are not laid out or painted:
+				     a page of forty blurred backdrops on their own layers was enough
+				     to stall scrolling on a fast desktop. -->
+				<li
+					class="panel group relative overflow-hidden [contain-intrinsic-size:auto_18rem] [content-visibility:auto]"
+				>
 					<a href="/motorcycles/{bike.id}" class="block">
 						<div class="relative w-full" style="aspect-ratio: 4 / 3;">
 							<BikePhoto
 								url={bike.images[0]?.url}
 								alt="{bike.manufacturer.name} {bike.model}"
 								class="absolute inset-0"
+								backdrop={false}
+								pinch={false}
 							/>
 						</div>
 
