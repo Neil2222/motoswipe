@@ -7,6 +7,7 @@ import { prisma } from '$lib/server/db/client';
 import { assessFit } from '$lib/server/fit/fit';
 import { FIT_DISCLAIMER } from '$lib/domain/fit';
 import { NotFoundError } from '$lib/server/errors';
+import { motorcycleReturnTo } from '$lib/utils/motorcycle-navigation';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -50,6 +51,7 @@ export const load: PageServerLoad = async (event) => {
 	);
 
 	return {
+		returnTo: motorcycleReturnTo(event.url.searchParams.get('returnTo')),
 		bike,
 		decisions,
 		favorited,

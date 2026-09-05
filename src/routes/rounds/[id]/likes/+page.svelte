@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { motorcycleHref } from '$lib/utils/motorcycle-navigation';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import BikePhoto from '$lib/components/BikePhoto.svelte';
@@ -150,7 +152,7 @@
 			{#each data.entries as entry (entry.motorcycle.id)}
 				{@const bike = entry.motorcycle}
 				<article class="panel overflow-hidden">
-					<a href="/motorcycles/{bike.id}" class="block">
+					<a href={motorcycleHref(bike.id, page.url.pathname + page.url.search)} class="block">
 						<div class="bg-ink relative aspect-4/5 overflow-hidden">
 							<BikePhoto
 								url={bike.images[0]?.url}
@@ -258,7 +260,10 @@
 						{@const bike = entry.motorcycle}
 						<tr class="border-graphite/60 border-b last:border-0 hover:bg-white/3">
 							<td class="px-4 py-3">
-								<a href="/motorcycles/{bike.id}" class="hover:text-sodium">
+								<a
+									href={motorcycleHref(bike.id, page.url.pathname + page.url.search)}
+									class="hover:text-sodium"
+								>
 									<span class="text-dim block text-xs">{bike.manufacturer.name}</span>
 									<span class="text-bone">{bike.model}</span>
 									{#if bike.variant}<span class="text-ash"> {bike.variant}</span>{/if}

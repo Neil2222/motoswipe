@@ -7,6 +7,7 @@
 	import type { CardBikeDetail, SwipeProgress } from '$lib/domain/view-types';
 	import { money, progressWidth, unit } from '$lib/utils/format';
 	import { fitToViewport } from '$lib/utils/viewport';
+	import { motorcycleHref } from '$lib/utils/motorcycle-navigation';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -312,7 +313,7 @@
 			<a
 				href="/rounds/{data.round.id}"
 				onclick={openRoundPage}
-				class="text-ash hover:text-bone shrink-0 text-sm transition-colors"
+				class="text-ash hover:text-bone flex size-11 shrink-0 items-center justify-center text-sm transition-colors"
 				aria-label="Back to round"
 			>
 				←
@@ -570,10 +571,9 @@
 
 			<div class="mt-5 flex gap-2">
 				<a
-					href="/motorcycles/{bike.id}"
+					href={motorcycleHref(bike.id, `/rounds/${data.round.id}/swipe?resume=${bike.id}`)}
 					class="btn btn-secondary flex-1"
-					target="_blank"
-					rel="noopener"
+					data-sveltekit-preload-data="off"
 				>
 					Full details
 				</a>

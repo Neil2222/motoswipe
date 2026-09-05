@@ -133,7 +133,8 @@
 			<div class="flex items-center gap-3">
 				<a
 					href="/rounds/{data.round.id}"
-					class="text-ash hover:text-bone text-sm transition-colors"
+					class="text-ash hover:text-bone flex size-11 shrink-0 items-center justify-center text-sm transition-colors"
+					aria-label="Back to round"
 				>
 					←
 				</a>

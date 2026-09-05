@@ -14,6 +14,7 @@
 	} from '$lib/domain/enums';
 	import { describeYears } from '$lib/domain/view-types';
 	import { EMPTY, money, num, shortDate, unit } from '$lib/utils/format';
+	import { motorcycleHref } from '$lib/utils/motorcycle-navigation';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -115,9 +116,12 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-10">
-	<button class="text-dim hover:text-ash text-sm transition-colors" onclick={() => history.back()}>
+	<a
+		class="text-dim hover:text-ash inline-flex min-h-11 items-center text-sm transition-colors"
+		href={data.returnTo}
+	>
 		← Back
-	</button>
+	</a>
 
 	<!--
 		The photograph is why anybody is on this page, so it takes the larger
@@ -233,7 +237,7 @@
 								</span>
 							{:else}
 								<a
-									href="/motorcycles/{generation.id}"
+									href={motorcycleHref(generation.id, data.returnTo)}
 									class="chip hover:border-chrome hover:text-bone transition-colors"
 									title={generation.boundaryReason ?? undefined}
 								>

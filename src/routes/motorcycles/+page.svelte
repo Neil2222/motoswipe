@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { motorcycleHref } from '$lib/utils/motorcycle-navigation';
 	import { goto } from '$app/navigation';
 	import BikePhoto from '$lib/components/BikePhoto.svelte';
 	import HeartButton from '$lib/components/HeartButton.svelte';
@@ -244,7 +246,7 @@
 				<li
 					class="panel group relative overflow-hidden [contain-intrinsic-size:auto_18rem] [content-visibility:auto]"
 				>
-					<a href="/motorcycles/{bike.id}" class="block">
+					<a href={motorcycleHref(bike.id, page.url.pathname + page.url.search)} class="block">
 						<div class="relative w-full" style="aspect-ratio: 4 / 3;">
 							<BikePhoto
 								url={bike.images[0]?.url}

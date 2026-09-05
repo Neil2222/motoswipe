@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { motorcycleHref } from '$lib/utils/motorcycle-navigation';
 	import BikePhoto from '$lib/components/BikePhoto.svelte';
 	import HeartButton from '$lib/components/HeartButton.svelte';
 	import { CATEGORY_LABELS, type MotorcycleCategory } from '$lib/domain/enums';
@@ -78,7 +80,7 @@
 			{#each data.saved as entry (entry.bike.id)}
 				<li class="panel flex items-stretch gap-4 overflow-hidden">
 					<a
-						href="/motorcycles/{entry.bike.id}"
+						href={motorcycleHref(entry.bike.id, page.url.pathname + page.url.search)}
 						class="relative w-28 shrink-0 sm:w-40"
 						aria-label="{entry.bike.manufacturer.name} {entry.bike.model}"
 					>
@@ -92,7 +94,10 @@
 					</a>
 
 					<div class="min-w-0 flex-1 py-3">
-						<a href="/motorcycles/{entry.bike.id}" class="block">
+						<a
+							href={motorcycleHref(entry.bike.id, page.url.pathname + page.url.search)}
+							class="block"
+						>
 							<p class="stencil text-sodium truncate text-[0.65rem]">
 								{entry.bike.manufacturer.name}
 							</p>

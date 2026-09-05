@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { motorcycleHref } from '$lib/utils/motorcycle-navigation';
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import BikePhoto from '$lib/components/BikePhoto.svelte';
 	import GalleryControls from '$lib/components/GalleryControls.svelte';
@@ -140,7 +142,10 @@
 						</div>
 
 						<div class="mt-6 flex flex-wrap gap-2">
-							<a href="/motorcycles/{winner.motorcycle.id}" class="btn btn-primary">
+							<a
+								href={motorcycleHref(winner.motorcycle.id, page.url.pathname + page.url.search)}
+								class="btn btn-primary"
+							>
 								See the full details
 							</a>
 							{#if data.comparisons < data.suggestedComparisons}
@@ -213,7 +218,7 @@
 				{#each rest as row, index (row.motorcycle.id)}
 					<li>
 						<a
-							href="/motorcycles/{row.motorcycle.id}"
+							href={motorcycleHref(row.motorcycle.id, page.url.pathname + page.url.search)}
 							class="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-white/3"
 						>
 							<span class="numeral text-dim w-7 shrink-0 text-right text-sm">

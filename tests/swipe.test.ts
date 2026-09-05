@@ -186,6 +186,36 @@ describe('undoSwipe', () => {
 });
 
 describe('getDeck / resume', () => {
+	it('returns from details to the requested unseen card, even outside the next batch', async () => {
+		const { user } = await createUser();
+		const round = await createRoundFor(user.id);
+		const initial = await getDeck(round.id, {}, { limit: 10 });
+		const resume = initial[9].id;
+		const deck = await getDeck(round.id, {}, { limit: 4, resumeMotorcycleId: resume });
+		expect(deck.map((card) => card.id)).toEqual([
+			resume,
+			...initial.slice(0, 3).map((card) => card.id)
+		]);
+	});
+
+	it('does not use the resume hint to bypass decisions, exclusions or round filters', async () => {
+		const { user } = await createUser();
+		const round = await createRoundFor(user.id);
+		const initial = await getDeck(round.id, {}, { limit: 4 });
+		const resume = initial[0].id;
+		const filtered = await getDeck(
+			round.id,
+			{ motorcycleIds: [initial[1].id] },
+			{ resumeMotorcycleId: resume }
+		);
+		expect(filtered.map((card) => card.id)).toEqual([initial[1].id]);
+		const excluded = await getDeck(round.id, {}, { exclude: [resume], resumeMotorcycleId: resume });
+		expect(excluded.some((card) => card.id === resume)).toBe(false);
+		await recordSwipe(round.id, resume, 'LIKE');
+		const afterSwipe = await getDeck(round.id, {}, { resumeMotorcycleId: resume });
+		expect(afterSwipe.some((card) => card.id === resume)).toBe(false);
+	});
+
 	it('returns a batch of cards', async () => {
 		const { user } = await createUser();
 		const round = await createRoundFor(user.id);

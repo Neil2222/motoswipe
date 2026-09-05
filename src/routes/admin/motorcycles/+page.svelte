@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { motorcycleHref } from '$lib/utils/motorcycle-navigation';
 	import { CATEGORY_LABELS, type MotorcycleCategory } from '$lib/domain/enums';
 	import { EMPTY, queryString, shortDate } from '$lib/utils/format';
 	import type { PageProps } from './$types';
@@ -64,7 +66,10 @@
 			{#each data.rows as bike (bike.id)}
 				<tr class="border-graphite/60 border-b last:border-0 hover:bg-white/3">
 					<td class="px-4 py-3">
-						<a href="/motorcycles/{bike.id}" class="hover:text-sodium">
+						<a
+							href={motorcycleHref(bike.id, page.url.pathname + page.url.search)}
+							class="hover:text-sodium"
+						>
 							<span class="text-dim block text-xs">{bike.manufacturer.name}</span>
 							<span class="text-bone">{bike.model}</span>
 							{#if bike.variant}<span class="text-ash"> {bike.variant}</span>{/if}

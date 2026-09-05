@@ -21,7 +21,10 @@ export const load: PageServerLoad = async (event) => {
 	}
 
 	const [cards, progress] = await Promise.all([
-		getDeck(round.id, round.filters, { limit: DECK_BATCH_SIZE }),
+		getDeck(round.id, round.filters, {
+			limit: DECK_BATCH_SIZE,
+			resumeMotorcycleId: event.url.searchParams.get('resume')
+		}),
 		getRoundProgress(round.id, round.filters)
 	]);
 

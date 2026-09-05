@@ -105,7 +105,7 @@ export async function swipedIdsFor(roundId: string): Promise<Set<string>> {
 export async function getDeck(
 	roundId: string,
 	filters: unknown,
-	options: { limit?: number; exclude?: readonly string[] } = {}
+	options: { limit?: number; exclude?: readonly string[]; resumeMotorcycleId?: string | null } = {}
 ): Promise<MotorcycleCard[]> {
 	const requested = options.limit ?? DECK_BATCH_SIZE;
 	const limit = Number.isFinite(requested)
@@ -130,6 +130,15 @@ export async function getDeck(
 		...swipes.map((swipe) => swipe.motorcycleId)
 	]);
 	const ids = personalizedDeck(roundId, candidates, swipes, excluded, limit);
+	// Returning from details should keep the card the rider was considering.
+	// This hint cannot restore a saved choice or bypass the round's eligibility.
+	const resume = options.resumeMotorcycleId;
+	if (resume && !excluded.has(resume) && candidates.some((candidate) => candidate.id === resume)) {
+		const index = ids.indexOf(resume);
+		if (index !== -1) ids.splice(index, 1);
+		ids.unshift(resume);
+		ids.length = Math.min(ids.length, limit);
+	}
 
 	return getCardsByIds(ids);
 }
