@@ -8,7 +8,8 @@
 		{ href: '/admin', label: 'Overview' },
 		{ href: '/admin/motorcycles', label: 'Motorcycles' },
 		{ href: '/admin/manufacturers', label: 'Manufacturers' },
-		{ href: '/admin/catalogue', label: 'Catalogue health' }
+		{ href: '/admin/catalogue', label: 'Catalogue health' },
+		{ href: '/admin/users', label: 'Users' }
 	];
 </script>
 
