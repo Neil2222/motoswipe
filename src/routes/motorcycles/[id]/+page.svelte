@@ -49,6 +49,10 @@
 	const title = $derived(
 		[bike.manufacturer.name, bike.model, bike.variant].filter(Boolean).join(' ')
 	);
+	const googleSearchQuery = $derived([title, describeYears(bike)].filter(Boolean).join(' '));
+	const googleSearchHref = $derived(
+		`https://www.google.com/search?${new URLSearchParams({ q: googleSearchQuery })}`
+	);
 
 	/** The family's generations, when the catalogue has told them apart. */
 	const generations = $derived(bike.family?.generations ?? []);
@@ -216,6 +220,30 @@
 					<span class="chip border-skip/40 text-skip">No longer listed by the source</span>
 				{/if}
 			</div>
+
+			<a
+				href={googleSearchHref}
+				class="btn btn-secondary mt-5 min-h-11"
+				target="_blank"
+				rel="noopener noreferrer"
+				aria-label="Search on Google for {googleSearchQuery} (opens in a new tab)"
+				title="{googleSearchQuery} — opens in a new tab"
+			>
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					aria-hidden="true"
+				>
+					<circle cx="10.5" cy="10.5" r="6.5" />
+					<path d="m16 16 5 5" stroke-linecap="round" />
+				</svg>
+				Search on Google
+				<span aria-hidden="true">↗</span>
+			</a>
 
 			{#if bike.description}
 				<p class="text-ash mt-5 text-base leading-relaxed">{bike.description}</p>
